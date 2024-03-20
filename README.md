@@ -1,1 +1,13 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/5-86A-DI)
+# Gestión de dietas y asignación de dietas de entrenadores a clientes
+
+Este microservicio se encarga de brindar el CRUD de dietas definidas por los entrenadores para los clientes que supervisan. Permitirá a los entrenadores definir las dietas y asociarlas a aquellos clientes que supervisan.
+
+
+## Archivos
+
+Todos los ficheros se encuentran en la carpeta src, y los componentes han sido autogenerados usando el framework de desarrollo **Angular**.
+Para instalar las dependencias solo hay que ejecutar `npm install` en una consola de comandos.
+
+## Servidor de desarrollo
+
+Teniendo instalado NodeJS y Angular, ejecutar en la consola de comando `ng serve`, en la dirección `http://localhost:4200/` se nos alojará un servidor HTTP que en tiempo real mostrará cualquier cambio.
