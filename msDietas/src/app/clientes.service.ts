@@ -16,7 +16,10 @@ export class ClientesService {
         return this.clientes;
     }
     
-    
+    asignarDieta(idDieta: number, idCliente: number) {
+        let indice = this.clientes.findIndex(c => c.idUsuario == idCliente);
+        this.clientes[indice].id = idDieta; /*Asigno la id de la dieta en la posicion correspondiente */
+    }
 
     /*TO-DO POSIBLE ADD/EDITAR/ELIMINAR CLIENTE */
 }
