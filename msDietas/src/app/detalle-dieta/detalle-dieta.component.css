@@ -1,13 +1,13 @@
 
-span{
-    padding-left: 50px;
+.container span{
+    padding-left: 30px;
+    white-space: inherit;
+    word-wrap: break-word;
 }
 .container{
     border-radius: 1px;
     border-style:solid;
-    white-space: inherit;
-    overflow:auto;
-    word-wrap: break-word;
+    
 }
 .btn-outline-danger{
     margin:15px;

@@ -5,6 +5,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Dieta } from '../dieta';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
+import { ConfirmacionEliminar } from '../confirmacion-eliminar/confirmacion-eliminar';
+
 
 @Component({
   selector: 'app-detalle-dieta',
@@ -21,6 +23,12 @@ export class DetalleDietaComponent {
   constructor(private modalService: NgbModal) { }
 
   eliminarDieta(): void {
-    this.dietaEliminada.emit(this.dieta?.id);
+    let ref = this.modalService.open(ConfirmacionEliminar);
+    ref.componentInstance.accion = "eliminar";
+    ref.componentInstance.dieta =  {...this.dieta};
+    ref.result.then((dieta: Dieta) => {
+      this.dietaEliminada.emit(this.dieta?.id);
+    }, (reason) => {});
+    
   }
 }
