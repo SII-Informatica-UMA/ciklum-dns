@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import  {Dieta} from '../dieta';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-formulario-dieta',
   standalone: true,

@@ -1,0 +1,14 @@
+
+span{
+    padding-left: 50px;
+}
+.container{
+    border-radius: 1px;
+    border-style:solid;
+    white-space: inherit;
+    overflow:auto;
+    word-wrap: break-word;
+}
+.btn-outline-danger{
+    margin:15px;
+}

@@ -4,9 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DetalleDietaComponent } from './detalle-dieta/detalle-dieta.component';
-import { FormularioDietaComponent } from './formulario-dieta/formulario-dieta.component';
-import { DetalleUsuarioComponent } from './detalle-usuario/detalle-usuario.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
 
@@ -14,7 +12,8 @@ import { DetalleUsuarioComponent } from './detalle-usuario/detalle-usuario.compo
     BrowserModule,
     AppRoutingModule,
     NgbModule,
-    FormsModule
+    FormsModule,
+    CommonModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
