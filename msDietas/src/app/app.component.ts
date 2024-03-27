@@ -4,11 +4,13 @@ import {Dieta } from './dieta';
 import {DietasService } from './dietas.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormularioDietaComponent} from './formulario-dieta/formulario-dieta.component'
+import { DetalleDietaComponent } from './detalle-dieta/detalle-dieta.component';
+import { AppModule } from './app.module';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet,DetalleDietaComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
