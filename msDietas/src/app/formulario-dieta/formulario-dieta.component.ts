@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import  {Dieta} from '../dieta';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-formulario-dieta',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './formulario-dieta.component.html',
   styleUrl: './formulario-dieta.component.css'
 })
