@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Cliente } from './cliente';
+import { sex } from './enumSexo';
+
 
 @Injectable({
   providedIn: 'root'
@@ -22,4 +24,12 @@ export class ClientesService {
     }
 
     /*TO-DO POSIBLE ADD/EDITAR/ELIMINAR CLIENTE */
+    eliminarDietaCliente(id: number) {
+        let indice= this.clientes.findIndex(d => d.id == id);
+        while( indice!=-1){
+            this.clientes[indice].id=0;
+            indice= this.clientes.findIndex(d => d.id == id);
+        }
+       
+    }
 }

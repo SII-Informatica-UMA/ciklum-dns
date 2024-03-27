@@ -22,4 +22,9 @@ export class UsuariosService {
 
   /*TO-DO POSIBLE ADD/EDITAR/ELIMINAR USUARIO */
 
+  eliminarUsuario(id: number) {
+        let indice = this.usuarios.findIndex(d => d.id == id);
+        this.usuarios.splice(indice, 1);
+    }
+
 }

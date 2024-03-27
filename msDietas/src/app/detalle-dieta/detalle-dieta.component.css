@@ -1,0 +1,14 @@
+
+.container span{
+    padding-left: 30px;
+    white-space: inherit;
+    word-wrap: break-word;
+}
+.container{
+    border-radius: 1px;
+    border-style:solid;
+    
+}
+.btn-outline-danger{
+    margin:15px;
+}
