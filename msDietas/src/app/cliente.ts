@@ -1,4 +1,5 @@
 
+import { sex } from './enumSexo';
 export interface Cliente {
     idUsuario: number;
     telefono: string;
@@ -8,3 +9,4 @@ export interface Cliente {
     sexo: sex;
     id: number;
 }
+

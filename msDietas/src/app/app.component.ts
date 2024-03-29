@@ -2,23 +2,27 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {Dieta } from './dieta';
 import {DietasService } from './dietas.service';
+import {ClientesService } from './clientes.service';
+import {EntrenadoresService } from './entrenadores.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormularioDietaComponent} from './formulario-dieta/formulario-dieta.component'
 import { DetalleDietaComponent } from './detalle-dieta/detalle-dieta.component';
 import { AppModule } from './app.module';
+import { CommonModule, } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,DetalleDietaComponent],
+  imports: [RouterOutlet,DetalleDietaComponent,CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   dietas: Dieta [] = [];
   dietaElegida?: Dieta;
+  title: any;
 
-  constructor(private dietasService: DietasService, private modalService: NgbModal) { }
+  constructor(private dietasService: DietasService, private modalService: NgbModal,private entrenadorService: EntrenadoresService,private clientesService: ClientesService) { }
 
   ngOnInit(): void {
       this.dietas = this.dietasService.getDietas();
@@ -46,6 +50,8 @@ export class AppComponent implements OnInit {
   }
 
   eliminarDieta(id: number): void {
+    this.clientesService.eliminarDietaCliente(id);
+    this.entrenadorService.eliminarDietaEntrenador(id);
     this.dietasService.eliminarDieta(id);
     this.dietas = this.dietasService.getDietas();
     this.dietaElegida = undefined;
