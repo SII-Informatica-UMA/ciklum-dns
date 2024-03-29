@@ -9,6 +9,7 @@ import {FormularioDietaComponent} from './formulario-dieta/formulario-dieta.comp
 import { DetalleDietaComponent } from './detalle-dieta/detalle-dieta.component';
 import { AppModule } from './app.module';
 import { CommonModule, } from '@angular/common';
+import { Cliente } from './cliente';
 
 @Component({
   selector: 'app-root',
@@ -19,17 +20,24 @@ import { CommonModule, } from '@angular/common';
 })
 export class AppComponent implements OnInit {
   dietas: Dieta [] = [];
+  clientes: Cliente [] = [];
   dietaElegida?: Dieta;
+  clienteElegido?: Cliente;
   title: any;
 
   constructor(private dietasService: DietasService, private modalService: NgbModal,private entrenadorService: EntrenadoresService,private clientesService: ClientesService) { }
 
   ngOnInit(): void {
       this.dietas = this.dietasService.getDietas();
+      this.clientes = this.clientesService.getClientes();
   }
 
   elegirDieta(dieta: Dieta): void {
     this.dietaElegida = dieta;
+  }
+
+  elegirCliente(cliente: Cliente): void {
+    this.clienteElegido = cliente;
   }
 
   aniadirDieta(): void {
@@ -55,5 +63,14 @@ export class AppComponent implements OnInit {
     this.dietasService.eliminarDieta(id);
     this.dietas = this.dietasService.getDietas();
     this.dietaElegida = undefined;
+  }
+
+  asignarDieta(idDieta: number, idCliente: number){
+    if (idCliente != -1){
+      this.clientesService.asignarDieta(idDieta,idCliente); /*Solo cambia el campo del id de la dieta en el cliente correspondiente, no hace falta nada mas */
+      this.clientesService.getClientes();
+    } else {
+      
+    } //Sino, no se eligió a ningún cliente, no hay que hacer nada 
   }
 }

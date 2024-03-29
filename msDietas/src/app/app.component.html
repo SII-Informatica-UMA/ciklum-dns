@@ -21,6 +21,7 @@
       <app-detalle-dieta [dieta]="dietaElegida"
         (dietaEditada)="dietaEditada($event)"
         (dietaEliminada)="eliminarDieta($event)"
+        (clienteAsignado)="asignarDieta(dietaElegida.id,$event.idUsuario)"
         ></app-detalle-dieta>
     </div>
   </div>
