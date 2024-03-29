@@ -1,21 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { FormularioDietaComponent } from './formulario-dieta.component';
-
-import { FormsModule } from '@angular/forms';
+import { ConfirmacionEliminar } from './confirmacion-eliminar';
 
 describe('FormularioDietaComponent', () => {
-  let component: FormularioDietaComponent;
-  let fixture: ComponentFixture<FormularioDietaComponent>;
+  let component: ConfirmacionEliminar;
+  let fixture: ComponentFixture<ConfirmacionEliminar>;
   
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FormularioDietaComponent,FormsModule]
+      imports: [ConfirmacionEliminar]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(FormularioDietaComponent);
+    fixture = TestBed.createComponent(ConfirmacionEliminar);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -17,4 +17,13 @@ export class EntrenadoresService {
     }
 
     /*TO-DO POSIBLE ADD/EDITAR/ELIMINAR ENTRENADOR */
+
+    eliminarDietaEntrenador(id: number) {
+        let indice= this.entrenadores.findIndex(d => d.id == id);
+        while( indice!=-1){
+            this.entrenadores[indice].id=0;
+            indice= this.entrenadores.findIndex(d => d.id == id);
+        }
+       
+    }
 }
