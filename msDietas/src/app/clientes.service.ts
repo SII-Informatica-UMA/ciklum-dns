@@ -17,13 +17,15 @@ export class ClientesService {
     getClientes(): Cliente [] {
         return this.clientes;
     }
-    
+
+
+    /*TO-DO POSIBLE ADD/EDITAR/ELIMINAR CLIENTE */
+
     asignarDieta(idDieta: number, idCliente: number) {
         let indice = this.clientes.findIndex(c => c.idUsuario == idCliente);
         this.clientes[indice].id = idDieta; /*Asigno la id de la dieta en la posicion correspondiente */
     }
 
-    /*TO-DO POSIBLE ADD/EDITAR/ELIMINAR CLIENTE */
     eliminarDietaCliente(id: number) {
         let indice= this.clientes.findIndex(d => d.id == id);
         while( indice!=-1){

@@ -10,7 +10,9 @@ import {FormularioDietaComponent} from './formulario-dieta/formulario-dieta.comp
 import { DetalleDietaComponent } from './detalle-dieta/detalle-dieta.component';
 import { AppModule } from './app.module';
 import { CommonModule, } from '@angular/common';
+import { Cliente } from './cliente';
 import { UsuariosService } from './usuarios.service';
+
 
 @Component({
   selector: 'app-root',
@@ -23,7 +25,9 @@ export class AppComponent implements OnInit {
   // @Input() usuario?: Usuario; --> *PARA PROBARLO NO PUEDO USARLO, ASI QUE TOMARE VALORES DETERMINADOS DE MIENTRAS*
   usuario: Usuario;
   dietas: Dieta [] = [];
+  clientes: Cliente [] = [];
   dietaElegida?: Dieta;
+  clienteElegido?: Cliente;
   esEntrenador?: Boolean;
   title: any;
 
@@ -33,6 +37,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+      this.clientes = this.clientesService.getClientes();
+    
+      // Método para obtener la lista de dietas según el usuario.
       let aux = this.clientesService.getClientes();
       let cliente = aux.find( (c) => this.usuario.id == c.idUsuario);
       this.esEntrenador = cliente === undefined;
@@ -50,6 +57,10 @@ export class AppComponent implements OnInit {
 
   elegirDieta(dieta: Dieta): void {
     this.dietaElegida = dieta;
+  }
+
+  elegirCliente(cliente: Cliente): void {
+    this.clienteElegido = cliente;
   }
 
   aniadirDieta(): void {
@@ -75,5 +86,14 @@ export class AppComponent implements OnInit {
     this.dietasService.eliminarDieta(id);
     this.dietas = this.dietasService.getDietas();
     this.dietaElegida = undefined;
+  }
+
+  asignarDieta(idDieta: number, idCliente: number){
+    if (idCliente != -1){
+      this.clientesService.asignarDieta(idDieta,idCliente); /*Solo cambia el campo del id de la dieta en el cliente correspondiente, no hace falta nada mas */
+      this.clientesService.getClientes();
+    } else {
+      
+    } //Sino, no se eligió a ningún cliente, no hay que hacer nada 
   }
 }
