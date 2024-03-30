@@ -14,7 +14,7 @@
           [class.active]="dieta === dietaElegida">{{dieta.nombre}}</button>
       </div>
       <br>
-      <button *ngIf="esEntrenador" type="button" class="btn btn-outline-success bi bi-plus-lg" (click)="aniadirDieta()">+</button>
+      <button *ngIf="esEntrenador" type="button" class="btn btn-success bi bi-plus-lg" (click)="aniadirDieta()">+</button>
     </div>
     <div class="col-md-6" *ngIf="dietaElegida">
       <!--TO DO, ADAPTAR LA PARTE DEL DETALLE DE LA DIETA, AQUI QUIZA NO HAYA QUE TOCAR-->

@@ -12,7 +12,10 @@
     background-color: white;
     padding: 15px;
 }
-.btn-outline-danger{
+.btn-danger{
     margin:15px;
-    background-color: rgb(250, 242, 244);
+}
+
+.btn-primary{
+    margin:15px;
 }
