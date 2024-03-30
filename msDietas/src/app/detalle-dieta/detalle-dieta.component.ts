@@ -17,6 +17,7 @@ import { ConfirmacionEliminar } from '../confirmacion-eliminar/confirmacion-elim
 })
 export class DetalleDietaComponent {
   @Input() dieta?: Dieta;
+  @Input() esEntrenador?: Boolean;
   @Output() dietaEliminada = new EventEmitter<number>();
   @Output() dietaEditada = new EventEmitter<Dieta>();
 

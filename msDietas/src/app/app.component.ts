@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
 
   // OJOOOOO ----> EL usuariosService SOLO SE UTILIZA EN MI PARTE DEL TRABAJO PARA PROBARLO; EN LA REALIDAD NO SERÍA NECESARIO
   constructor(private dietasService: DietasService, private modalService: NgbModal,private entrenadorService: EntrenadoresService,private clientesService: ClientesService, private usuariosService: UsuariosService) { 
-    this.usuario = this.usuariosService.getUsuarios()[3];
+    this.usuario = this.usuariosService.getUsuarios()[4];
   }
 
   ngOnInit(): void {
