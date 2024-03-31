@@ -4,8 +4,9 @@ h1{
 }
 div.row{
     background-color:  #f5eeed;
-    border-radius: 35px;
+    border-radius: 15px;
     /* box-shadow: 0px 0px 57px 9px rgba(114,171,168,0.27); */
     margin:50px;
     padding: 25px;
 }
+

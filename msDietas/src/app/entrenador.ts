@@ -1,4 +1,3 @@
-
 export interface Entrenador {
     idUsuario: number;
     telefono: string;

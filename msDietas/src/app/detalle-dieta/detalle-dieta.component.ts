@@ -1,6 +1,3 @@
-//------------TO DO---------//
-//////////////////////////////
-//////////////////////////////
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Dieta } from '../dieta';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ConfirmacionEliminar } from '../confirmacion-eliminar/confirmacion-eliminar';
 import { AsignarDietaComponent } from '../asignar-dieta/asignar-dieta.component';
 import { Cliente } from '../cliente';
+import { FormularioDietaComponent } from '../formulario-dieta/formulario-dieta.component';
 
 
 @Component({
@@ -43,5 +41,14 @@ export class DetalleDietaComponent {
       this.clienteAsignado.emit(cliente);
     }, (reason) => {});
 
+  }
+
+  editarDieta(): void {
+    let ref = this.modalService.open(FormularioDietaComponent);
+    ref.componentInstance.accion = "Editar";
+    ref.componentInstance.dieta = {...this.dieta};
+    ref.result.then((dieta: Dieta) => {
+      this.dietaEditada.emit(dieta);
+    }, (reason) => {});
   }
 }

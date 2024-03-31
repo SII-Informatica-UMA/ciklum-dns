@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import {Dieta } from './dieta';
+import { Dieta } from './dieta';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
+
 export class DietasService {
+
     private dietas: Dieta [] = [
         {nombre: 'Mediterranea', descripcion: 'Nutritiva y sabrosa', observaciones: 'Abundante aceite', objetivo: 'Bajar grasa', duracionDias: 4, alimentos: ['Aceite,Lechuga,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'] , recomendaciones: 'Beber agua' , id: 1},
         {nombre: 'Vegetal', descripcion: 'Saludable', observaciones: 'Abundante verdura', objetivo: 'Ganar nutrientes', duracionDias: 2, alimentos: ['Lechuga'] , recomendaciones: 'Hacer deporte' , id: 2},
@@ -31,4 +33,5 @@ export class DietasService {
         let indice = this.dietas.findIndex(d => d.id == id);
         this.dietas.splice(indice, 1);
     }
+    
 }

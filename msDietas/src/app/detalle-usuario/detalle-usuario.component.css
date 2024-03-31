@@ -1,14 +1,28 @@
+
 .container span{
     padding-left: 30px;
     white-space: inherit;
     word-wrap: break-word;
 }
-.container{
-    border-radius: 1px;
-    border-style:solid;
-    padding: 5px;
-    
+
+.row {
+    margin-top: 5px; /* Ajusta este valor a tu gusto */
 }
-.btn-outline-danger{
+
+.btn-danger{
     margin:15px;
+}
+
+.btn-primary{
+    margin:15px;
+}
+
+.btn-ID{
+    margin-top: 0px;
+    height: 30px;
+    padding: 5px 10px; /* Ajusta estos valores a tu gusto */
+    font-size: 12px; /* Ajusta este valor a tu gusto */
+    color: white;
+    background-color: rgb(77, 77, 77);
+    overflow: hidden; /* Asegura que el contenido no se desborde */
 }
