@@ -7,25 +7,50 @@ import {EntrenadoresService } from './entrenadores.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {FormularioDietaComponent} from './formulario-dieta/formulario-dieta.component'
 import { DetalleDietaComponent } from './detalle-dieta/detalle-dieta.component';
+import { DetalleUsuarioComponent } from './detalle-usuario/detalle-usuario.component';
 import { AppModule } from './app.module';
 import { CommonModule, } from '@angular/common';
+import {Usuario } from './usuario';
+import { Cliente } from './cliente';
+import {UsuariosService } from './usuarios.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,DetalleDietaComponent,CommonModule],
+  imports: [RouterOutlet,DetalleDietaComponent,CommonModule, DetalleUsuarioComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   dietas: Dieta [] = [];
+  clientes: Cliente [] = [];
   dietaElegida?: Dieta;
   title: any;
+  usuario: Usuario;
+  esEntrenador!: boolean;
 
-  constructor(private dietasService: DietasService, private modalService: NgbModal,private entrenadorService: EntrenadoresService,private clientesService: ClientesService) { }
+  constructor(private dietasService: DietasService, private usuariosService: UsuariosService, private modalService: NgbModal,private entrenadorService: EntrenadoresService,private clientesService: ClientesService) {
+    this.usuario = usuariosService.getUsuario();
+   }
 
   ngOnInit(): void {
-      this.dietas = this.dietasService.getDietas();
+      
+      this.clientes = this.clientesService.getClientes();
+    
+      // Método para obtener la lista de dietas según el usuario.
+      let aux = this.clientesService.getClientes();
+      let cliente = aux.find( (c) => this.usuario.id == c.idUsuario);
+      this.esEntrenador = cliente === undefined;
+      if(this.esEntrenador){
+        this.dietas = this.dietasService.getDietas();
+      }else{
+        var dieta = this.dietasService.getDietas().find(dieta => dieta.id == cliente?.id);
+        if(dieta === undefined){
+          this.dietas = [];
+        }else{
+          this.dietas = [dieta];
+        }
+      }
   }
 
   elegirDieta(dieta: Dieta): void {
