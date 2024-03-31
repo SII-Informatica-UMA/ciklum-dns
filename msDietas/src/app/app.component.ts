@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {Dieta } from './dieta';
-import { Usuario } from './usuario';
 import {DietasService } from './dietas.service';
 import {ClientesService } from './clientes.service';
 import {EntrenadoresService } from './entrenadores.service';
@@ -29,9 +28,7 @@ export class AppComponent implements OnInit {
   clientes: Cliente [] = [];
   dietaElegida?: Dieta;
   clienteElegido?: Cliente;
-  esEntrenador?: Boolean;
   title: any;
-  usuario: Usuario;
   esEntrenador!: boolean;
 
 
