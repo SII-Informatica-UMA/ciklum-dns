@@ -25,6 +25,18 @@ export class UsuariosService {
   eliminarUsuario(id: number) {
         let indice = this.usuarios.findIndex(d => d.id == id);
         this.usuarios.splice(indice, 1);
-    }
+  }
+
+  //TODO: Posible método donde se implementará la obtención del inicio de sesión.
+  //      Está sujeto a cambios
+  getUsuario(): Usuario{
+    return {nombre: 'Manuel', apellido1: 'Carrasco', apellido2: 'García', email:'manuel@email.com',id:1};
+  }
+
+  //TODO: Posible método donde se implementará la obtención del rol de inicio de sesión.
+  //      Está sujeto a cambios
+  getRol(): string {
+    return 'entrenador';
+  }
 
 }

@@ -1,2 +1,24 @@
-<!-- TO DO-->
-<p>detalle-usuario works!</p>
+<div class="container">
+    <div class="row">
+        <h5><label class="col-md-9" for="nombre">Conectado como {{rol}}</label></h5>
+    </div>
+    <div class="row">
+        <label class="col-md-3" for="nombre">Nombre:</label>
+        <span class="col-md-9 offset-2 offset-md-0">{{usuario.nombre}}</span>
+    </div>
+    <div class="row">
+        <label class="col-md-3" for="nombre">Apellidos:</label>
+        <span class="col-md-9 offset-2 offset-md-0">{{usuario.apellido1}} {{usuario.apellido2}}</span>
+    </div>
+    <div class="row">
+        <label class="col-md-3" for="nombre">Email:</label>
+        <span class="col-md-9 offset-2 offset-md-0">{{usuario.email}}</span>
+    </div>
+    <div class="row">
+        <label class="col-md-3" for="nombre">
+            <button (click)="toggleId()">{{botonID}}</button>
+        </label>
+        <span class="col-md-9 offset-2 offset-md-0">{{ID_texto}}</span>
+    </div>
+
+</div>
