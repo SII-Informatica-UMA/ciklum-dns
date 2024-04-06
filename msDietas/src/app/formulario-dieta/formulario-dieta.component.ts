@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import  {Dieta} from '../dieta';
+import  {Dieta} from '../entities/dieta';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({

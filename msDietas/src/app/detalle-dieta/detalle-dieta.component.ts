@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Dieta } from '../dieta';
+import { Dieta } from '../entities/dieta';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { ConfirmacionEliminar } from '../confirmacion-eliminar/confirmacion-eliminar';
 import { AsignarDietaComponent } from '../asignar-dieta/asignar-dieta.component';
-import { Cliente } from '../cliente';
+import { Cliente } from '../entities/cliente';
 import { FormularioDietaComponent } from '../formulario-dieta/formulario-dieta.component';
+import { UsuariosService } from '../service/usuarios.service';
+import { Rol } from '../entities/login';
 
 
 @Component({
@@ -17,12 +19,37 @@ import { FormularioDietaComponent } from '../formulario-dieta/formulario-dieta.c
 })
 export class DetalleDietaComponent {
   @Input() dieta?: Dieta;
-  @Input() esEntrenador?: Boolean;
   @Output() dietaEliminada = new EventEmitter<number>();
   @Output() dietaEditada = new EventEmitter<Dieta>();
   @Output() clienteAsignado = new EventEmitter<Cliente>();
 
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal, private usuariosService: UsuariosService) { }
+
+    //===============================GESTION DE ROL================================================
+    private get rol() {
+      return this.usuariosService.rolCentro;
+    }
+  
+    isAdministrador(): boolean {
+      console.log("Pregunta admin: "+this.rol);
+      return this.rol?.rol == Rol.ADMINISTRADOR;
+    }
+
+    isEntrenador(): boolean {
+      console.log("Pregunta entrenador: "+this.rol);
+      return this.rol?.rol == Rol.ENTRENADOR;
+    }
+
+    isCliente(): boolean {
+      console.log("Pregunta cliente: "+this.rol);
+      return this.rol?.rol == Rol.CLIENTE;
+    }
+
+    isGerente(): boolean {
+      console.log("Pregunta gerente: "+this.rol);
+      return this.rol?.rol == Rol.GERENTE;
+    }
+    //============================================================================================
 
   eliminarDieta(): void {
     let ref = this.modalService.open(ConfirmacionEliminar);

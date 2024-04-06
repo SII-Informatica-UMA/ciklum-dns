@@ -29,9 +29,9 @@
   </div>
   
   <div class="row">
-    <button *ngIf="esEntrenador" class="col-auto btn btn-danger" (click)="eliminarDieta()">Eliminar <i class="bi bi-trash-fill"></i></button>
-    <button *ngIf="esEntrenador" class="col-auto btn btn-editar" (click)="editarDieta()">Editar <i class="bi bi-plus-sm"></i></button>
-    <button *ngIf="esEntrenador" class="col-auto btn btn-asignar" (click)="asignarDieta()">Asignar a <i class="bi bi-plus-sm"></i></button>
+    <button *ngIf="!isCliente()" class="col-auto btn btn-danger" (click)="eliminarDieta()">Eliminar <i class="bi bi-trash-fill"></i></button>
+    <button *ngIf="!isCliente()" class="col-auto btn btn-editar" (click)="editarDieta()">Editar <i class="bi bi-plus-sm"></i></button>
+    <button *ngIf="!isCliente()" class="col-auto btn btn-asignar" (click)="asignarDieta()">Asignar a <i class="bi bi-plus-sm"></i></button>
   </div>
   
   </div>

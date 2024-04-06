@@ -1,10 +1,11 @@
 //-------TO DO ----------//
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import {Usuario } from '../usuario';
+import {Usuario } from '../entities/usuario';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ClientesService } from '../clientes.service';
-import {EntrenadoresService } from '../entrenadores.service';
-import {UsuariosService } from '../usuarios.service';
+import {ClientesService } from '../service/clientes.service';
+import {EntrenadoresService } from '../service/entrenadores.service';
+import {UsuariosService } from '../service/usuarios.service';
+import { Rol } from '../entities/login';
 
 @Component({
   selector: 'app-detalle-usuario',
@@ -16,8 +17,6 @@ import {UsuariosService } from '../usuarios.service';
 export class DetalleUsuarioComponent {
   
   @Input() usuario!: Usuario;
-  @Input() esEntrenador!: boolean;
-
   protected rol: String = 'cliente';
   protected mostrarId = false;
   protected botonID = 'Mostrar ID';
@@ -28,7 +27,16 @@ export class DetalleUsuarioComponent {
   }
 
   ngOnInit(): void {
-    this.rol = this.esEntrenador ? 'entrenador' : 'cliente';
+    var rolCentro = this.usuariosService.rolCentro;
+    if(rolCentro?.rol == Rol.CLIENTE){
+      this.rol = 'cliente';
+    }else if(rolCentro?.rol == Rol.ENTRENADOR){
+      this.rol = 'entrenador';
+    }else if(rolCentro?.rol == Rol.GERENTE){
+      this.rol = 'gerente';
+    }else{
+      this.rol = 'admin';
+    }
   }
 
   toggleId() {

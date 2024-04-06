@@ -1,14 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Cliente } from '../cliente';
-import { DietasService } from '../dietas.service';
+import { Cliente } from '../entities/cliente';
+import { DietasService } from '../service/dietas.service';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { EntrenadoresService } from '../entrenadores.service';
-import { ClientesService } from '../clientes.service';
+import { EntrenadoresService } from '../service/entrenadores.service';
+import { ClientesService } from '../service/clientes.service';
 import { CommonModule } from '@angular/common';
-import { Dieta } from '../dieta';
-import { sex } from '../enumSexo';
-import { Usuario } from '../usuario';
-import { UsuariosService } from '../usuarios.service';
+import { Dieta } from '../entities/dieta';
+import { sex } from '../entities/enumSexo';
+import { Usuario } from '../entities/usuario';
+import { UsuariosService } from '../service/usuarios.service';
 
 @Component({
   selector: 'app-asignar-dieta',
