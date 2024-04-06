@@ -1,4 +1,4 @@
-import { Component, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
@@ -9,16 +9,17 @@ import { DetalleUsuarioComponent } from './detalle-usuario/detalle-usuario.compo
 
 @NgModule({
   
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    NgbModule,
-    FormsModule,
-    CommonModule,
-    DetalleUsuarioComponent
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        NgbModule,
+        FormsModule,
+        CommonModule,
+        DetalleUsuarioComponent
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
+    
 })
 
 export class AppModule { }

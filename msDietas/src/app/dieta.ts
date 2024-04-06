@@ -1,4 +1,3 @@
-
 export interface Dieta {
     nombre: string;
     descripcion: string;

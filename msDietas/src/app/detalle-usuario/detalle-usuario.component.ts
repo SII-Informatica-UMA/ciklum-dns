@@ -24,9 +24,11 @@ export class DetalleUsuarioComponent {
   protected ID_texto = '';
   
   constructor(private clientesService: ClientesService, private usuariosService: UsuariosService, private entrenadoresService: EntrenadoresService, private modalService: NgbModal) {
-    if(this.esEntrenador){
-      this.rol = 'entrenador';
-    }
+    
+  }
+
+  ngOnInit(): void {
+    this.rol = this.esEntrenador ? 'entrenador' : 'cliente';
   }
 
   toggleId() {

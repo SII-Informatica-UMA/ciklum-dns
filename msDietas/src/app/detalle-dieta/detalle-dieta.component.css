@@ -16,6 +16,14 @@
     margin:15px;
 }
 
-.btn-primary{
+.btn-asignar{
     margin:15px;
+    color: white;
+    background-color: rgb(26, 83, 190);
 }
+
+.btn-editar {
+    margin:15px;
+    color: white;
+    background-color: rgb(224, 160, 20);
+  }
