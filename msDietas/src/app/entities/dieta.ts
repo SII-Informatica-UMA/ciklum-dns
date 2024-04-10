@@ -7,4 +7,5 @@ export interface Dieta {
     alimentos: [string];
     recomendaciones: string;
     id: number;
+    idEntrenador: number; // Id del entrenador que crea la dieta
 }

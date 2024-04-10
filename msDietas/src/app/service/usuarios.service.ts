@@ -61,7 +61,7 @@ export class UsuariosService {
 
         if(this.usuario == null){
         // Aquí debería ir el código para obtener el usuario logueado
-        // Este usuario es de prueba
+        // Este usuario es de prueba 8
             this.usuario = this.usuarios[8];
         }
 

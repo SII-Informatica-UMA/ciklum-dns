@@ -76,18 +76,8 @@ export class AppComponent implements OnInit {
         let dietas: Dieta[] = [];
 
         if(this.isEntrenador()){
-          // Mira los clientes a los que imparte entrenamiento
-          let asigEntr = this.asignacionEntrenamientoService.getAsignacionEntrenamiento().filter( x => this.usuario.id == x.idEntrenador);
-
-          for (let index = 0; index < asigEntr.length; index++) {
-            // Busca la dieta de cada cliente
-            let cliente = this.clientes.find( (c) => asigEntr[index].idCliente == c.idUsuario);
-            var dieta = this.dietasService.getDietas().find(dieta => dieta.id == cliente?.id);
-            if( dieta !== undefined){
-              dietas.push(dieta);
-            }
-          }
-            
+          
+          dietas = this.dietasService.getDietas().filter( x => this.usuario.id == x.idEntrenador);
             
         }else if(this.isCliente()){
           let cliente = this.clientes.find( (c) => this.usuario.id == c.idUsuario);
@@ -100,7 +90,7 @@ export class AppComponent implements OnInit {
           }
 
         }else{
-          dietas = this.dietasService.getDietas();
+          dietas = this.dietasService.getDietas(); // Por asignarle una dieta, pero esto no importa
         }
 
         return dietas;

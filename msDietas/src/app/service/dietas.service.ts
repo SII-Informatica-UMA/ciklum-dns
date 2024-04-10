@@ -8,9 +8,9 @@ import { Dieta } from '../entities/dieta';
 export class DietasService {
 
     private dietas: Dieta [] = [
-        {nombre: 'Mediterranea', descripcion: 'Nutritiva y sabrosa', observaciones: 'Abundante aceite', objetivo: 'Bajar grasa', duracionDias: 4, alimentos: ['Aceite,Lechuga,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'] , recomendaciones: 'Beber agua' , id: 1},
-        {nombre: 'Vegetal', descripcion: 'Saludable', observaciones: 'Abundante verdura', objetivo: 'Ganar nutrientes', duracionDias: 2, alimentos: ['Lechuga'] , recomendaciones: 'Hacer deporte' , id: 2},
-        {nombre: 'Asiática', descripcion: 'Variedad de sabores', observaciones: 'Abundante soja y salsas', objetivo: 'Mantener masa muscular', duracionDias: 6, alimentos: ['Soja'] , recomendaciones: 'Hacer cinco comidas al día' , id: 3},
+        {nombre: 'Mediterranea', descripcion: 'Nutritiva y sabrosa', observaciones: 'Abundante aceite', objetivo: 'Bajar grasa', duracionDias: 4, alimentos: ['Aceite,Lechuga,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'] , recomendaciones: 'Beber agua' , id: 1, idEntrenador: 5},
+        {nombre: 'Vegetal', descripcion: 'Saludable', observaciones: 'Abundante verdura', objetivo: 'Ganar nutrientes', duracionDias: 2, alimentos: ['Lechuga'] , recomendaciones: 'Hacer deporte' , id: 2, idEntrenador: 5},
+        {nombre: 'Asiática', descripcion: 'Variedad de sabores', observaciones: 'Abundante soja y salsas', objetivo: 'Mantener masa muscular', duracionDias: 6, alimentos: ['Soja'] , recomendaciones: 'Hacer cinco comidas al día' , id: 3, idEntrenador: 6},
     ];
 
     constructor() { }
