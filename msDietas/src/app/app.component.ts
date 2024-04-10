@@ -1,18 +1,20 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Dieta } from './dieta';
-import { DietasService } from './dietas.service';
-import { ClientesService } from './clientes.service';
-import { EntrenadoresService } from './entrenadores.service';
+import { Dieta } from './entities/dieta';
+import { DietasService } from './service/dietas.service';
+import { ClientesService } from './service/clientes.service';
+import { EntrenadoresService } from './service/entrenadores.service';
 import { NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import { FormularioDietaComponent} from './formulario-dieta/formulario-dieta.component'
 import { DetalleDietaComponent } from './detalle-dieta/detalle-dieta.component';
 import { DetalleUsuarioComponent } from './detalle-usuario/detalle-usuario.component';
 //import { AppModule } from './app.module';
 import { CommonModule, } from '@angular/common';
-import { Usuario } from './usuario';
-import { Cliente } from './cliente';
-import { UsuariosService } from './usuarios.service';
+import { Usuario } from './entities/usuario';
+import { Cliente } from './entities/cliente';
+import { UsuariosService } from './service/usuarios.service';
+import { Rol } from './entities/login';
+import { AsignacionEntrenamientoService } from './service/asignacionEntrenamiento.service';
 
 @Component({
     selector: 'app-root',
@@ -30,9 +32,8 @@ export class AppComponent implements OnInit {
     public dietaElegida?: Dieta;
     public clienteElegido?: Cliente;
     public title: any; //esto sirve de algo?
-    public esEntrenador: boolean = false;
 
-    constructor(private dietasService: DietasService, private usuariosService: UsuariosService, private modalService: NgbModal,private entrenadorService: EntrenadoresService,private clientesService: ClientesService) {
+    constructor(private dietasService: DietasService, private usuariosService: UsuariosService, private modalService: NgbModal,private entrenadorService: EntrenadoresService,private clientesService: ClientesService, private asignacionEntrenamientoService: AsignacionEntrenamientoService) {
            
     }
 
@@ -40,39 +41,56 @@ export class AppComponent implements OnInit {
 
         this.usuario = this.usuariosService.getUsuario();
         this.clientes = this.clientesService.getClientes();
-        this.esEntrenador = this.check_esEntrenador();  //Utiliza this.clientes y this.usuario
-        
-        console.log('Entrenador: ' + this.esEntrenador);
-        
-        this.dietas = this.check_dietas();        //Utiliza this.clientes, this.usuario y this.esEntrenador
+        this.dietas = this.check_dietas();        //Utiliza this.clientes, this.usuario y this.roles
 
     }
 
-    private check_esEntrenador(): boolean {
-        let cliente = this.clientes.find( (c) => this.usuario.id == c.idUsuario);
-        return cliente === undefined;
+    //===============================GESTION DE ROL================================================
+    private get rol() {
+      return this.usuariosService.rolCentro;
     }
+  
+    isAdministrador(): boolean {
+      console.log("Pregunta admin: "+this.rol);
+      return this.rol?.rol == Rol.ADMINISTRADOR;
+    }
+
+    isEntrenador(): boolean {
+      console.log("Pregunta entrenador: "+this.rol);
+      return this.rol?.rol == Rol.ENTRENADOR;
+    }
+
+    isCliente(): boolean {
+      console.log("Pregunta cliente: "+this.rol);
+      return this.rol?.rol == Rol.CLIENTE;
+    }
+
+    isGerente(): boolean {
+      console.log("Pregunta gerente: "+this.rol);
+      return this.rol?.rol == Rol.GERENTE;
+    }
+    //============================================================================================
 
     private check_dietas(): Dieta[] {
         
         let dietas: Dieta[] = [];
 
-        let cliente = this.clientes.find( (c) => this.usuario.id == c.idUsuario);
-
-        if(this.esEntrenador){
-
-            dietas = this.dietasService.getDietas();
+        if(this.isEntrenador()){
+          
+          dietas = this.dietasService.getDietas().filter( x => this.usuario.id == x.idEntrenador);
             
+        }else if(this.isCliente()){
+          let cliente = this.clientes.find( (c) => this.usuario.id == c.idUsuario);
+          var dieta = this.dietasService.getDietas().find(dieta => dieta.id == cliente?.id);
+
+          if(dieta === undefined){
+              dietas = [];
+          }else{
+              dietas = [dieta];
+          }
+
         }else{
-
-            var dieta = this.dietasService.getDietas().find(dieta => dieta.id == cliente?.id);
-
-            if(dieta === undefined){
-                dietas = [];
-            }else{
-                dietas = [dieta];
-            }
-
+          dietas = this.dietasService.getDietas(); // Por asignarle una dieta, pero esto no importa
         }
 
         return dietas;
@@ -93,13 +111,13 @@ export class AppComponent implements OnInit {
         ref.componentInstance.dieta = {nombre: '', descripcion: '', observaciones: '', objetivo: '', duracionDias: 0, alimentos: [''], recomendaciones: '', id: 0};
         ref.result.then((dieta: Dieta) => {
         this.dietasService.addDieta(dieta);
-        this.dietas = this.dietasService.getDietas();
+        this.dietas = this.check_dietas();
         }, (reason) => {});
     }
 
     dietaEditada(dieta: Dieta): void {
         this.dietasService.editarDieta(dieta);
-        this.dietas = this.dietasService.getDietas();
+        this.dietas = this.check_dietas();
         this.dietaElegida = this.dietas.find(d => d.id == dieta.id);
     }
 
@@ -107,7 +125,7 @@ export class AppComponent implements OnInit {
         this.clientesService.eliminarDietaCliente(id);
         this.entrenadorService.eliminarDietaEntrenador(id);
         this.dietasService.eliminarDieta(id);
-        this.dietas = this.dietasService.getDietas();
+        this.dietas = this.check_dietas();
         this.dietaElegida = undefined;
     }
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import  {Dieta} from '../dieta';
+import  {Dieta} from '../entities/dieta';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
@@ -11,7 +11,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class FormularioDietaComponent {
   accion?: "Añadir" | "Editar";
-  dieta: Dieta = {nombre: '', descripcion: '', observaciones: '', objetivo: '', duracionDias: 0, alimentos: [''], recomendaciones: '', id: 0};
+  dieta: Dieta = {nombre: '', descripcion: '', observaciones: '', objetivo: '', duracionDias: 0, alimentos: [''], recomendaciones: '', id: 0, idEntrenador:5};
 
   constructor(public modal: NgbActiveModal) { }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Cliente } from './cliente';
-import { sex } from './enumSexo';
+import { Cliente } from '../entities/cliente';
+import { sex } from '../entities/enumSexo';
 
 
 @Injectable({
@@ -12,6 +12,7 @@ export class ClientesService {
     private clientes: Cliente [] = [
         {idUsuario: 3, telefono: '333333333',direccion: 'Calle tres', dni: '33333333C', fechaNacimiento: '2024-03-26T:15:00:00.330Z', sexo: sex.HOMBRE, id: 0 }, //por defecto no tienen dieta, por eso id = 0
         {idUsuario: 4, telefono: '444444444',direccion: 'Calle cuatro', dni: '44444444D', fechaNacimiento: '2024-03-26T:16:00:00.330Z', sexo: sex.MUJER, id: 1 }, // Para probar si se ve
+        {idUsuario: 9, telefono: '555555555',direccion: 'Calle cinco', dni: '555555555E', fechaNacimiento: '2024-03-26T:16:00:00.330Z', sexo: sex.MUJER, id: 2 }, // Para probar si se ve
     ];
 
     constructor() { }
