@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import {Usuario } from '../entities/usuario';
 import { Rol, RolCentro } from '../entities/login';
+import { MensajeError } from '../mensaje-error/mensaje-error';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable({
     providedIn: 'root'
@@ -39,7 +41,7 @@ export class UsuariosService {
         this._rolCentro = r;
     }
 
-    constructor() {
+    constructor(private modalService: NgbModal) {
         this.usuario = this.getUsuario();
         this._rolCentro = this.getRol();
     }
@@ -52,6 +54,10 @@ export class UsuariosService {
 
     eliminarUsuario(id: number) {
         let indice = this.usuarios.findIndex(d => d.id == id);
+        if(indice==-1){
+            let ref=this.modalService.open(MensajeError);
+            ref.componentInstance.error="ERROR 404: El usuario no existe";
+        }
         this.usuarios.splice(indice, 1);
     }
 
@@ -62,7 +68,7 @@ export class UsuariosService {
         if(this.usuario == null){
         // Aquí debería ir el código para obtener el usuario logueado
         // Este usuario es de prueba 8
-            this.usuario = this.usuarios[4];
+            this.usuario = this.usuarios[8];
         }
 
         return this.usuario;

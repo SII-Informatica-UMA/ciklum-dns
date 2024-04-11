@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { Dieta } from './entities/dieta';
 import { DietasService } from './service/dietas.service';
 import { ClientesService } from './service/clientes.service';
@@ -15,6 +15,8 @@ import { Cliente } from './entities/cliente';
 import { UsuariosService } from './service/usuarios.service';
 import { Rol } from './entities/login';
 import { AsignacionEntrenamientoService } from './service/asignacionEntrenamiento.service';
+import { ConfirmacionEliminar } from './confirmacion-eliminar/confirmacion-eliminar';
+import { MensajeError } from './mensaje-error/mensaje-error';
 
 @Component({
     selector: 'app-root',
@@ -106,30 +108,53 @@ export class AppComponent implements OnInit {
     }
 
     aniadirDieta(): void {
-        let ref = this.modalService.open(FormularioDietaComponent);
-        ref.componentInstance.accion = "Añadir";
-        ref.componentInstance.dieta = {nombre: '', descripcion: '', observaciones: '', objetivo: '', duracionDias: 0, alimentos: [''], recomendaciones: '', id: 0};
-        ref.result.then((dieta: Dieta) => {
-        this.dietasService.addDieta(dieta);
-        this.dietas = this.check_dietas();
-        }, (reason) => {});
+        if(!this.isEntrenador()){
+          let ref=this.modalService.open(MensajeError);
+          ref.componentInstance.error="ERROR 403: No posee los permisos";
+        }
+        else{
+          let ref = this.modalService.open(FormularioDietaComponent);
+          ref.componentInstance.accion = "Añadir";
+          ref.componentInstance.dieta = {nombre: '', descripcion: '', observaciones: '', objetivo: '', duracionDias: 0, alimentos: [''], recomendaciones: '', id: 0};
+          ref.result.then((dieta: Dieta) => {
+          this.dietasService.addDieta(dieta);
+          this.dietas = this.check_dietas();
+          }, (reason) => {});
+        }
+        
     }
 
     dietaEditada(dieta: Dieta): void {
+      if(!this.isEntrenador()){
+        let ref=this.modalService.open(MensajeError);
+        ref.componentInstance.error="ERROR 403: No posee los permisos";
+      }
+      else{
         this.dietasService.editarDieta(dieta);
         this.dietas = this.check_dietas();
         this.dietaElegida = this.dietas.find(d => d.id == dieta.id);
+      }
     }
 
     eliminarDieta(id: number): void {
+      if(!this.isEntrenador()){
+        let ref=this.modalService.open(MensajeError);
+        ref.componentInstance.error="ERROR 403: No posee los permisos";
+      }
+      else{
         this.clientesService.eliminarDietaCliente(id);
         this.entrenadorService.eliminarDietaEntrenador(id);
         this.dietasService.eliminarDieta(id);
         this.dietas = this.check_dietas();
         this.dietaElegida = undefined;
+      }
     }
 
     asignarDieta(idDieta: number, idCliente: number): void {
+      if(!this.isEntrenador()){
+        let ref=this.modalService.open(MensajeError);
+        ref.componentInstance.error="ERROR 403: No posee los permisos";
+      }
         if (idCliente != -1){
         this.clientesService.asignarDieta(idDieta,idCliente); /*Solo cambia el campo del id de la dieta en el cliente correspondiente, no hace falta nada mas */
         this.clientesService.getClientes();

@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Dieta } from '../entities/dieta';
+import { MensajeError } from '../mensaje-error/mensaje-error';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable({
     providedIn: 'root'
@@ -13,7 +15,7 @@ export class DietasService {
         {nombre: 'Asiática', descripcion: 'Variedad de sabores', observaciones: 'Abundante soja y salsas', objetivo: 'Mantener masa muscular', duracionDias: 6, alimentos: ['Soja'] , recomendaciones: 'Hacer cinco comidas al día' , id: 3, idEntrenador: 6},
     ];
 
-    constructor() { }
+    constructor(private modalService: NgbModal) { }
 
     getDietas(): Dieta [] {
         return this.dietas;
@@ -25,12 +27,21 @@ export class DietasService {
     }
 
     editarDieta(dieta: Dieta) {
+        
         let indice = this.dietas.findIndex(d => d.id == dieta.id);
+        if(indice==-1){
+            let ref=this.modalService.open(MensajeError);
+            ref.componentInstance.error="ERROR 404: La dieta no existe";
+        }
         this.dietas[indice] = dieta;
     }
 
     eliminarDieta(id: number) {
         let indice = this.dietas.findIndex(d => d.id == id);
+        if(indice==-1){
+            let ref=this.modalService.open(MensajeError);
+            ref.componentInstance.error="ERROR 404: La dieta no existe";
+        }
         this.dietas.splice(indice, 1);
     }
     

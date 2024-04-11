@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Cliente } from '../entities/cliente';
 import { sex } from '../entities/enumSexo';
+import { MensajeError } from '../mensaje-error/mensaje-error';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Injectable({
@@ -15,7 +17,7 @@ export class ClientesService {
         {idUsuario: 9, telefono: '555555555',direccion: 'Calle cinco', dni: '555555555E', fechaNacimiento: '2024-03-26T:16:00:00.330Z', sexo: sex.MUJER, id: 2 }, // Para probar si se ve
     ];
 
-    constructor() { }
+    constructor(private modalService: NgbModal) { }
 
     getClientes(): Cliente [] {
         return this.clientes;
@@ -26,7 +28,14 @@ export class ClientesService {
 
     asignarDieta(idDieta: number, idCliente: number): void {
         let indice = this.clientes.findIndex(c => c.idUsuario == idCliente);
-        this.clientes[indice].id = idDieta; /*Asigno la id de la dieta en la posicion correspondiente */
+        if(indice==-1){
+            let ref=this.modalService.open(MensajeError);
+            ref.componentInstance.error="ERROR 404: El cliente no existe o no lo tiene asignado";
+        }
+        else{
+            this.clientes[indice].id = idDieta; /*Asigno la id de la dieta en la posicion correspondiente */
+        }
+        
     }
 
     eliminarDietaCliente(id: number): void {
