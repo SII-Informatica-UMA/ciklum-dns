@@ -1,0 +1,37 @@
+<div class="container">
+    <div>
+      <h3 >Dieta {{dieta?.nombre}}</h3>
+    </div>
+  
+  <div class="row">
+    <label class="col-md-3" for="nombre">Descripción:</label>
+    <span class="col-md-9 offset-2 offset-md-0">{{dieta?.descripcion}}</span>
+  </div>
+  <div class="row">
+    <label class="col-md-3" for="nombre">Observaciones:</label>
+    <span class="col-md-9 offset-2 offset-md-0">{{dieta?.observaciones}}</span>
+  </div>
+  <div class="row">
+    <label class="col-md-3" for="nombre">Objetivo:</label>
+    <span class="col-md-9 offset-2 offset-md-0">{{dieta?.objetivo}}</span>
+  </div>
+  <div class="row">
+    <label class="col-md-3" for="nombre">Duración:</label>
+    <span class="col-md-9 offset-2 offset-md-0">{{dieta?.duracionDias}}</span>
+  </div>
+  <div class="row">
+    <label class="col-md-3" for="nombre">Alimentos:</label>
+    <span  class="col-md-9 offset-2 offset-md-0">{{dieta?.alimentos}}</span>
+  </div>
+  <div class="row">
+    <label class="col-md-3" for="nombre">Recomendaciones:</label>
+    <span class="col-md-9 offset-2 offset-md-0">{{dieta?.recomendaciones}}</span>
+  </div>
+  
+  <div class="row">
+    <button *ngIf="isEntrenador()" class="col-auto btn btn-danger" (click)="eliminarDieta()">Eliminar <i class="bi bi-trash-fill"></i></button>
+    <button *ngIf="isEntrenador()" class="col-auto btn btn-editar" (click)="editarDieta()">Editar <i class="bi bi-plus-sm"></i></button>
+    <button *ngIf="isEntrenador()" class="col-auto btn btn-asignar" (click)="asignarDieta()">Asignar a <i class="bi bi-plus-sm"></i></button>
+  </div>
+  
+</div>
