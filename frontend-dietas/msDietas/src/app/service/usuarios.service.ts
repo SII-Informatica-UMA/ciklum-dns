@@ -11,15 +11,15 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 export class UsuariosService {
 
     private usuarios: Usuario [] = [
-        {nombre: 'user1', apellido1: 'apell11', apellido2: 'apell21', email:'1@m.com',id:1}, //0
-        {nombre: 'user2', apellido1: 'apell12', apellido2: 'apell22', email:'2@m.com',id:2}, //1
-        {nombre: 'client3', apellido1: 'apell13', apellido2: 'apell23', email:'3@m.com',id:3}, //2
-        {nombre: 'client4', apellido1: 'apell14', apellido2: 'apell24', email:'4@m.com',id:4}, //3
-        {nombre: 'trainer5', apellido1: 'apell15', apellido2: 'apell25', email:'5@m.com',id:5}, //4
-        {nombre: 'Manuel', apellido1: 'Carrasco', apellido2: 'García', email:'manuel@email.com',id:6}, //5
-        {nombre: 'admin', apellido1: 'admin', apellido2: 'admin', email:'admin@email.com',id:7}, //6
-        {nombre: 'Gerente', apellido1: 'Gerente', apellido2: 'Gerente', email:'gerente@email.com',id:8}, //7
-        {nombre: 'client5', apellido1: 'apell19', apellido2: 'apell29', email:'9@m.com',id:9} //8
+        {nombre: 'user1', apellido1: 'apell11', apellido2: 'apell21', email:'1@m.com', password:"1234", administrador:false, id:1}, //0
+        {nombre: 'user2', apellido1: 'apell12', apellido2: 'apell22', email:'2@m.com', password:"1234", administrador:false,id:2}, //1
+        {nombre: 'client3', apellido1: 'apell13', apellido2: 'apell23', email:'3@m.com', password:"1234", administrador:false,id:3}, //2
+        {nombre: 'client4', apellido1: 'apell14', apellido2: 'apell24', email:'4@m.com', password:"1234", administrador:false,id:4}, //3
+        {nombre: 'trainer5', apellido1: 'apell15', apellido2: 'apell25', email:'5@m.com', password:"1234", administrador:false,id:5}, //4
+        {nombre: 'Manuel', apellido1: 'Carrasco', apellido2: 'García', email:'manuel@email.com', password:"1234", administrador:false,id:6}, //5
+        {nombre: 'admin', apellido1: 'admin', apellido2: 'admin', email:'admin@email.com', password:"1234", administrador:true,id:7}, //6
+        {nombre: 'Gerente', apellido1: 'Gerente', apellido2: 'Gerente', email:'gerente@email.com', password:"1234", administrador:false,id:8}, //7
+        {nombre: 'client5', apellido1: 'apell19', apellido2: 'apell29', email:'9@m.com', password:"1234", administrador:false,id:9} //8
     ];
 
     private rolesEjemplo: RolCentro [] = [
