@@ -4,18 +4,17 @@
 </div>
 <div class="container">
     <div class="row">
-      <div class="col-md-6">
-        <h1>Lista de clientes</h1>
-        <div class="list-group">
+      <h1>Lista de clientes</h1>
+      <div class="list-group">
 
-          <button *ngFor="let cliente of clientes"
-            class="list-group-item list-group-item-action"
-            (click)="elegirCliente(cliente)"
-            [class.active]="cliente === clienteElegido">{{cliente.dni}}</button>
-        </div>
-        <br>
-        <button type="button" class="btn btn-outline-primary bi bi-plus-lg" (click)="asignarDieta()"> Asignar</button>
+        <button *ngFor="let cliente of clientes"
+          class="list-group-item list-group-item-action"
+          (click)="elegirCliente(cliente)"
+          [class.active]="cliente === clienteElegido">{{cliente.dni}}</button>
       </div>
+      <br>
+      <button type="button" class="btn btn-outline-primary bi bi-plus-lg" (click)="asignarDieta()"> Asignar</button>
+
 
     </div>
 </div>

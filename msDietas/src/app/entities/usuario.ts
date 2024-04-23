@@ -1,4 +1,3 @@
-
 export interface Usuario {
     nombre: string;
     apellido1: string;

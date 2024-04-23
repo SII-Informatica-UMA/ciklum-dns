@@ -12,7 +12,18 @@
     background-color: white;
     padding: 15px;
 }
-.btn-outline-danger{
+.btn-danger{
     margin:15px;
-    background-color: rgb(250, 242, 244);
 }
+
+.btn-asignar{
+    margin:15px;
+    color: white;
+    background-color: rgb(26, 83, 190);
+}
+
+.btn-editar {
+    margin:15px;
+    color: white;
+    background-color: rgb(224, 160, 20);
+  }
