@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{accion}} dieta</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cierre dieta')"></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <input class="form-control" id="nombre" [(ngModel)]="dieta.nombre" placeholder="Nombre">
+        <label for="descripción">Descripción:</label>
+        <input class="form-control" id="descripción" [(ngModel)]="dieta.descripcion" placeholder="Descripción">
+        <label for="observaciones">Observaciones:</label>
+        <input class="form-control" id="observaciones" [(ngModel)]="dieta.observaciones" placeholder="Observaciones">
+        <label for="objetivo">Objetivo:</label>
+        <input class="form-control" id="objetivo" [(ngModel)]="dieta.objetivo" placeholder="Objetivo">
+        <label for="duracion">Duración (en días):</label>
+        <input class="form-control" id="duración" [(ngModel)]="dieta.duracionDias" placeholder="0">
+        <label for="alimentos">Alimentos:</label>
+        <input class="form-control" id="alimentos" [(ngModel)]="dieta.alimentos" placeholder="Alimentos">
+        <label for="recomendaciones">Recomendaciones:</label>
+        <input class="form-control" id="recomendaciones" [(ngModel)]="dieta.recomendaciones" placeholder="Recomendaciones">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="guardarDieta()">Guardar</button>
+</div>
