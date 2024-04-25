@@ -30,6 +30,7 @@ public class Dieta {
     private String recomendaciones;
 
     @ManyToOne
+    @JoinColumn(name="entrenador_fk")
     private Entrenador entrenador;
 
     @OneToMany(mappedBy="dieta")
@@ -130,7 +131,7 @@ public class Dieta {
             + ", recomendaciones=" 
             + recomendaciones 
             + ", idEntrenador=" 
-            + entrenador.getIdUsuario()
+            + entrenador.getId()
             + ", clientes="
             + clientes
             + "]";

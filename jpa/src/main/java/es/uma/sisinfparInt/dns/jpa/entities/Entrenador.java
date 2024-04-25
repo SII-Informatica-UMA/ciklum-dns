@@ -9,13 +9,10 @@ import jakarta.persistence.*;
 // TO-DO: ETIQUETAS y relaciones==HERENCIA Y CLIENTE
 
 @Entity
-public class Entrenador {
+@DiscriminatorValue("E")
+public class Entrenador extends Usuario{
 
 // ATRIBUTOS --------------------------------------------------------------
-
-    @Id
-    @GeneratedValue (strategy = GenerationType.AUTO)
-    private Integer idUsuario;
 
     private String telefono;
 
@@ -38,7 +35,7 @@ public class Entrenador {
     private String observaciones;
 
     //TO-DO:relacion centro y entidad centro
-    private Integer id;
+    private Integer idCentro;
 
     @OneToMany(mappedBy="entrenador")
     private List<Dieta> dietas;
@@ -52,14 +49,6 @@ public class Entrenador {
 
     public void setDietas(List<Dieta> dietas) {
         this.dietas = dietas;
-    }
-
-    public Integer getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
     }
 
     public String getTelefono() {
@@ -142,12 +131,12 @@ public class Entrenador {
         this.observaciones = observaciones;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getIdCentro() {
+        return idCentro;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setIdCentro(Integer id) {
+        this.idCentro = id;
     }
 
 //-------------------------------------------------------------------------
@@ -155,8 +144,20 @@ public class Entrenador {
 
     @Override
     public String toString() {
-        return "Entrenador [idUsuario=" 
-            + idUsuario 
+        return "Entrenador [id=" 
+            + super.getId() 
+            + ", nombre=" 
+            + super.getNombre()
+            + ", apellido1=" 
+            + super.getApellido1() 
+            + ", apellido2=" 
+            + super.getApellido2() 
+            + ", email=" 
+            + super.getEmail() 
+            + ", password=" 
+            + super.getPassword() 
+            + ", administrador=" 
+            + super.getAdministrador() 
             + ", telefono=" 
             + telefono 
             + ", direccion=" 
@@ -178,7 +179,7 @@ public class Entrenador {
             + ", observaciones=" 
             + observaciones 
             + ", id=" 
-            + id 
+            + idCentro 
             + ", dietas="
             + dietas
             + "]";
@@ -186,7 +187,9 @@ public class Entrenador {
 
     @Override
     public int hashCode() {
-       return Objects.hash(idUsuario, telefono, direccion, dni, fechaNacimiento,fechaAlta, fechaBaja, especialidad, titulacion, experiencia, observaciones, id);
+       return Objects.hash(super.getId(),super.getNombre(),super.getApellido1(),super.getApellido2(),
+       super.getEmail(),super.getPassword(), super.getAdministrador(),telefono, direccion, dni, 
+       fechaNacimiento,fechaAlta, fechaBaja, especialidad, titulacion, experiencia, observaciones, idCentro);
     }
 
     @Override
@@ -201,7 +204,14 @@ public class Entrenador {
 
         Entrenador other = (Entrenador) obj;
 
-        return Objects.equals(idUsuario, other.idUsuario) 
+        return Objects.equals(super.getId(), other.getId()) 
+            && Objects.equals(super.getNombre(), other.getNombre()) 
+            && Objects.equals(super.getApellido1(), other.getApellido1()) 
+            && Objects.equals(super.getApellido2(), other.getApellido2()) 
+            && Objects.equals(super.getEmail(), other.getEmail()) 
+            && Objects.equals(super.getNombre(), other.getNombre()) 
+            && Objects.equals(super.getPassword(), other.getPassword())
+            && Objects.equals(super.getAdministrador(), other.getAdministrador())  
             &&  Objects.equals(telefono, other.telefono) 
             && Objects.equals(direccion, other.direccion) 
             &&  Objects.equals(dni, other.dni) 
@@ -212,7 +222,7 @@ public class Entrenador {
             && Objects.equals(titulacion, other.titulacion) 
             && Objects.equals(experiencia, other.experiencia)
             && Objects.equals(observaciones, other.observaciones)
-            && Objects.equals(id, other.id);
+            && Objects.equals(idCentro, other.idCentro);
     }
 
 //-------------------------------------------------------------------------

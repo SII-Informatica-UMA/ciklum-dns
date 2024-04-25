@@ -7,13 +7,10 @@ import jakarta.persistence.*;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA, ENTRENADOR Y DIETAS
 @Entity
-public class Cliente {
+@DiscriminatorValue("C")
+public class Cliente extends Usuario{
 
 // ATRIBUTOS --------------------------------------------------------------
-
-    @Id
-    @GeneratedValue (strategy = GenerationType.AUTO)
-    private Integer idUsuario;
 
     private String telefono;
 
@@ -27,19 +24,11 @@ public class Cliente {
     private Sex sexo;
 
     @ManyToOne
+    @JoinColumn(name="dieta_fk")
     private Dieta dieta;
 
 //-------------------------------------------------------------------------
 // GETTERS Y SETTERS ------------------------------------------------------
-
-
-    public Integer getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
-    }
 
     public String getTelefono() {
         return telefono;
@@ -95,8 +84,20 @@ public class Cliente {
     @Override
     public String toString() {
 
-        return "Cliente [idUsuario="
-            + idUsuario
+        return "Cliente [id=" 
+            + super.getId() 
+            + ", nombre=" 
+            + super.getNombre()
+            + ", apellido1=" 
+            + super.getApellido1() 
+            + ", apellido2=" 
+            + super.getApellido2() 
+            + ", email=" 
+            + super.getEmail() 
+            + ", password=" 
+            + super.getPassword() 
+            + ", administrador=" 
+            + super.getAdministrador() 
             + ", telefono="
             + telefono
             + ", direccion=" 
@@ -114,7 +115,9 @@ public class Cliente {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idUsuario, telefono, direccion, dni, fechaNacimiento, sexo);
+        return Objects.hash(super.getId(),super.getNombre(),super.getApellido1(),super.getApellido2(),
+        super.getEmail(),super.getPassword(), super.getAdministrador(), telefono, direccion, dni,
+         fechaNacimiento, sexo);
     }
 
     @Override
@@ -130,7 +133,14 @@ public class Cliente {
 
         Cliente other = (Cliente) obj;
 
-        return Objects.equals(idUsuario, other.idUsuario)
+        return Objects.equals(super.getId(), other.getId()) 
+            && Objects.equals(super.getNombre(), other.getNombre()) 
+            && Objects.equals(super.getApellido1(), other.getApellido1()) 
+            && Objects.equals(super.getApellido2(), other.getApellido2()) 
+            && Objects.equals(super.getEmail(), other.getEmail()) 
+            && Objects.equals(super.getNombre(), other.getNombre()) 
+            && Objects.equals(super.getPassword(), other.getPassword())
+            && Objects.equals(super.getAdministrador(), other.getAdministrador()) 
             && Objects.equals(telefono, other.telefono) 
             && Objects.equals(direccion, other.direccion) 
             && Objects.equals(dni, other.dni) 

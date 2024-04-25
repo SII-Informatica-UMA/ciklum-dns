@@ -2,6 +2,9 @@ package es.uma.sisinfparInt.dns.jpa.entities;
 
 import java.util.Objects;
 
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,6 +12,8 @@ import jakarta.persistence.Id;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA
 @Entity
+@DiscriminatorColumn(name = "rol", discriminatorType = DiscriminatorType.CHAR)
+@DiscriminatorValue("U")
 public class Usuario {
 
 // ATRIBUTOS --------------------------------------------------------------
