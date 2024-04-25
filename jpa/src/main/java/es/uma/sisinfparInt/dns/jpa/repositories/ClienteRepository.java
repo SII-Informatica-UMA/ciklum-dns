@@ -14,7 +14,6 @@ public interface ClienteRepository extends JpaRepository<Cliente,Integer> {
 
     Cliente save(Cliente cliente); //Guarda o actualiza un cliente
 
-    List<Cliente> saveAll(List<Cliente> clientes); //Guarda o actualiza todos los clientes
 
     void deleteById(Integer id); //Borra un cliente segun la id
 

@@ -14,7 +14,6 @@ public interface UsuarioRepository extends JpaRepository <Usuario, Integer> {
 
     Usuario save(Usuario usuario); //Guarda o actualiza un usuario
 
-    List<Usuario> saveAll(List<Usuario> usuarios); //Guarda o actualiza todos los usuarios
 
     void deleteById(Integer id); //Borra un usuario
 
