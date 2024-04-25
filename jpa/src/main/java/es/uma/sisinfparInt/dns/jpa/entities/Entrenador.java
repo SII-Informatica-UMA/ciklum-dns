@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.sql.Date;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA Y CLIENTE
 
@@ -16,6 +14,7 @@ public class Entrenador {
 // ATRIBUTOS --------------------------------------------------------------
 
     @Id
+    @GeneratedValue (strategy = GenerationType.AUTO)
     private Integer idUsuario;
 
     private String telefono;
@@ -24,11 +23,11 @@ public class Entrenador {
 
     private String dni;
 
-    private Date fechaNacimiento; //OJOOOOO-> SQL MEJOR?
+    private Date fechaNacimiento;
 
-    private Date fechaAlta; //OJOOOOO-> SQL MEJOR?
+    private Date fechaAlta;
 
-    private Date fechaBaja; //OJOOOOO-> SQL MEJOR?
+    private Date fechaBaja;
 
     private String especialidad;
 

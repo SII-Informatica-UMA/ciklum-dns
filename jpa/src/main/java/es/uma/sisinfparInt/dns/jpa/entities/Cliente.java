@@ -3,9 +3,7 @@ package es.uma.sisinfparInt.dns.jpa.entities;
 import java.util.Objects;
 import java.sql.Date;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA, ENTRENADOR Y DIETAS
 @Entity
@@ -14,6 +12,7 @@ public class Cliente {
 // ATRIBUTOS --------------------------------------------------------------
 
     @Id
+    @GeneratedValue (strategy = GenerationType.AUTO)
     private Integer idUsuario;
 
     private String telefono;
@@ -22,9 +21,10 @@ public class Cliente {
 
     private String dni;
 
-    private Date fechaNacimiento; //OJOOOOO-> SQL MEJOR?
+    private Date fechaNacimiento;
 
-    private String sexo; //OJOOOOO-> ENUM SEX
+    @Enumerated(EnumType.STRING)
+    private Sex sexo;
 
     @ManyToOne
     private Dieta dieta;
@@ -73,11 +73,11 @@ public class Cliente {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public String getSexo() {
+    public Sex getSexo() {
         return sexo;
     }
 
-    public void setSexo(String sexo) {
+    public void setSexo(Sex sexo) {
         this.sexo = sexo;
     }
 

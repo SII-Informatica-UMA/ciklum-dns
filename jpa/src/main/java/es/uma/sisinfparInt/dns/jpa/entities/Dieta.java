@@ -3,10 +3,7 @@ package es.uma.sisinfparInt.dns.jpa.entities;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 // TO-DO: ETIQUETAS y relaciones
 @Entity
@@ -15,6 +12,7 @@ public class Dieta {
 // ATRIBUTOS --------------------------------------------------------------
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     private String nombre;

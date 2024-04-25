@@ -3,6 +3,8 @@ package es.uma.sisinfparInt.dns.jpa.entities;
 import java.util.Objects;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA
@@ -12,6 +14,7 @@ public class Usuario {
 // ATRIBUTOS --------------------------------------------------------------
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     private String nombre;
