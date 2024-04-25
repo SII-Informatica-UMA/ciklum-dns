@@ -14,8 +14,6 @@ public interface DietaRepository extends JpaRepository<Dieta,Integer> {
 
     Dieta save(Dieta dieta); //Guarda una dieta o actualiza una existente
 
-    List<Dieta> saveAll(List<Dieta> dietas); //Guarda toda una lista de dietas o la actualiza
-
     void deleteById(Integer id); //Elimina una dieta
 
     void deleteAll(); //Elimina todas las dietas
