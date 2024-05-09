@@ -1,13 +1,19 @@
-package es.uma.sisinfparInt.dns.jpa.entities;
+package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 
 import java.util.List;
 import java.util.Objects;
 import java.sql.Date;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA Y CLIENTE
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @DiscriminatorValue("E")
 public class Entrenador extends Usuario{
@@ -39,105 +45,6 @@ public class Entrenador extends Usuario{
 
     @OneToMany(mappedBy="entrenador")
     private List<Dieta> dietas;
-
-//-------------------------------------------------------------------------
-// GETTERS Y SETTERS ------------------------------------------------------
-
-    public List<Dieta> getDietas() {
-        return dietas;
-    }
-
-    public void setDietas(List<Dieta> dietas) {
-        this.dietas = dietas;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public Date getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public Date getFechaAlta() {
-        return fechaAlta;
-    }
-
-    public void setFechaAlta(Date fechaAlta) {
-        this.fechaAlta = fechaAlta;
-    }
-
-    public Date getFechaBaja() {
-        return fechaBaja;
-    }
-
-    public void setFechaBaja(Date fechaBaja) {
-        this.fechaBaja = fechaBaja;
-    }
-
-    public String getEspecialidad() {
-        return especialidad;
-    }
-
-    public void setEspecialidad(String especialidad) {
-        this.especialidad = especialidad;
-    }
-
-    public String getTitulacion() {
-        return titulacion;
-    }
-
-    public void setTitulacion(String titulacion) {
-        this.titulacion = titulacion;
-    }
-
-    public String getExperiencia() {
-        return experiencia;
-    }
-
-    public void setExperiencia(String experiencia) {
-        this.experiencia = experiencia;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
-
-    public Integer getIdCentro() {
-        return idCentro;
-    }
-
-    public void setIdCentro(Integer id) {
-        this.idCentro = id;
-    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------
@@ -204,8 +111,7 @@ public class Entrenador extends Usuario{
 
         Entrenador other = (Entrenador) obj;
 
-        return Objects.equals(super.getId(), other.getId()) 
-            && Objects.equals(super.getNombre(), other.getNombre()) 
+        return Objects.equals(super.getId(), other.getId())
             && Objects.equals(super.getApellido1(), other.getApellido1()) 
             && Objects.equals(super.getApellido2(), other.getApellido2()) 
             && Objects.equals(super.getEmail(), other.getEmail()) 

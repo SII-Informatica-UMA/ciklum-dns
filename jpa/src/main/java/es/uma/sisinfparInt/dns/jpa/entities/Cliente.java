@@ -6,6 +6,11 @@ import java.sql.Date;
 import jakarta.persistence.*;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA, ENTRENADOR Y DIETAS
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @DiscriminatorValue("C")
 public class Cliente extends Usuario{

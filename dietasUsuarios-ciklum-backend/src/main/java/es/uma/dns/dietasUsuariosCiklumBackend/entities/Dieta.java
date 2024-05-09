@@ -1,11 +1,17 @@
-package es.uma.sisinfparInt.dns.jpa.entities;
+package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 
 import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 // TO-DO: ETIQUETAS y relaciones
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 public class Dieta {
 
@@ -35,81 +41,6 @@ public class Dieta {
 
     @OneToMany(mappedBy="dieta")
     private List<Cliente> clientes;
-
-//-------------------------------------------------------------------------
-// GETTERS Y SETTERS ------------------------------------------------------
-    
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
-
-    public String getObjetivo() {
-        return objetivo;
-    }
-
-    public void setObjetivo(String objetivo) {
-        this.objetivo = objetivo;
-    }
-
-    public Integer getDuracionDias() {
-        return duracionDias;
-    }
-
-    public void setDuracionDias(Integer duracionDias) {
-        this.duracionDias = duracionDias;
-    }
-
-    public List<String> getAlimentos() {
-        return alimentos;
-    }
-
-    public void setAlimentos(List<String> alimentos) {
-        this.alimentos = alimentos;
-    }
-
-    public String getRecomendaciones() {
-        return recomendaciones;
-    }
-
-    public void setRecomendaciones(String recomendaciones) {
-        this.recomendaciones = recomendaciones;
-    }
-
-    public Entrenador getEntrenador() {
-        return entrenador;
-    }
-
-    public void setEntrenador(Entrenador entrenador) {
-        this.entrenador = entrenador;
-    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------

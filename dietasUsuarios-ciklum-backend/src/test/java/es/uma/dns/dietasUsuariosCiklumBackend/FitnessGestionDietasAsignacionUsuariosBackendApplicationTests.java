@@ -1,4 +1,4 @@
-package es.uma.dns.dietasUsuariosciklumbackend;
+package es.uma.dns.dietasUsuariosCiklumBackend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

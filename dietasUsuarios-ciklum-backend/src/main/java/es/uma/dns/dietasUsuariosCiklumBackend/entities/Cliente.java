@@ -1,11 +1,17 @@
-package es.uma.sisinfparInt.dns.jpa.entities;
+package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 
 import java.util.Objects;
 import java.sql.Date;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA, ENTRENADOR Y DIETAS
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @DiscriminatorValue("C")
 public class Cliente extends Usuario{
@@ -26,57 +32,6 @@ public class Cliente extends Usuario{
     @ManyToOne
     @JoinColumn(name="dieta_fk")
     private Dieta dieta;
-
-//-------------------------------------------------------------------------
-// GETTERS Y SETTERS ------------------------------------------------------
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public Date getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(Date fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public Sex getSexo() {
-        return sexo;
-    }
-
-    public void setSexo(Sex sexo) {
-        this.sexo = sexo;
-    }
-
-    public Dieta getDieta() {
-        return this.dieta;
-    }
-
-    public void setId(Dieta dieta) {
-        this.dieta = dieta;
-    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------
@@ -137,8 +92,7 @@ public class Cliente extends Usuario{
             && Objects.equals(super.getNombre(), other.getNombre()) 
             && Objects.equals(super.getApellido1(), other.getApellido1()) 
             && Objects.equals(super.getApellido2(), other.getApellido2()) 
-            && Objects.equals(super.getEmail(), other.getEmail()) 
-            && Objects.equals(super.getNombre(), other.getNombre()) 
+            && Objects.equals(super.getEmail(), other.getEmail())
             && Objects.equals(super.getPassword(), other.getPassword())
             && Objects.equals(super.getAdministrador(), other.getAdministrador()) 
             && Objects.equals(telefono, other.telefono) 
