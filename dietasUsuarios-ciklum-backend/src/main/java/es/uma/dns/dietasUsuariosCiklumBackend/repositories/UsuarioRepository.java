@@ -19,5 +19,5 @@ public interface UsuarioRepository extends JpaRepository <Usuario, Integer> {
     void deleteById(Integer id); //Borra un usuario
 
     void deleteAll(); //Borra todos los usuarios
-    
+
 }
