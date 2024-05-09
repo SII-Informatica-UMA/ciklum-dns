@@ -1,4 +1,4 @@
-package es.uma.sisinfparInt.dns.jpa.entities;
+package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 
 import java.util.Objects;
 
@@ -9,8 +9,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.*;
 
 // TO-DO: ETIQUETAS y relaciones==HERENCIA
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @DiscriminatorColumn(name = "rol", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue("U")
@@ -33,65 +39,6 @@ public class Usuario {
     private String password;
 
     private Boolean administrador;
-
-//-------------------------------------------------------------------------
-// GETTERS Y SETTERS ------------------------------------------------------
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getApellido1() {
-        return apellido1;
-    }
-
-    public void setApellido1(String apellido1) {
-        this.apellido1 = apellido1;
-    }
-
-    public String getApellido2() {
-        return apellido2;
-    }
-
-    public void setApellido2(String apellido2) {
-        this.apellido2 = apellido2;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Boolean getAdministrador() {
-        return administrador;
-    }
-
-    public void setAdministrador(Boolean administrador) {
-        this.administrador = administrador;
-    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------
@@ -117,11 +64,12 @@ public class Usuario {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nombre, apellido1, apellido2, email,password, administrador);
+        return Objects.hash(id);
     }
 
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj){
             return true;
         }
@@ -132,13 +80,8 @@ public class Usuario {
 
         Usuario other = (Usuario) obj;
 
-        return Objects.equals(id, other.id) 
-            && Objects.equals(nombre, other.nombre) 
-            && Objects.equals(apellido1, other.apellido1) 
-            && Objects.equals(apellido2, other.apellido2) 
-            && Objects.equals(email, other.email) 
-            && Objects.equals(password, other.password) 
-            && Objects.equals(administrador, other.administrador);
+        return Objects.equals(id, other.id);
+
     }
 
 //-------------------------------------------------------------------------
