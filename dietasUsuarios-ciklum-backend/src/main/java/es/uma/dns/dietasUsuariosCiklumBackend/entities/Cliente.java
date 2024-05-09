@@ -68,40 +68,6 @@ public class Cliente extends Usuario{
             + "]";
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.getId(),super.getNombre(),super.getApellido1(),super.getApellido2(),
-        super.getEmail(),super.getPassword(), super.getAdministrador(), telefono, direccion, dni,
-         fechaNacimiento, sexo);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj){
-            return true;
-        }
-            
-        if (obj == null || getClass() != obj.getClass()){
-            return false;
-        }
-
-        Cliente other = (Cliente) obj;
-
-        return Objects.equals(super.getId(), other.getId()) 
-            && Objects.equals(super.getNombre(), other.getNombre()) 
-            && Objects.equals(super.getApellido1(), other.getApellido1()) 
-            && Objects.equals(super.getApellido2(), other.getApellido2()) 
-            && Objects.equals(super.getEmail(), other.getEmail())
-            && Objects.equals(super.getPassword(), other.getPassword())
-            && Objects.equals(super.getAdministrador(), other.getAdministrador()) 
-            && Objects.equals(telefono, other.telefono) 
-            && Objects.equals(direccion, other.direccion) 
-            && Objects.equals(dni, other.dni) 
-            && Objects.equals(fechaNacimiento, other.fechaNacimiento) 
-            && Objects.equals(sexo, other.sexo);
-    }
-
 //-------------------------------------------------------------------------
 
 }

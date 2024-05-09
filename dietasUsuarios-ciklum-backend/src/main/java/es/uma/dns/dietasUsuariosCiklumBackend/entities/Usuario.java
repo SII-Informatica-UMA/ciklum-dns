@@ -64,11 +64,12 @@ public class Usuario {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nombre, apellido1, apellido2, email,password, administrador);
+        return Objects.hash(id);
     }
 
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj){
             return true;
         }
@@ -79,13 +80,8 @@ public class Usuario {
 
         Usuario other = (Usuario) obj;
 
-        return Objects.equals(id, other.id) 
-            && Objects.equals(nombre, other.nombre) 
-            && Objects.equals(apellido1, other.apellido1) 
-            && Objects.equals(apellido2, other.apellido2) 
-            && Objects.equals(email, other.email) 
-            && Objects.equals(password, other.password) 
-            && Objects.equals(administrador, other.administrador);
+        return Objects.equals(id, other.id);
+
     }
 
 //-------------------------------------------------------------------------

@@ -92,45 +92,6 @@ public class Entrenador extends Usuario{
             + "]";
     }
 
-    @Override
-    public int hashCode() {
-       return Objects.hash(super.getId(),super.getNombre(),super.getApellido1(),super.getApellido2(),
-       super.getEmail(),super.getPassword(), super.getAdministrador(),telefono, direccion, dni, 
-       fechaNacimiento,fechaAlta, fechaBaja, especialidad, titulacion, experiencia, observaciones, idCentro);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj){
-            return true;
-        }
-            
-        if (obj == null || getClass() != obj.getClass()){
-            return false;
-        }
-
-        Entrenador other = (Entrenador) obj;
-
-        return Objects.equals(super.getId(), other.getId())
-            && Objects.equals(super.getApellido1(), other.getApellido1()) 
-            && Objects.equals(super.getApellido2(), other.getApellido2()) 
-            && Objects.equals(super.getEmail(), other.getEmail()) 
-            && Objects.equals(super.getNombre(), other.getNombre()) 
-            && Objects.equals(super.getPassword(), other.getPassword())
-            && Objects.equals(super.getAdministrador(), other.getAdministrador())  
-            &&  Objects.equals(telefono, other.telefono) 
-            && Objects.equals(direccion, other.direccion) 
-            &&  Objects.equals(dni, other.dni) 
-            && Objects.equals(fechaNacimiento, other.fechaNacimiento) 
-            &&  Objects.equals(fechaAlta, other.fechaAlta) 
-            && Objects.equals(fechaBaja, other.fechaBaja) 
-            && Objects.equals(especialidad, other.especialidad)
-            && Objects.equals(titulacion, other.titulacion) 
-            && Objects.equals(experiencia, other.experiencia)
-            && Objects.equals(observaciones, other.observaciones)
-            && Objects.equals(idCentro, other.idCentro);
-    }
-
 //-------------------------------------------------------------------------
 
 }

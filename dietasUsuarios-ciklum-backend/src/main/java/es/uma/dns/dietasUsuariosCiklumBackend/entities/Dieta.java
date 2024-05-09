@@ -70,11 +70,12 @@ public class Dieta {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nombre, descripcion, observaciones, objetivo, duracionDias, alimentos, recomendaciones);
+        return Objects.hash(id);
     }
     
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj){
             return true;
         }
@@ -85,14 +86,8 @@ public class Dieta {
 
         Dieta other = (Dieta) obj;
 
-        return Objects.equals(id, other.id) 
-            &&  Objects.equals(nombre, other.nombre) 
-            && Objects.equals(descripcion, other.descripcion) 
-            &&  Objects.equals(observaciones, other.observaciones) 
-            && Objects.equals(objetivo, other.objetivo) 
-            &&  Objects.equals(duracionDias, other.duracionDias) 
-            && Objects.equals(alimentos, other.alimentos) 
-            && Objects.equals(recomendaciones, other.recomendaciones);
+        return Objects.equals(id, other.id);
+
     }
 
 //-------------------------------------------------------------------------
