@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.sql.Date;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,6 +46,26 @@ public class Entrenador extends Usuario{
 
     @OneToMany(mappedBy="entrenador")
     private List<Dieta> dietas;
+
+//-------------------------------------------------------------------------
+// METODOS ----------------------------------------------------------------
+
+    public EntrenadorDTO toEntrenadorDTO() {
+        return EntrenadorDTO.builder()
+            .idUsuario(super.getId())
+            .telefono(telefono)
+            .direccion(direccion)
+            .dni(dni)
+            .fechaNacimiento(fechaNacimiento.toString())
+            .fechaAlta(fechaAlta.toString())
+            .fechaBaja(fechaBaja.toString())
+            .especialidad(especialidad)
+            .titulacion(titulacion)
+            .experiencia(experiencia)
+            .observaciones(observaciones)
+            .id(idCentro) //SEGURO? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            .build();
+    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------

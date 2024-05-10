@@ -3,6 +3,7 @@ package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 import java.util.Objects;
 import java.sql.Date;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +33,22 @@ public class Cliente extends Usuario{
     @ManyToOne
     @JoinColumn(name="dieta_fk")
     private Dieta dieta;
+
+
+//-------------------------------------------------------------------------
+// METODOS ----------------------------------------------------------------
+
+    public ClienteDTO toClienteDTO() {
+        return ClienteDTO.builder()
+            .idUsuario(super.getId())
+            .telefono(telefono)
+            .direccion(direccion)
+            .dni(dni)
+            .fechaNacimiento(fechaNacimiento.toString())
+            .sexo(sexo.toString())
+            .id(dieta.getId()) //SEGURO? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            .build();
+    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------

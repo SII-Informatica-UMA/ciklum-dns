@@ -3,6 +3,7 @@ package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 import java.util.List;
 import java.util.Objects;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,7 @@ public class Dieta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     private String nombre;
 
@@ -41,6 +42,35 @@ public class Dieta {
 
     @OneToMany(mappedBy="dieta")
     private List<Cliente> clientes;
+
+//-------------------------------------------------------------------------
+// METODOS ----------------------------------------------------------------
+
+    public DietaDTO toDietaDTO() {
+        return DietaDTO.builder()
+            .id(id)
+            .nombre(nombre)
+            .descripcion(descripcion)
+            .observaciones(observaciones)
+            .objetivo(objetivo)
+            .duracionDias(duracionDias)
+            .alimentos(alimentos)
+            .recomendaciones(recomendaciones)
+            .build();
+    }
+
+    public static Dieta fromDietaDTO(DietaDTO dietaDTO) {
+        return Dieta.builder()
+            .id(dietaDTO.getId())
+            .nombre(dietaDTO.getNombre())
+            .descripcion(dietaDTO.getDescripcion())
+            .observaciones(dietaDTO.getObservaciones())
+            .objetivo(dietaDTO.getObjetivo())
+            .duracionDias(dietaDTO.getDuracionDias())
+            .alimentos(dietaDTO.getAlimentos())
+            .recomendaciones(dietaDTO.getRecomendaciones())
+            .build();
+    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------
