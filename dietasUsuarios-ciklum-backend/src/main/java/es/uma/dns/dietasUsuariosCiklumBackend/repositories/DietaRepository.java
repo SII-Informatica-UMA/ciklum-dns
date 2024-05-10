@@ -20,4 +20,5 @@ public interface DietaRepository extends JpaRepository<Dieta,Integer> {
 
     void deleteAll(); //Elimina todas las dietas
 
+    boolean existsByNombre(String nombre);
 }

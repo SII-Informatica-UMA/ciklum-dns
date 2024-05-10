@@ -1,14 +1,14 @@
-package es.uma.sisinfparInt.dns.jpa.services;
+package es.uma.dns.dietasUsuariosCiklumBackend.services;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.uma.sisinfparInt.dns.jpa.entities.Dieta;
-import es.uma.sisinfparInt.dns.jpa.repositories.DietaRepository;
-import es.uma.sisinfparInt.dns.jpa.services.excepciones.DietaExistenteException;
-import es.uma.sisinfparInt.dns.jpa.services.excepciones.DietaNoEncontradaException;
+import es.uma.dns.dietasUsuariosCiklumBackend.services.excepciones.DietaExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.services.excepciones.DietaNoEncontradaException;
+import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
+import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
 @Service
 @Transactional

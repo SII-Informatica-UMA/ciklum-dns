@@ -1,4 +1,4 @@
-package es.uma.sisinfparInt.dns.jpa.services.excepciones;
+package es.uma.dns.dietasUsuariosCiklumBackend.services.excepciones;
 
 public class PermisosInsuficientesException extends RuntimeException {
     public PermisosInsuficientesException() {
