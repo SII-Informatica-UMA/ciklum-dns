@@ -20,7 +20,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     private String nombre;
 
@@ -37,11 +37,11 @@ public class Usuario {
 //-------------------------------------------------------------------------
 // GETTERS Y SETTERS ------------------------------------------------------
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
