@@ -4,7 +4,9 @@ import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Cliente;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Entrenador;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.ServicioFalso;
+import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +21,18 @@ import java.util.stream.Collectors;
 @RequestMapping("/dieta")
 public class ControladorRest {
 
-    private ServicioFalso servicioFalso;
+    private DietaServicio servicio;
 
     @Autowired
-    public ControladorRest(ServicioFalso servicioFalso) {
-        this.servicioFalso = servicioFalso;
+    public ControladorRest(DietaServicio servicio) {
+        this.servicio = servicio;
     }
 
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @GetMapping
     public ResponseEntity<List<DietaDTO>> getDietaCliente(@RequestParam("cliente") Long clienteId) {
 
-        Optional<Cliente> cliente = servicioFalso.getCliente(clienteId);
+        Optional<Cliente> cliente = servicio.getCliente(clienteId);
 
         if (cliente.isPresent()) {
 
@@ -56,7 +58,7 @@ public class ControladorRest {
     @GetMapping
     public ResponseEntity<List<DietaDTO>> getDietaEntrenador(@RequestParam("entrenador") Long entrenadorId) {
 
-        Optional<Entrenador> entrenador = servicioFalso.getEntrenador(entrenadorId);
+        Optional<Entrenador> entrenador = servicio.getEntrenador(entrenadorId);
 
         if (entrenador.isPresent()) {
 
@@ -82,11 +84,11 @@ public class ControladorRest {
     @PutMapping
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long clienteId, @RequestBody DietaDTO dietaDTO) {
 
-        Optional<Cliente> cliente = servicioFalso.getCliente(clienteId);
+        Optional<Cliente> cliente = servicio.getCliente(clienteId);
 
         if (cliente.isPresent()) {
 
-            servicioFalso.modificarDietaCliente(clienteId, Dieta.fromDietaDTO(dietaDTO));
+            servicio.asignarDietaCliente(clienteId, Dieta.fromDietaDTO(dietaDTO));
 
             // Devuelve un 200
             return ResponseEntity.ok().build();
@@ -101,17 +103,23 @@ public class ControladorRest {
     @PostMapping
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenadorId, @RequestBody DietaDTO dietaDTO){
 
-            Optional<Entrenador> entrenador = servicioFalso.getEntrenador(entrenadorId);
+            Optional<Entrenador> entrenador = servicio.getEntrenador(entrenadorId);
 
             if (entrenador.isPresent()) {
 
-                Dieta dieta = Dieta.fromDietaDTO(dietaDTO);
-                dieta.setEntrenador(entrenador.get());
+                try {
 
-                Dieta dietaCreada = servicioFalso.crearDieta(dieta);
+                    Dieta dieta = Dieta.fromDietaDTO(dietaDTO);
+                    dieta.setEntrenador(entrenador.get());
 
-                // Devuelve un 201 y la dieta creada
-                return ResponseEntity.status(HttpStatus.CREATED).body(dietaCreada.toDietaDTO());
+                    Dieta dietaCreada = servicio.crearDieta(dieta);
+
+                    // Devuelve un 201 y la dieta creada
+                    return ResponseEntity.status(HttpStatus.CREATED).body(dietaCreada.toDietaDTO());
+
+                } catch (EntidadExistenteException e){
+                    return ResponseEntity.status(HttpStatus.CONFLICT).build();
+                }
 
             } else {
                 // Devuelve un error 404
@@ -123,7 +131,7 @@ public class ControladorRest {
     @GetMapping("{id}")
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
-        Optional<Dieta> dieta = servicioFalso.getDieta(id);
+        Optional<Dieta> dieta = servicio.getDieta(id);
 
         if (dieta.isPresent()) {
             // Devuelve un 200 y la dieta
@@ -146,14 +154,13 @@ public class ControladorRest {
     @PutMapping("{id}")
     public ResponseEntity<?> modificarDieta(@PathVariable Long id, @RequestBody DietaDTO dietaDTO) {
 
-        Optional<Dieta> dieta = servicioFalso.getDieta(id);
+        Optional<Dieta> dieta = servicio.getDieta(id);
 
         if (dieta.isPresent()) {
 
             Dieta dietaModificada = Dieta.fromDietaDTO(dietaDTO);
-            dietaModificada.setId(id);
 
-            servicioFalso.modificarDieta(dietaModificada);
+            servicio.modificarDieta(dietaModificada);
 
             // Devuelve un 200
             return ResponseEntity.ok().build();
@@ -168,9 +175,9 @@ public class ControladorRest {
     @DeleteMapping("{id}")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
 
-        if (servicioFalso.existsDieta(id)) {
+        if (servicio.existsDieta(id)) {
 
-            servicioFalso.eliminarDieta(id);
+            servicio.eliminarDieta(id);
 
             // Devuelve un 200
             return ResponseEntity.ok().build();

@@ -2,8 +2,10 @@ package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -69,7 +71,33 @@ public class Dieta {
             .duracionDias(dietaDTO.getDuracionDias())
             .alimentos(dietaDTO.getAlimentos())
             .recomendaciones(dietaDTO.getRecomendaciones())
+            .entrenador(obtenerEntrenadorDieta(dietaDTO.getId()))
+            .clientes(obtenerClientesDieta(dietaDTO.getId()))
             .build();
+    }
+
+    private static List<Cliente> obtenerClientesDieta(long id) {
+
+        Optional<List<Cliente>> clientes = DietaServicio.getClientesDeDieta(id);
+
+        if (clientes.isPresent()) {
+            return clientes.get();
+        } else {
+            return null;
+        }
+
+    }
+
+    private static Entrenador obtenerEntrenadorDieta(long id) {
+
+        Optional<Entrenador> entrenador = DietaServicio.getEntrenadorDeDieta(id);
+
+        if (entrenador.isPresent()) {
+            return entrenador.get();
+        } else {
+            return null; //Qué pasa si una dieta no tiene entrenador? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        }
+
     }
 
 //-------------------------------------------------------------------------
