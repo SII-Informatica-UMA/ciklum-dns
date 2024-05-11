@@ -1,9 +1,10 @@
-package es.uma.sisinfparInt.dns.jpa.services;
+package es.uma.dns.dietasUsuariosCiklumBackend.services;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.uma.sisinfparInt.dns.jpa.repositories.DietaRepository;
+
 
 @Service
 @Transactional
