@@ -95,14 +95,16 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		assertThat(actual.getClientes()).isEqualTo(expected.getClientes());
 	}
 
-
+	/*
+	 * A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA COMPROBAR
+	 * CUANDO NO EXISTE NADA EN LA BASE DE DATOS
+	 * */
 	@Nested
 	@DisplayName("cuando la base de datos esté vacía de dietas...")
 	public class BaseDatosDietasVacia{
-		/*
-		* A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA COMPROBAR
-		* CUANDO NO EXISTE NADA EN LA BASE DE DATOS
-		* */
+
+		// ========================================GET /DIETAS==========================================================
+		
 		/*
 		 * GET DIETAS DE UN ENTRENADOR VACIO
 		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE
@@ -138,7 +140,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
 			assertThat(respuesta.getBody()).isEmpty();
 		}
-		
+
 		/*
 		 * ERROR GET DIETAS DE UN ENTRENADOR INEXISTENTE
 		 * OJO -> REVISAR QUE ENTRENADOR CON ID = X NO EXISTE
@@ -220,15 +222,17 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
 		}
+
+		//==============================================================================================================
 	}
 
+	/*
+	 * A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA PARA
+	 * COMPROBAR ELEMENTOS DE LA BASE DE DATOS
+	 * */
 	@Nested
 	@DisplayName("cuando la base de datos esté llena...")
 	public class BaseDatosDietasLlena{
-		/*
-		* A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA PARA
-		* COMPROBAR ELEMENTOS DE LA BASE DE DATOS
-		* */
 
 		@BeforeEach
 		public void insertarDatos(){
@@ -285,6 +289,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			dietaRepo.save(dieta3);
 		}
 
+		// ========================================GET /DIETAS==========================================================
+
 		/*
 		 * GET DIETAS DE UN ENTRENADOR CON DIETAS (1 O MAS)
 		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE Y TENGA DIETAS ASOCIADAS
@@ -320,6 +326,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
 			assertThat(respuesta.getBody().size()).isEqualTo(1);
 		}
+
+		//==============================================================================================================
 	}
 	
 
