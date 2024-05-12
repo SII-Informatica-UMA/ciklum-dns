@@ -26,6 +26,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Entrenador;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
+
 @Service
 @Transactional
 public class DietaServicio {
@@ -217,6 +218,7 @@ public class DietaServicio {
     }
 
 
+
     //GET{ID} y PUT{ID}
     public Optional<Dieta> getDieta(Long id) {
 //        Optional<Dieta> dieta = dietaRepo.findById(id);
@@ -257,5 +259,6 @@ public class DietaServicio {
         //return dietaRepo.findById(id).isPresent();
         return dietaRepo.existsById(id);
     }
+
 
 }
