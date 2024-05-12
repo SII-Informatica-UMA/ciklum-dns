@@ -30,6 +30,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Entrenador;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
+
 @Service
 @Transactional
 public class DietaServicio {
@@ -217,5 +218,6 @@ public class DietaServicio {
             throw new EntidadExistenteException();
         }
     }
+
 
 }
