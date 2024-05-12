@@ -1,6 +1,7 @@
 package es.uma.dns.dietasUsuariosCiklumBackend.services;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,15 +39,15 @@ public class DietaServicio {
     }
 
     @Value(value="${local.server.port}")
-	private int port;
+	private static int port;
 
     @Autowired
-    private RestTemplate restTemplate; //para hacer peticiones
+    private static RestTemplate restTemplate; //para hacer peticiones
 
 
     /* ------------------------ METODOS CONSTRUCCION PETICIONES ---------------------- */
 
-    private URI uri(String scheme, String host, int port, String... paths) {
+    private static URI uri(String scheme, String host, int port, String... paths) {
         UriBuilderFactory ubf = new DefaultUriBuilderFactory();
         UriBuilder ub = ubf.builder()
             .scheme(scheme)
@@ -57,7 +58,7 @@ public class DietaServicio {
         return ub.build();
     }
 
-    private RequestEntity<Void> get(String scheme, String host, int port, String path) {
+    private static RequestEntity<Void> get(String scheme, String host, int port, String path) {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.get(uri)
             .accept(MediaType.APPLICATION_JSON)
@@ -93,23 +94,50 @@ public class DietaServicio {
 
 
     public static Optional<List<Dieta>> getDietasDeEntrenador(long id) {
-        //TODO: devuelve las dietas de un entrenador específico
-        return null;
+        //DONE: devuelve las dietas de un entrenador específico
+        //Optional<Entrenador> entrenador = getEntrenador(id); //No funciona porque no es static getEntrenador
+        List<Dieta> dietasEntrenador = new ArrayList<>();
+        Entrenador entrenador = null;
+
+        String ruta = "/entrenador/" + id;
+        var peticion = get("http", "localhost",port, ruta);
+        var respuesta = restTemplate.exchange(peticion,
+                new ParameterizedTypeReference<EntrenadorDTO>() {});
+        if (respuesta.getStatusCode().value() == 200) { //si existe el entrenador, lo devuelvo
+            entrenador = Entrenador.fromEntrenadorDTO(respuesta.getBody()); // Lanza una excepción no controlada
+            dietasEntrenador = entrenador.getDietas();
+            return Optional.of(dietasEntrenador);
+        } else {
+            return Optional.empty();
+        } 
+
     }
 
     public static Optional<Dieta> getDietaDeCliente(long id) {
-        //TODO: devuelve la dieta de un cliente específico
-        return null;
+        //DONE: devuelve la dieta de un cliente específico
+        Cliente cliente = null;
+
+        String ruta = "/cliente/" + id;
+        var peticion = get("http", "localhost",port, ruta);
+        var respuesta = restTemplate.exchange(peticion,
+                new ParameterizedTypeReference<ClienteDTO>() {});
+        if (respuesta.getStatusCode().value() == 200) { //si existe el entrenador, lo devuelvo
+            cliente = Cliente.fromClienteDTO(respuesta.getBody()); // Lanza una excepción no controlada
+            return Optional.of(cliente.getDieta());
+        } else {
+            return Optional.empty();
+        }
+
     }
 
     public static Optional<List<Cliente>> getClientesDeDieta(long id) {
-        //TODO: devuelve los clientes de una dieta específica
-        return null;
+        //DONE: devuelve los clientes de una dieta específica
+        return Optional.of(dietaRepo.findById(id).get().getClientes()); //He supuesto que ya se comprueba en el controlador que la dieta existe
     }
 
     public static Optional<Entrenador> getEntrenadorDeDieta(long id) {
-        //TODO: devuelve el entrenador de una dieta específica
-        return null;
+        //DONE: devuelve el entrenador de una dieta específica
+        return Optional.of(dietaRepo.findById(id).get().getEntrenador()); //He supuesto que ya se comprueba en el controlador que la dieta existe
     }
 
 
@@ -160,10 +188,8 @@ public class DietaServicio {
             Cliente cliente = Cliente.fromClienteDTO(respuesta.getBody()); // Lanza una excepción no controlada
             return Optional.of(cliente);
         } else if (respuesta.getStatusCode().value() == 403){ //no tengo permisos
-            //throw new PermisosInsuficientesException();
             return Optional.empty();
         } else { //No existe el entrenador
-            //throw new EntidadNoEncontradaException();
             return Optional.empty();
         }
     }
@@ -179,29 +205,12 @@ public class DietaServicio {
         // cliente la dieta que nos pasan
 
         Optional<Cliente> cliente = getCliente(clienteId);
-        if (cliente.isPresent()) { //siempre debe ser present ya que sino el get cliente lanza una excepcion
-            //cliente.setDieta(dieta); // ERROR, no se puede modificar un objeto que se obtiene de un Optional
-
-            /*-----HAGO PETICION HTTP PARA ACTUALIZAR EL CLIENTE CON SU NUEVA DIETA----- */
-
-            String ruta = "/cliente/" + clienteId;
-            var peticion = put("http", "localhost",port, ruta, cliente);
-
-            var respuesta = restTemplate.exchange(peticion,
-                    new ParameterizedTypeReference<ClienteDTO>() {}); //el put de cliente me devuelve el cliente modificado creo, si quiero podria usarlo
-
-            //si quisiera devolver el cliente, deberia pasarlo de dto a cliente
-
-            /*------FIN PETICION HTTP--------------------------------------------------- */
-
-            if (respuesta.getStatusCode().value() == 403){ //no tengo permisos
-                throw new PermisosInsuficientesException();
-            } else { //No existe el entrenador
-                throw new EntidadNoEncontradaException();
-            }
-
-        } else {
-            throw new EntidadNoEncontradaException();
+        Cliente c = cliente.get();
+        List<Cliente> listClientes = dieta.getClientes();
+        if (!listClientes.contains(c)) { //compruebo el cliente no tuviese ya esa dieta,
+            listClientes.add(c);         //para no asignarle la dieta dos veces al mismo cliente
+            dieta.setClientes(listClientes);
+            modificarDieta(dieta); //guardo la dieta, que ya ha sido asignada al cliente nuevo
         }
     }
 
@@ -221,42 +230,24 @@ public class DietaServicio {
 
     //GET{ID} y PUT{ID}
     public Optional<Dieta> getDieta(Long id) {
-//        Optional<Dieta> dieta = dietaRepo.findById(id);
-//        if (dieta.isPresent()) {
-//            return Optional.of(dieta.get());
-//        } else {
-//            //throw new EntidadNoEncontradaException();
-//            return Optional.empty();
-//        }
         return dietaRepo.findById(id);
     }
 
 
     //PUT{ID}
     public void modificarDieta(Dieta dietaModificada) {
-//        if (dietaRepo.existsById(dietaModificada.getId())) {
-//            dietaRepo.save(dietaModificada);
-//        } else {
-//            throw new EntidadNoEncontradaException();
-//        }
         dietaRepo.save(dietaModificada);
     }
 
 
     //DELETE{ID}
     public void eliminarDieta(Long id) {
-//        if (dietaRepo.existsById(id)) {
-//            dietaRepo.deleteById(id);
-//        } else {
-//            throw new EntidadNoEncontradaException();
-//        }
         dietaRepo.deleteById(id);
     }
 
 
     //DELETE{ID}
     public boolean existsDieta(long id) {
-        //return dietaRepo.findById(id).isPresent();
         return dietaRepo.existsById(id);
     }
 
