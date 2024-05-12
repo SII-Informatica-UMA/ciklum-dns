@@ -8,15 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 
-public interface EntrenadorRepository extends JpaRepository<Entrenador,Integer> {
+public interface EntrenadorRepository extends JpaRepository<Entrenador,Long> {
 
-    Optional<Entrenador> findById(Integer id); //Busca un entrenador
+    Optional<Entrenador> findById(Long id); //Busca un entrenador
 
     List<Entrenador> findAll(); //Busca todos los entrenadores
 
     Entrenador save(Entrenador entrenador); //Guarda o actualiza un entrenador
 
-    void deleteById(Integer id); //Borra un entrenador
+    void deleteById(Long id); //Borra un entrenador
 
     void deleteAll(); //Borra todos los entrenadores
 

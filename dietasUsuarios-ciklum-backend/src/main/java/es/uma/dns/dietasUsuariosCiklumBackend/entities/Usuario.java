@@ -2,6 +2,7 @@ package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 
 import java.util.Objects;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.UsuarioDTO;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.DiscriminatorValue;
@@ -26,7 +27,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     private String nombre;
 
@@ -39,6 +40,21 @@ public class Usuario {
     private String password;
 
     private Boolean administrador;
+
+//-------------------------------------------------------------------------
+// METODOS ----------------------------------------------------------------
+
+    public UsuarioDTO toUsuarioDTO() {
+        return UsuarioDTO.builder()
+            .id(id)
+            .nombre(nombre)
+            .apellido1(apellido1)
+            .apellido2(apellido2)
+            .email(email)
+            .password(password)
+            .administrador(administrador)
+            .build();
+    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------
