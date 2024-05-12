@@ -1,6 +1,6 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.services.excepciones;
+package es.uma.dns.dietasUsuariosCiklumBackend.excepciones;
 
-public class PermisosInsuficientesException extends RuntimeException {
+public class PermisosInsuficientesException extends Exception {
     public PermisosInsuficientesException() {
         super();
     }

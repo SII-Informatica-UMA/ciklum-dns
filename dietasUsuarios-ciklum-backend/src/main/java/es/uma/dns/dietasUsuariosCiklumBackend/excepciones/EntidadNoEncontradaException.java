@@ -1,6 +1,6 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.services.excepciones;
+package es.uma.dns.dietasUsuariosCiklumBackend.excepciones;
 
-public class EntidadNoEncontradaException extends RuntimeException {
+public class EntidadNoEncontradaException extends Exception {
     public EntidadNoEncontradaException () {
         super();
     }    
