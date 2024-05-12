@@ -1,5 +1,6 @@
 package es.uma.dns.dietasUsuariosCiklumBackend;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Entrenador;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
@@ -137,6 +138,88 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
 			assertThat(respuesta.getBody()).isEmpty();
 		}
+		
+		/*
+		 * ERROR GET DIETAS DE UN ENTRENADOR INEXISTENTE
+		 * OJO -> REVISAR QUE ENTRENADOR CON ID = X NO EXISTE
+		 * */
+		@Test
+		@DisplayName("da error cuando el cliente no existe en la base de datos")
+		public void errorDevuelveDietasEntrenadorInexistente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=100000000");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+		}
+
+		/*
+		 * ERROR GET DIETAS DE UN CLIENTE INEXISTENTE
+		 * OJO -> REVISAR QUE CLIENTE CON ID = X NO EXISTE
+		 * */
+		@Test
+		@DisplayName("da error cuando el cliente no existe en la base de datos")
+		public void errorDevuelveDietasClienteInexistente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=100000000");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+		}
+
+		/*
+		 * ERROR GET DIETAS CON QUERY INEXISTENTE
+		 * */
+		@Test
+		@DisplayName("da error cuando intentas acceder a una lista de dietas con una url invalida (sin incluir query)")
+		public void errorDevuelveDietasURLnoValidaSinQuery() {
+
+			var peticion = get("http", "localhost", port, "/dietas");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
+
+		/*
+		 * ERROR GET DIETAS CON ID ENTRENADOR INVALIDO
+		 * */
+		@Test
+		@DisplayName("da error cuando intentas acceder a una lista de dietas entrenador con una url invalida (el id no es un numero)")
+		public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=pepito");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
+
+		/*
+		 * ERROR GET DIETAS CON ID CLIENTE INVALIDO
+		 * */
+		@Test
+		@DisplayName("da error cuando intentas acceder a una lista de dietas cliente con una url invalida (el id no es un numero)")
+		public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=pepito");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
 	}
 
 	@Nested
@@ -200,6 +283,42 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta3);
+		}
+
+		/*
+		 * GET DIETAS DE UN ENTRENADOR CON DIETAS (1 O MAS)
+		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE Y TENGA DIETAS ASOCIADAS
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un entrenador con 1 o más dietas")
+		public void devuelveDietasEntrenador() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=1");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<DietaDTO>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody().size()).isGreaterThanOrEqualTo(1);
+		}
+
+		/*
+		 * GET DIETAS DE UN CLIENTE CON DIETA (1)
+		 * OJO -> REVISAR QUE CLIENTE CON ID = 2 EXISTE Y TENGA 1 DIETA ASOCIADA
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un cliente con 1 dieta")
+		public void devuelveDietaCliente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=2");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody().size()).isEqualTo(1);
 		}
 	}
 	
