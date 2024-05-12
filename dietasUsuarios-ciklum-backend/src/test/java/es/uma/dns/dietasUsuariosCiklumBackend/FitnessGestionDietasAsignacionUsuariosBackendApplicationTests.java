@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -101,6 +102,41 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		* A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA COMPROBAR
 		* CUANDO NO EXISTE NADA EN LA BASE DE DATOS
 		* */
+		/*
+		 * GET DIETAS DE UN ENTRENADOR VACIO
+		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un entrenador vacía")
+		public void devuelveDietasVaciaEntrenador() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=1");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody()).isEmpty();
+		}
+
+		/*
+		 * GET DIETAS DE UN CLIENTE VACIO
+		 * OJO -> REVISAR QUE CLIENTE CON ID = 2 EXISTE
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un cliente vacía")
+		public void devuelveDietasVaciaCliente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=2");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody()).isEmpty();
+		}
 	}
 
 	@Nested
@@ -166,5 +202,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			dietaRepo.save(dieta3);
 		}
 	}
+	
+
 
 }
