@@ -3,7 +3,10 @@ package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 import java.util.List;
 import java.util.Objects;
 import java.sql.Date;
+import java.util.Optional;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,10 +44,64 @@ public class Entrenador extends Usuario{
     private String observaciones;
 
     //TO-DO:relacion centro y entidad centro
-    private Integer idCentro;
+    private Long idCentro;
 
     @OneToMany(mappedBy="entrenador")
     private List<Dieta> dietas;
+
+//-------------------------------------------------------------------------
+// METODOS ----------------------------------------------------------------
+
+    public EntrenadorDTO toEntrenadorDTO() {
+        return EntrenadorDTO.builder()
+            .idUsuario(super.getId())
+            .telefono(telefono)
+            .direccion(direccion)
+            .dni(dni)
+            .fechaNacimiento(fechaNacimiento.toString())
+            .fechaAlta(fechaAlta.toString())
+            .fechaBaja(fechaBaja.toString())
+            .especialidad(especialidad)
+            .titulacion(titulacion)
+            .experiencia(experiencia)
+            .observaciones(observaciones)
+            .id(idCentro) //SEGURO? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            .build();
+    }
+
+    public static Entrenador fromEntrenadorDTO(EntrenadorDTO entrenadorDTO) {
+
+        Entrenador entrenador = Entrenador.builder()
+                .telefono(entrenadorDTO.getTelefono())
+                .direccion(entrenadorDTO.getDireccion())
+                .dni(entrenadorDTO.getDni())
+                .fechaNacimiento(Date.valueOf(entrenadorDTO.getFechaNacimiento()))
+                .fechaAlta(Date.valueOf(entrenadorDTO.getFechaAlta()))
+                .fechaBaja(Date.valueOf(entrenadorDTO.getFechaBaja()))
+                .especialidad(entrenadorDTO.getEspecialidad())
+                .titulacion(entrenadorDTO.getTitulacion())
+                .experiencia(entrenadorDTO.getExperiencia())
+                .observaciones(entrenadorDTO.getObservaciones())
+                .idCentro(entrenadorDTO.getId())
+                .dietas(obtenerDietasEntrenador(entrenadorDTO.getId()))
+                .build();
+
+        entrenador.setId(entrenadorDTO.getIdUsuario());
+
+        return entrenador;
+    }
+
+    private static List<Dieta> obtenerDietasEntrenador(long id) {
+
+        Optional<List<Dieta>> dietas = DietaServicio.getDietasDeEntrenador(id);
+
+        if (dietas.isPresent()) {
+            return dietas.get();
+        } else {
+            return null;
+        }
+
+    }
 
 //-------------------------------------------------------------------------
 // OVERRIDES --------------------------------------------------------------
