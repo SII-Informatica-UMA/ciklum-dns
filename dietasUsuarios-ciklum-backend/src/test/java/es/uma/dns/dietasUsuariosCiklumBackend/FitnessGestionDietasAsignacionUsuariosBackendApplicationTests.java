@@ -1,5 +1,7 @@
 package es.uma.dns.dietasUsuariosCiklumBackend;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Entrenador;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -22,6 +25,7 @@ import org.springframework.web.util.UriBuilderFactory;
 import java.net.URI;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,23 +97,281 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		assertThat(actual.getClientes()).isEqualTo(expected.getClientes());
 	}
 
+	private void compruebaCamposPostDieta(DietaNuevaDTO expected, Dieta actual) {
+		assertThat(actual.getNombre()).isEqualTo(expected.getNombre());
+		assertThat(actual.getDescripcion()).isEqualTo(expected.getDescripcion());
+		assertThat(actual.getObservaciones()).isEqualTo(expected.getObservaciones());
+		assertThat(actual.getObjetivo()).isEqualTo(expected.getObjetivo());
+		assertThat(actual.getDuracionDias()).isEqualTo(expected.getDuracionDias());
+		assertThat(actual.getRecomendaciones()).isEqualTo(expected.getRecomendaciones());
+		assertThat(actual.getAlimentos()).isEqualTo(expected.getAlimentos());
+	}
 
+	/*
+	 * A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA COMPROBAR
+	 * CUANDO NO EXISTE NADA EN LA BASE DE DATOS
+	 * */
 	@Nested
 	@DisplayName("cuando la base de datos esté vacía de dietas...")
 	public class BaseDatosDietasVacia{
+
+		// ========================================GET /DIETAS==========================================================
+
 		/*
-		* A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA COMPROBAR
-		* CUANDO NO EXISTE NADA EN LA BASE DE DATOS
+		 * GET DIETAS DE UN ENTRENADOR VACIO
+		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un entrenador vacía")
+		public void devuelveDietasVaciaEntrenador() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=1");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody()).isEmpty();
+		}
+
+		/*
+		 * GET DIETAS DE UN CLIENTE VACIO
+		 * OJO -> REVISAR QUE CLIENTE CON ID = 2 EXISTE
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un cliente vacía")
+		public void devuelveDietasVaciaCliente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=2");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody()).isEmpty();
+		}
+
+		/*
+		 * ERROR GET DIETAS DE UN ENTRENADOR INEXISTENTE
+		 * OJO -> REVISAR QUE ENTRENADOR CON ID = X NO EXISTE
+		 * */
+		@Test
+		@DisplayName("da error cuando el cliente no existe en la base de datos")
+		public void errorDevuelveDietasEntrenadorInexistente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=100000000");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+		}
+
+		/*
+		 * ERROR GET DIETAS DE UN CLIENTE INEXISTENTE
+		 * OJO -> REVISAR QUE CLIENTE CON ID = X NO EXISTE
+		 * */
+		@Test
+		@DisplayName("da error cuando el cliente no existe en la base de datos")
+		public void errorDevuelveDietasClienteInexistente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=100000000");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+		}
+
+		/*
+		 * ERROR GET DIETAS CON QUERY INEXISTENTE
+		 * */
+		@Test
+		@DisplayName("da error cuando intentas acceder a una lista de dietas con una url invalida (sin incluir query)")
+		public void errorDevuelveDietasURLnoValidaSinQuery() {
+
+			var peticion = get("http", "localhost", port, "/dietas");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
+
+		/*
+		 * ERROR GET DIETAS CON ID ENTRENADOR INVALIDO
+		 * */
+		@Test
+		@DisplayName("da error cuando intentas acceder a una lista de dietas entrenador con una url invalida (el id no es un numero)")
+		public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=pepito");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
+
+		/*
+		 * ERROR GET DIETAS CON ID CLIENTE INVALIDO
+		 * */
+		@Test
+		@DisplayName("da error cuando intentas acceder a una lista de dietas cliente con una url invalida (el id no es un numero)")
+		public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=pepito");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
+
+		//==============================================================================================================
+
+		// ========================================POST /DIETAS=========================================================
+		/*
+		*  POST DIETAS CORRECTAMENTE
 		* */
+		@Test
+		@DisplayName("inserta correctamente una dieta dando ID de Entrenador")
+		public void insertaDietaIndicandoEntrenadorConId() {
+			List<String> alimentos = new ArrayList<>();
+			alimentos.add("tomate");
+			var dieta = DietaNuevaDTO.builder()
+					.nombre("prueba")
+					.descripcion("descripcion")
+					.objetivo("objtv")
+					.observaciones("observc")
+					.duracionDias(1)
+					.alimentos(alimentos)
+					.recomendaciones("recomendaciones")
+					.build();
+
+
+			var peticion = post("http", "localhost",port, "/dietas?entrenador=1", dieta);
+
+			var respuesta = restTemplate.exchange(peticion,Void.class);
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(201);
+
+			assertThat(respuesta.getHeaders().get("Location").get(0))
+					.startsWith("http://localhost:"+port+"/dietas");
+
+			List<Dieta> dietasBD = dietaRepo.findAll();
+			Dieta dietaEntidad = dietasBD.stream()
+					.filter(p->p.getNombre().equals("prueba"))
+					.findFirst()
+					.get();
+
+			assertThat(dietasBD).hasSize(1);
+
+			assertThat(respuesta.getHeaders().get("Location").get(0))
+					.endsWith("/"+dietaEntidad.getId());
+
+			compruebaCamposPostDieta(dieta, dietaEntidad);
+
+			assertThat(dietaEntidad.getEntrenador().getId()).isEqualTo(1L);
+		}
+
+		/*
+		 *  ERROR POST DIETAS ENTRENADOR NO EXISTE
+		 *  OJOOOOO -> REVISAR QUE EL ID ENTRENADOR NO EXISTE
+		 * */
+		@Test
+		@DisplayName(" da error insertando una dieta por no existir entrenador con ese id")
+		public void errorInsertaDietaEntrenadorInexistente() {
+			List<String> alimentos = new ArrayList<>();
+			alimentos.add("tomate");
+			var dieta = DietaNuevaDTO.builder()
+					.nombre("prueba")
+					.descripcion("descripcion")
+					.objetivo("objtv")
+					.observaciones("observc")
+					.duracionDias(1)
+					.alimentos(alimentos)
+					.recomendaciones("recomendaciones")
+					.build();
+
+
+			var peticion = post("http", "localhost",port, "/dietas?entrenador=1000000000", dieta);
+
+			var respuesta = restTemplate.exchange(peticion,Void.class);
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+		}
+
+		/*
+		 *  ERROR POST DIETAS SIN QUERY
+		 * */
+		@Test
+		@DisplayName(" da error insertando una dieta por no señalar el id del entrenador")
+		public void errorInsertaDietaNoQuery() {
+			List<String> alimentos = new ArrayList<>();
+			alimentos.add("tomate");
+			var dieta = DietaNuevaDTO.builder()
+					.nombre("prueba")
+					.descripcion("descripcion")
+					.objetivo("objtv")
+					.observaciones("observc")
+					.duracionDias(1)
+					.alimentos(alimentos)
+					.recomendaciones("recomendaciones")
+					.build();
+
+
+			var peticion = post("http", "localhost",port, "/dietas", dieta);
+
+			var respuesta = restTemplate.exchange(peticion,Void.class);
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
+
+		/*
+		 *  ERROR POST DIETAS CON ID ENTRENADOR INVALIDO
+		 * */
+		@Test
+		@DisplayName(" da error insertando una dieta por no señalar señalar como id de entrenador algo que no tiene relacion")
+		public void errorInsertaDietaQueryInvalida() {
+			List<String> alimentos = new ArrayList<>();
+			alimentos.add("tomate");
+			var dieta = DietaNuevaDTO.builder()
+					.nombre("prueba")
+					.descripcion("descripcion")
+					.objetivo("objtv")
+					.observaciones("observc")
+					.duracionDias(1)
+					.alimentos(alimentos)
+					.recomendaciones("recomendaciones")
+					.build();
+
+
+			var peticion = post("http", "localhost",port, "/dietas?entrenador=pepe", dieta);
+
+			var respuesta = restTemplate.exchange(peticion,Void.class);
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+		}
+
+		//==============================================================================================================
+
 	}
 
+	/*
+	 * A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA PARA
+	 * COMPROBAR ELEMENTOS DE LA BASE DE DATOS
+	 * */
 	@Nested
 	@DisplayName("cuando la base de datos esté llena...")
 	public class BaseDatosDietasLlena{
-		/*
-		* A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA PARA
-		* COMPROBAR ELEMENTOS DE LA BASE DE DATOS
-		* */
 
 		@BeforeEach
 		public void insertarDatos(){
@@ -165,6 +427,76 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta3);
 		}
+
+		// ========================================GET /DIETAS==========================================================
+
+		/*
+		 * GET DIETAS DE UN ENTRENADOR CON DIETAS (1 O MAS)
+		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE Y TENGA DIETAS ASOCIADAS
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un entrenador con 1 o más dietas")
+		public void devuelveDietasEntrenador() {
+
+			var peticion = get("http", "localhost", port, "/dietas?entrenador=1");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<DietaDTO>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody().size()).isGreaterThanOrEqualTo(1);
+		}
+
+		/*
+		 * GET DIETAS DE UN CLIENTE CON DIETA (1)
+		 * OJO -> REVISAR QUE CLIENTE CON ID = 2 EXISTE Y TENGA 1 DIETA ASOCIADA
+		 * */
+		@Test
+		@DisplayName("devuelve la lista de dietas de un cliente con 1 dieta")
+		public void devuelveDietaCliente() {
+
+			var peticion = get("http", "localhost", port, "/dietas?cliente=2");
+
+			var respuesta = restTemplate.exchange(peticion,
+					new ParameterizedTypeReference<List<Dieta>>() {
+					});
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			assertThat(respuesta.getBody().size()).isEqualTo(1);
+		}
+
+		//==============================================================================================================
+
+		// =======================================POST /DIETAS==========================================================
+		/*
+		 *  ERROR POST DIETAS NOMBRE EXISTENTE
+		 * */
+		@Test
+		@DisplayName(" da error insertando una dieta por tener nombre existente")
+		public void errorInsertaDietaNombreExistente() {
+			List<String> alimentos = new ArrayList<>();
+			alimentos.add("tomate");
+			var dieta = DietaNuevaDTO.builder()
+					.nombre("Mediterranea")
+					.descripcion("descripcion")
+					.objetivo("objtv")
+					.observaciones("observc")
+					.duracionDias(1)
+					.alimentos(alimentos)
+					.recomendaciones("recomendaciones")
+					.build();
+
+
+			var peticion = post("http", "localhost",port, "/dietas?entrenador=1", dieta);
+
+			var respuesta = restTemplate.exchange(peticion,Void.class);
+
+			assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+		}
+		//==============================================================================================================
 	}
+	
+
 
 }
