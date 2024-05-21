@@ -38,12 +38,12 @@ public class Dieta {
 
     private String recomendaciones;
 
-    @ManyToOne
-    @JoinColumn(name="entrenador_fk")
-    private Entrenador entrenador;
+    //@ManyToOne
+    //@JoinColumn(name="entrenador_fk")
+    private Long entrenador;
 
-    @OneToMany(mappedBy="dieta")
-    private List<Cliente> clientes;
+    //@OneToMany(mappedBy="dieta")
+    private List<Long> clientes;
 
 //-------------------------------------------------------------------------
 // METODOS ----------------------------------------------------------------
@@ -76,27 +76,20 @@ public class Dieta {
             .build();
     }
 
-    private static List<Cliente> obtenerClientesDieta(long id) {
+    private static List<Long> obtenerClientesDieta(long id) {
 
-        Optional<List<Cliente>> clientes = DietaServicio.getClientesDeDieta(id);
+        Optional<List<Long>> clientes = DietaServicio.getClientesDeDieta(id);
 
-        if (clientes.isPresent()) {
-            return clientes.get();
-        } else {
-            return null;
-        }
+        return clientes.orElse(null);
 
     }
 
-    private static Entrenador obtenerEntrenadorDieta(long id) {
+    private static Long obtenerEntrenadorDieta(long id) {
 
-        Optional<Entrenador> entrenador = DietaServicio.getEntrenadorDeDieta(id);
+        Optional<Long> entrenador = DietaServicio.getEntrenadorDeDieta(id);
 
-        if (entrenador.isPresent()) {
-            return entrenador.get();
-        } else {
-            return null; //Qué pasa si una dieta no tiene entrenador? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        }
+        //Qué pasa si una dieta no tiene entrenador? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        return entrenador.orElse(null);
 
     }
 
@@ -120,7 +113,7 @@ public class Dieta {
             + ", recomendaciones=" 
             + recomendaciones 
             + ", idEntrenador=" 
-            + entrenador.getId()
+            + entrenador
             + ", clientes="
             + clientes
             + "]";
