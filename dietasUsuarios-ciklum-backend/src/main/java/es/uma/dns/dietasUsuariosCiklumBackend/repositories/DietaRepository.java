@@ -18,5 +18,4 @@ public interface DietaRepository extends JpaRepository<Dieta,Long> {
 
     Optional<Dieta> findByClientes(List<Long> clientes); //Devuelve una dieta dada la id de los clientes que la tienen
 
-    
 }
