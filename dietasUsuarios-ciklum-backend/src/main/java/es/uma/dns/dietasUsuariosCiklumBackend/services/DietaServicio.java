@@ -122,26 +122,26 @@ public class DietaServicio {
         return Optional.of(dietaRepo.findById(id).get().getEntrenador()); //He supuesto que ya se comprueba en el controlador que la dieta existe
     }
 
-
+    //DONE MODIFICADO NUEVA ESPECIFICACION: devuelve las dietas de un entrenador específico
     //GET (entrenador)
     public static Optional<List<Dieta>> getDietasDeEntrenador(Long id) {
-        //DONE: devuelve las dietas de un entrenador específico
-        //Optional<Entrenador> entrenador = getEntrenador(id); //No funciona porque no es static getEntrenador
+        
+        List<Dieta> dietas = dietaRepo.findAll();
         List<Dieta> dietasEntrenador = new ArrayList<>();
-        Entrenador entrenador = null;
+        Optional<List<Dieta>> res = Optional.empty();
 
-        String ruta = "/entrenador/" + id;
-        var peticion = get("http", "localhost",port, ruta);
-        var respuesta = restTemplate.exchange(peticion,
-                new ParameterizedTypeReference<EntrenadorDTO>() {});
-        if (respuesta.getStatusCode().value() == 200) { //si existe el entrenador, lo devuelvo
-            entrenador = Entrenador.fromEntrenadorDTO(respuesta.getBody()); // Lanza una excepción no controlada
-            dietasEntrenador = entrenador.getDietas();
-            return Optional.of(dietasEntrenador);
-        } else {
-            return Optional.empty();
-        } 
+        for (Dieta d : dietas){
+            if (d.getEntrenador() == id){
+                dietasEntrenador.add(d);
+            }
+        }
 
+        if (!dietasEntrenador.isEmpty()){
+            res = Optional.of(dietasEntrenador);
+        }
+
+        return res;
+        
     }
 
 
@@ -168,6 +168,7 @@ public class DietaServicio {
     }
 
 
+    //DONE MODIFICADO: Asigna el cliente a la dieta, comprobando para evitar que un cliente tenga dos veces la misma dieta
     //PUT
     public void asignarDietaCliente(Long clienteId, Dieta dieta) {
 
@@ -175,25 +176,21 @@ public class DietaServicio {
 
         // No hay que modificar clientes fuera de nuestro microservicio, solo hay que asignarle al
         // cliente la dieta que nos pasan
-
-        Optional<Cliente> cliente = getCliente(clienteId);
-        Cliente c = cliente.get();
-        List<Cliente> listClientes = dieta.getClientes();
-        if (!listClientes.contains(c)) { //compruebo el cliente no tuviese ya esa dieta,
-            listClientes.add(c);         //para no asignarle la dieta dos veces al mismo cliente
-            dieta.setClientes(listClientes);
-            modificarDieta(dieta); //guardo la dieta, que ya ha sido asignada al cliente nuevo
+        List<Long> clientes = dieta.getClientes();
+        if (!clientes.contains(clienteId)){ //compruebo para no poder asignar la misma dieta dos veces al mismo cliente
+            clientes.add(clienteId);
+            dieta.setClientes(clientes);
         }
+
     }
 
-
+    //DONE MODIFICADO: Publica una nueva dieta
     //POST
     public Dieta crearDieta(Dieta d, Long idEntrenador) throws EntidadExistenteException {
 
-        //ASEGURATE DE QUE LA DIETA TIENE EL idEntrenador ASIGNADO
-
         if (!dietaRepo.existsByNombre(d.getNombre())) {
-            d.setId(null); // ¿?
+            d.setEntrenador(idEntrenador); //Aseguro que se asigna el idEntrenador
+            d.setId(null); // ¿? --> Supongo es porque la bd se encarga de darle automaticamente un id, vaya a ser que traiga alguno que genere conflicto (el profe lo tenia asi creo que fue de donde lo vi en sus ejemplos)
             Dieta guardada = dietaRepo.save(d);
             return guardada;
         } else {
@@ -228,15 +225,25 @@ public class DietaServicio {
 
     //put
     public boolean existeCliente(Long clienteId) {
-        //TODO
-        return false;
+        //DONE, recorro todas las dietas de nuestro microservicio y compruebe ese cliente aparece
+        boolean res = false;
+        List<Dieta> dietas = dietaRepo.findAll();
+        for (Dieta d : dietas){
+            List<Long> clientes = d.getClientes();
+            if (clientes.contains(clienteId)){
+                res = true;
+                break;
+            }
+        }
+        return res;
     }
 
     //POST
     public boolean existeEntrenador(Long entrenadorId) {
-        //TODO
-        return false;
+        //DONE, comprueba si el resultado de buscar una dieta dado un entrenador es vacio o no
+        return dietaRepo.findByEntrenador(entrenadorId).isPresent();
     }
 
 
 }
+
