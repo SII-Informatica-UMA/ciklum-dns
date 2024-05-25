@@ -1,12 +1,14 @@
 package es.uma.dns.dietasUsuariosCiklumBackend;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
-import es.uma.dns.dietasUsuariosCiklumBackend.repositories.EntrenadorRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,11 +40,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	@Autowired
 	private DietaRepository dietaRepo;
-	@Autowired
-	private EntrenadorRepository entrenadorRepo;
-
-	@Autowired
-	private ClienteRepository clienteRepo;
 	
 
 	private URI uri(String scheme, String host, int port, String ...paths) {
@@ -281,7 +278,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 			compruebaCamposPostDieta(dieta, dietaEntidad);
 
-			assertThat(dietaEntidad.getEntrenador().getId()).isEqualTo(1L);
+			assertThat(dietaEntidad.getEntrenador()).isEqualTo(1L);
 		}
 
 		/*
@@ -378,57 +375,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@BeforeEach
 		public void insertarDatos(){
 			
-			//Entrenador 1
-			Date a=new Date(111111);
-			var entrenador1= new Entrenador();
-			entrenador1.setId(1L);
-			entrenador1.setAdministrador(false);
-			entrenador1.setApellido1("carr");
-			entrenador1.setApellido2("carr");
-			entrenador1.setEmail("ejemplo@gmail.com");
-			entrenador1.setNombre("Luis");
-			entrenador1.setPassword("122");
-			entrenador1.setFechaNacimiento(a);
-			entrenador1.setFechaAlta(a);
-			entrenador1.setFechaBaja(a);
-			entrenador1.setTelefono("111199999");
-			entrenador1.setDireccion("calle ejemplo 26");
-			entrenador1.setDni("00000000A");
-			entrenador1.setEspecialidad("brazos");
-			entrenador1.setTitulacion("ninguna");
-			entrenador1.setExperiencia("12");
-			entrenador1.setObservaciones("muy ruidoso");
-			entrenador1.setIdCentro(1L);
-
-			entrenadorRepo.save(entrenador1);
-
-			//Entrenador 2
-			Date b=new Date(222222);
-			var entrenador2= new Entrenador();
-			entrenador1.setId(2L);
-			entrenador1.setAdministrador(false);
-			entrenador1.setApellido1("call");
-			entrenador1.setApellido2("call");
-			entrenador1.setEmail("ejemplo2@gmail.com");
-			entrenador1.setNombre("Pepe");
-			entrenador1.setPassword("123");
-			entrenador1.setFechaNacimiento(b);
-			entrenador1.setFechaAlta(b);
-			entrenador1.setFechaBaja(b);
-			entrenador1.setTelefono("444499999");
-			entrenador1.setDireccion("calle ejemplo2 36");
-			entrenador1.setDni("00000001A");
-			entrenador1.setEspecialidad("piernas");
-			entrenador1.setTitulacion("podología");
-			entrenador1.setExperiencia("1");
-			entrenador1.setObservaciones("muy energico");
-			entrenador1.setIdCentro(1L);
-
-			entrenadorRepo.save(entrenador2);
-			
-			
-			
-			
 			// Dieta 1
 			var dieta1 = new Dieta();
 			dieta1.setId(1L);
@@ -443,7 +389,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos.add("Pescado");
 			dieta1.setAlimentos(alimentos);
 			// VER COMO COGER UN ENTRENADOR-> id=1L
-			dieta1.setEntrenador(entrenador1);
+			dieta1.setEntrenador(1L);
 			dietaRepo.save(dieta1);
 
 			// VER COMO COGER UN CLIENTE
@@ -460,7 +406,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos2.add("Todo");
 			dieta2.setAlimentos(alimentos2);
 			// VER COMO COGER UN ENTRENADOR-> id=1L
-			// dieta2.setEntrenador();
+			dieta2.setEntrenador(1L);
 
 			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta2);
@@ -477,48 +423,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos3.add("Todo");
 			dieta3.setAlimentos(alimentos3);
 			// VER COMO COGER UN ENTRENADOR-> id=2L
-			dieta2.setEntrenador(entrenador1);
+			dieta2.setEntrenador(2L);
 
 			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta3);
-
-
-			//cliente 1
-			
-			var cliente1= new Cliente();
-			cliente1.setId(3L);
-			cliente1.setNombre("Juan");
-			cliente1.setApellido1("ap");
-			cliente1.setApellido2("ap2");
-			cliente1.setAdministrador(false);
-			cliente1.setDieta(dieta1);
-			cliente1.setEmail("ejemplocli@gmail.com");
-			cliente1.setFechaNacimiento(b);
-			cliente1.setPassword("111");
-			cliente1.setTelefono("222244442");
-			cliente1.setDireccion("calle ejemplo 35");
-			cliente1.setDni("22222222G");
-			cliente1.setSexo(Sex.HOMBRE);
-			clienteRepo.save(cliente1);
-
-			//cliente 2
-			
-			var cliente2= new Cliente();
-			cliente1.setId(4L);
-			cliente1.setNombre("Juana");
-			cliente1.setApellido1("ape");
-			cliente1.setApellido2("ape2");
-			cliente1.setAdministrador(false);
-			cliente1.setDieta(dieta2);
-			cliente1.setEmail("ejemplocliente@gmail.com");
-			cliente1.setFechaNacimiento(a);
-			cliente1.setPassword("112");
-			cliente1.setTelefono("222245442");
-			cliente1.setDireccion("calle ejemplo 55");
-			cliente1.setDni("22222223F");
-			cliente1.setSexo(Sex.MUJER);
-			clienteRepo.save(cliente2);
-			
 		}
 
 		
