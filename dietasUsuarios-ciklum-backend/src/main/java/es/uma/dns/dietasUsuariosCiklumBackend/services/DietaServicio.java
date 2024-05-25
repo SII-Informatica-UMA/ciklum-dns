@@ -1,6 +1,7 @@
 package es.uma.dns.dietasUsuariosCiklumBackend.services;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,13 +18,9 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadNoEncontradaException;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.entities.Cliente;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
-import es.uma.dns.dietasUsuariosCiklumBackend.entities.Entrenador;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
 
@@ -33,20 +30,40 @@ public class DietaServicio {
     
     private static DietaRepository dietaRepo;
 
+    @Autowired
     public DietaServicio(DietaRepository dietaRepositorio) {
         dietaRepo = dietaRepositorio;
     }
 
     @Value(value="${local.server.port}")
-	private int port;
+	private static int port;
 
     @Autowired
-    private RestTemplate restTemplate; //para hacer peticiones
+    private static RestTemplate restTemplate; //para hacer peticiones
 
 
-    /* ------------------------ METODOS CONSTRUCCION PETICIONES ---------------------- */
 
-    private URI uri(String scheme, String host, int port, String... paths) {
+
+//-------------------------------------------------------------------------
+// KKBORRAR ---------------------------------------------------------------
+
+// Estas clases solo sirven para hacer más fácil los cambios de borrar las entidades
+// cliente, entrenador y usuario
+
+
+    private class Cliente {
+        //KK
+    }
+
+    private class Entrenador {
+        //KK
+    }
+
+
+//-------------------------------------------------------------------------
+//MÉTODOS DE CONSTRUCCIÓN DE PETICIONES -----------------------------------
+
+    private static URI uri(String scheme, String host, int port, String... paths) {
         UriBuilderFactory ubf = new DefaultUriBuilderFactory();
         UriBuilder ub = ubf.builder()
             .scheme(scheme)
@@ -57,7 +74,7 @@ public class DietaServicio {
         return ub.build();
     }
 
-    private RequestEntity<Void> get(String scheme, String host, int port, String path) {
+    private static RequestEntity<Void> get(String scheme, String host, int port, String path) {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.get(uri)
             .accept(MediaType.APPLICATION_JSON)
@@ -88,128 +105,92 @@ public class DietaServicio {
         return peticion;
     }
 
-/* ------------------------ FIN METODOS CONSTRUCCION PETICIONES ---------------------- */
-/* ----------------------------------------------------------------------------------- */
+//-------------------------------------------------------------------------
+// MÉTODOS DEL SERVICIO ---------------------------------------------------
 
 
-    public static Optional<List<Dieta>> getDietasDeEntrenador(long id) {
-        //TODO: devuelve las dietas de un entrenador específico
-        return null;
-    }
-
-    public static Optional<Dieta> getDietaDeCliente(long id) {
-        //TODO: devuelve la dieta de un cliente específico
-        return null;
-    }
-
-    public static Optional<List<Cliente>> getClientesDeDieta(long id) {
-        //TODO: devuelve los clientes de una dieta específica
-        return null;
-    }
-
-    public static Optional<Entrenador> getEntrenadorDeDieta(long id) {
-        //TODO: devuelve el entrenador de una dieta específica
-        return null;
+    //Se usa en la entidad Dieta
+    public static Optional<List<Long>> getClientesDeDieta(Long id) {
+        //DONE: devuelve los clientes de una dieta específica
+        return Optional.of(dietaRepo.findById(id).get().getClientes()); //He supuesto que ya se comprueba en el controlador que la dieta existe
     }
 
 
-//    //GET
-//    public List<Dieta> obtenerDietas() {
-//        return dietaRepo.findAll();
-//    }
-//
-//
-//    //POST
-//    public Long aniadirDieta(Dieta d) { //hecha como en apuntes del profe
-//        if (!dietaRepo.existsByNombre(d.getNombre())) {
-//            d.setId(null);
-//            dietaRepo.save(d);
-//            return d.getId();
-//        } else {
-//            throw new EntidadExistenteException();
-//        }
-//    }
+    //Se usa en la entidad Dieta
+    public static Optional<Long> getEntrenadorDeDieta(Long id) {
+        //DONE: devuelve el entrenador de una dieta específica
+        return Optional.of(dietaRepo.findById(id).get().getEntrenador()); //He supuesto que ya se comprueba en el controlador que la dieta existe
+    }
 
+    //DONE MODIFICADO NUEVA ESPECIFICACION: devuelve las dietas de un entrenador específico
+    //GET (entrenador)
+    public static Optional<List<Dieta>> getDietasDeEntrenador(Long id) {
+        
+        List<Dieta> dietas = dietaRepo.findAll();
+        List<Dieta> dietasEntrenador = new ArrayList<>();
+        Optional<List<Dieta>> res = Optional.empty();
 
-    //GET y POST
-    public Optional<Entrenador> getEntrenador(Long entrenadorId) {
-        String ruta = "/entrenador/" + entrenadorId;
-        var peticion = get("http", "localhost",port, ruta);
-        var respuesta = restTemplate.exchange(peticion,
-                new ParameterizedTypeReference<EntrenadorDTO>() {});
-        if (respuesta.getStatusCode().value() == 200) { //si existe el entrenador, lo devuelvo
-            Entrenador entrenador = Entrenador.fromEntrenadorDTO(respuesta.getBody()); // Lanza una excepción no controlada
-            return Optional.of(entrenador);
-        } else if (respuesta.getStatusCode().value() == 403){ //no tengo permisos
-
-            return Optional.empty();
-        } else { //No existe el entrenador
-
-            return Optional.empty();
+        for (Dieta d : dietas){
+            if (d.getEntrenador() == id){
+                dietasEntrenador.add(d);
+            }
         }
-    }
 
-
-    //GET y PUT
-    public Optional<Cliente> getCliente(Long clienteId) {
-        String ruta = "/cliente/" + clienteId;
-        var peticion = get("http", "localhost",port, ruta);
-        var respuesta = restTemplate.exchange(peticion,
-                new ParameterizedTypeReference<ClienteDTO>() {});
-        if (respuesta.getStatusCode().value() == 200) { //si existe el entrenador, lo devuelvo
-            Cliente cliente = Cliente.fromClienteDTO(respuesta.getBody()); // Lanza una excepción no controlada
-            return Optional.of(cliente);
-        } else if (respuesta.getStatusCode().value() == 403){ //no tengo permisos
-            //throw new PermisosInsuficientesException();
-            return Optional.empty();
-        } else { //No existe el entrenador
-            //throw new EntidadNoEncontradaException();
-            return Optional.empty();
+        if (!dietasEntrenador.isEmpty()){
+            res = Optional.of(dietasEntrenador);
         }
+
+        return res;
+        
     }
 
 
+    //MODIFICADO PARA CUMPLIR LA NUEVA ESPECIFICACION
+    //GET (cliente)
+    public Optional<Dieta> getDietaDeCliente(Long idCliente) {
+        //DONE: devuelve la dieta de un cliente específico
+
+        List<Dieta> dietas = dietaRepo.findAll();
+
+        Optional<Dieta> dietaResultado = Optional.empty();
+
+        for (Dieta d : dietas) {
+            List<Long> clientes = d.getClientes();
+
+            if (clientes.contains(idCliente)) {
+                dietaResultado = Optional.of(d);
+                break;
+            }
+
+        }
+
+        return dietaResultado;
+    }
+
+
+    //DONE MODIFICADO: Asigna el cliente a la dieta, comprobando para evitar que un cliente tenga dos veces la misma dieta
     //PUT
-    public void asignarDietaCliente(Long clienteId, Dieta dieta)
-            throws EntidadNoEncontradaException, PermisosInsuficientesException {
+    public void asignarDietaCliente(Long clienteId, Dieta dieta) {
 
         // No hay que hacer la comprobacion de si existe el cliente, ya la hace el controlador
 
         // No hay que modificar clientes fuera de nuestro microservicio, solo hay que asignarle al
         // cliente la dieta que nos pasan
-
-        Optional<Cliente> cliente = getCliente(clienteId);
-        if (cliente.isPresent()) { //siempre debe ser present ya que sino el get cliente lanza una excepcion
-            //cliente.setDieta(dieta); // ERROR, no se puede modificar un objeto que se obtiene de un Optional
-
-            /*-----HAGO PETICION HTTP PARA ACTUALIZAR EL CLIENTE CON SU NUEVA DIETA----- */
-
-            String ruta = "/cliente/" + clienteId;
-            var peticion = put("http", "localhost",port, ruta, cliente);
-
-            var respuesta = restTemplate.exchange(peticion,
-                    new ParameterizedTypeReference<ClienteDTO>() {}); //el put de cliente me devuelve el cliente modificado creo, si quiero podria usarlo
-
-            //si quisiera devolver el cliente, deberia pasarlo de dto a cliente
-
-            /*------FIN PETICION HTTP--------------------------------------------------- */
-
-            if (respuesta.getStatusCode().value() == 403){ //no tengo permisos
-                throw new PermisosInsuficientesException();
-            } else { //No existe el entrenador
-                throw new EntidadNoEncontradaException();
-            }
-
-        } else {
-            throw new EntidadNoEncontradaException();
+        List<Long> clientes = dieta.getClientes();
+        if (!clientes.contains(clienteId)){ //compruebo para no poder asignar la misma dieta dos veces al mismo cliente
+            clientes.add(clienteId);
+            dieta.setClientes(clientes);
         }
+
     }
 
-
+    //DONE MODIFICADO: Publica una nueva dieta
     //POST
-    public Dieta crearDieta(Dieta d) throws EntidadExistenteException {
+    public Dieta crearDieta(Dieta d, Long idEntrenador) throws EntidadExistenteException {
+
         if (!dietaRepo.existsByNombre(d.getNombre())) {
-            d.setId(null); // ¿?
+            d.setEntrenador(idEntrenador); //Aseguro que se asigna el idEntrenador
+            d.setId(null); // ¿? --> Supongo es porque la bd se encarga de darle automaticamente un id, vaya a ser que traiga alguno que genere conflicto (el profe lo tenia asi creo que fue de donde lo vi en sus ejemplos)
             Dieta guardada = dietaRepo.save(d);
             return guardada;
         } else {
@@ -218,47 +199,51 @@ public class DietaServicio {
     }
 
 
-
     //GET{ID} y PUT{ID}
     public Optional<Dieta> getDieta(Long id) {
-//        Optional<Dieta> dieta = dietaRepo.findById(id);
-//        if (dieta.isPresent()) {
-//            return Optional.of(dieta.get());
-//        } else {
-//            //throw new EntidadNoEncontradaException();
-//            return Optional.empty();
-//        }
         return dietaRepo.findById(id);
     }
 
 
     //PUT{ID}
     public void modificarDieta(Dieta dietaModificada) {
-//        if (dietaRepo.existsById(dietaModificada.getId())) {
-//            dietaRepo.save(dietaModificada);
-//        } else {
-//            throw new EntidadNoEncontradaException();
-//        }
         dietaRepo.save(dietaModificada);
     }
 
 
     //DELETE{ID}
     public void eliminarDieta(Long id) {
-//        if (dietaRepo.existsById(id)) {
-//            dietaRepo.deleteById(id);
-//        } else {
-//            throw new EntidadNoEncontradaException();
-//        }
         dietaRepo.deleteById(id);
     }
 
 
     //DELETE{ID}
-    public boolean existsDieta(long id) {
-        //return dietaRepo.findById(id).isPresent();
+    public boolean existeDieta(long id) {
         return dietaRepo.existsById(id);
     }
 
 
+    //put
+    public boolean existeCliente(Long clienteId) {
+        //DONE, recorro todas las dietas de nuestro microservicio y compruebe ese cliente aparece
+        boolean res = false;
+        List<Dieta> dietas = dietaRepo.findAll();
+        for (Dieta d : dietas){
+            List<Long> clientes = d.getClientes();
+            if (clientes.contains(clienteId)){
+                res = true;
+                break;
+            }
+        }
+        return res;
+    }
+
+    //POST
+    public boolean existeEntrenador(Long entrenadorId) {
+        //DONE, comprueba si el resultado de buscar una dieta dado un entrenador es vacio o no
+        return dietaRepo.findByEntrenador(entrenadorId).isPresent();
+    }
+
+
 }
+
