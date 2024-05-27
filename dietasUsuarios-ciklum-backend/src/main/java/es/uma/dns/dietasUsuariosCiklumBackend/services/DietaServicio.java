@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestTemplate;
@@ -18,8 +17,6 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
@@ -40,24 +37,6 @@ public class DietaServicio {
 
     @Autowired
     private static RestTemplate restTemplate; //para hacer peticiones
-
-
-
-
-//-------------------------------------------------------------------------
-// KKBORRAR ---------------------------------------------------------------
-
-// Estas clases solo sirven para hacer más fácil los cambios de borrar las entidades
-// cliente, entrenador y usuario
-
-
-    private class Cliente {
-        //KK
-    }
-
-    private class Entrenador {
-        //KK
-    }
 
 
 //-------------------------------------------------------------------------

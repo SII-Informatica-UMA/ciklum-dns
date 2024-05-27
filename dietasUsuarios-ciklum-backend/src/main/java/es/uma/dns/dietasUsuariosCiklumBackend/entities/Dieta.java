@@ -38,11 +38,12 @@ public class Dieta {
 
     private String recomendaciones;
 
-    //@ManyToOne
-    //@JoinColumn(name="entrenador_fk")
+    @ManyToOne
+    @JoinColumn(name="entrenador_fk")
     private Long entrenador;
 
-    //@OneToMany(mappedBy="dieta")
+    @OneToMany(mappedBy="dieta")
+    @ElementCollection
     private List<Long> clientes;
 
 //-------------------------------------------------------------------------
