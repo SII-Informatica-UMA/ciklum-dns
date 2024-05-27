@@ -26,8 +26,7 @@ public class ControladorRest {
     }
 
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    @GetMapping
-    public ResponseEntity<List<DietaDTO>> getDietaCliente(@RequestParam("cliente") Long clienteId) {
+    private ResponseEntity<List<DietaDTO>> getDietaCliente(Long clienteId) {
 
         Optional<Dieta> dietaCliente = servicio.getDietaDeCliente(clienteId);
 
@@ -45,8 +44,7 @@ public class ControladorRest {
     }
 
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    @GetMapping
-    public ResponseEntity<List<DietaDTO>> getDietaEntrenador(@RequestParam("entrenador") Long entrenadorId) {
+    private ResponseEntity<List<DietaDTO>> getDietaEntrenador(Long entrenadorId) {
 
         Optional<List<Dieta>> dietasEntrenador = servicio.getDietasDeEntrenador(entrenadorId);
 
@@ -66,6 +64,27 @@ public class ControladorRest {
             return ResponseEntity.notFound().build();
         }
     }
+
+
+    @GetMapping
+    public ResponseEntity<List<DietaDTO>> getDieta(@RequestParam(required = false) Long clienteId,
+                                                   @RequestParam(required = false) Long entrenadorId) {
+
+        if (clienteId != null && entrenadorId == null) {
+
+            return getDietaCliente(clienteId);
+
+        } else if (entrenadorId != null && clienteId == null) {
+
+            return getDietaEntrenador(entrenadorId);
+
+        } else {
+
+            return ResponseEntity.badRequest().build();
+
+        }
+    }
+
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping
