@@ -4,6 +4,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,6 +68,7 @@ public class ControladorRest {
 
 
     @GetMapping
+    @RolesAllowed({"Cliente", "Entrenador"})
     public ResponseEntity<List<DietaDTO>> getDieta(@RequestParam(required = false) Long clienteId,
                                                    @RequestParam(required = false) Long entrenadorId) {
 
@@ -88,6 +90,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long clienteId, @RequestBody DietaDTO dietaDTO) {
 
         boolean existeCliente = servicio.existeCliente(clienteId);
@@ -107,6 +110,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PostMapping
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenadorId, @RequestBody DietaDTO dietaDTO){
 
             boolean existeEntrenador = servicio.existeEntrenador(entrenadorId);
@@ -134,6 +138,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @GetMapping("{id}")
+    @RolesAllowed({"Cliente", "Entrenador"})
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
         Optional<Dieta> dieta = servicio.getDieta(id);
@@ -157,6 +162,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping("{id}")
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> modificarDieta(@PathVariable Long id, @RequestBody DietaDTO dietaDTO) {
 
         Optional<Dieta> dieta = servicio.getDieta(id);
@@ -178,6 +184,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @DeleteMapping("{id}")
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
 
         if (servicio.existeDieta(id)) {
