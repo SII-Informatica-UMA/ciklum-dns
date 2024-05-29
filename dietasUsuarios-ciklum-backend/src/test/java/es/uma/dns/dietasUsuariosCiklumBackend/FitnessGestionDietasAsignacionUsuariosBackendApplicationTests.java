@@ -2,9 +2,13 @@ package es.uma.dns.dietasUsuariosCiklumBackend;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.UsuarioDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.security.JwtUtil;
+import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,9 +18,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.client.ExpectedCount;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
@@ -27,6 +36,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName(" En el servicio de dietas...")
@@ -35,25 +47,70 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@Autowired
 	private TestRestTemplate restTemplate;
 
+
+	//------------------------------MOCKITO-----------------------------------------------------------------------------
+	@Autowired
+	private DietaServicio dietaService;
+
+	private MockRestServiceServer mockServer;
+
+	@Autowired
+	private RestTemplate mockitoRestTemplate;
+
+	//------------------------------------------------------------------------------------------------------------------
 	@Value(value="${local.server.port}")
 	private int port;
 
 	@Autowired
 	private DietaRepository dietaRepo;
-	
 
-	private URI uri(String scheme, String host, int port, String ...paths) {
+
+	private URI uri(String scheme, String host, int port, String path) {
 		UriBuilderFactory ubf = new DefaultUriBuilderFactory();
 		UriBuilder ub = ubf.builder()
 				.scheme(scheme)
-				.host(host).port(port);
-		for (String path: paths) {
-			ub = ub.path(path);
+				.host(host).port(port)
+				.path(path);
+		return ub.build();
+	}
+	private URI uriQuery(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
+		UriBuilderFactory ubf = new DefaultUriBuilderFactory();
+		UriBuilder ub;
+		if(esEntrenador){
+			ub = ubf.builder()
+					.scheme(scheme)
+					.host(host).port(port)
+					.path(path)
+					.queryParam("entrenador",id);
+		}else{
+			ub = ubf.builder()
+					.scheme(scheme)
+					.host(host).port(port)
+					.path(path)
+					.queryParam("cliente",id);;
 		}
+
 		return ub.build();
 	}
 
-	private RequestEntity<Void> get(String scheme, String host, int port, String path) {
+	private RequestEntity<Void> get(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
+		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
+		if(esEntrenador){
+			var peticion = RequestEntity.get(uri)
+					.accept(MediaType.APPLICATION_JSON)
+					.header("entrenador", id)
+					.build();
+			return peticion;
+		}else{
+			var peticion = RequestEntity.get(uri)
+					.accept(MediaType.APPLICATION_JSON)
+					.header("cliente", id)
+					.build();
+			return peticion;
+		}
+	}
+
+	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.get(uri)
 				.accept(MediaType.APPLICATION_JSON)
@@ -61,14 +118,45 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		return peticion;
 	}
 
-	private RequestEntity<Void> delete(String scheme, String host, int port, String path) {
+	private RequestEntity<Void> delete(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
+		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
+		if(esEntrenador){
+			var peticion = RequestEntity.delete(uri)
+					.header("entrenador", id)
+					.build();
+			return peticion;
+		}else{
+			var peticion = RequestEntity.delete(uri)
+					.header("cliente", id)
+					.build();
+			return peticion;
+		}
+	}
+	private RequestEntity<Void> deleteSinQuery(String scheme, String host, int port, String path) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.delete(uri)
 				.build();
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object) {
+	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
+		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
+		if(esEntrenador){
+			var peticion = RequestEntity.post(uri)
+					.contentType(MediaType.APPLICATION_JSON)
+					.header("entrenador", id)
+					.body(object);
+			return peticion;
+		}else{
+			var peticion = RequestEntity.post(uri)
+					.accept(MediaType.APPLICATION_JSON)
+					.header("cliente", id)
+					.body(object);
+			return peticion;
+		}
+	}
+
+	private <T> RequestEntity<T> postSinQuery(String scheme, String host, int port, String path, T object) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.post(uri)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -76,7 +164,24 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object) {
+	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
+		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
+		if(esEntrenador){
+			var peticion = RequestEntity.put(uri)
+					.contentType(MediaType.APPLICATION_JSON)
+					.header("entrenador", id)
+					.body(object);
+			return peticion;
+		}else{
+			var peticion = RequestEntity.put(uri)
+					.accept(MediaType.APPLICATION_JSON)
+					.header("cliente", id)
+					.body(object);
+			return peticion;
+		}
+	}
+
+	private <T> RequestEntity<T> putSinQuery(String scheme, String host, int port, String path, T object) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.put(uri)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -106,6 +211,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		assertThat(actual.getAlimentos()).isEqualTo(expected.getAlimentos());
 	}
 
+	//==================================================================================================================
 	/*
 	 * A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA COMPROBAR
 	 * CUANDO NO EXISTE NADA EN LA BASE DE DATOS
@@ -113,6 +219,13 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@Nested
 	@DisplayName("cuando la base de datos esté vacía de dietas...")
 	public class BaseDatosDietasVacia{
+
+		//---------------------MOCKITO----------------------------------------------------------------------------------
+		@BeforeEach
+		public void init() {
+			mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
+		}
+		//--------------------------------------------------------------------------------------------------------------
 
 		// ========================================GET /DIETAS==========================================================
 
@@ -124,8 +237,26 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un entrenador vacía")
 		public void devuelveDietasVaciaEntrenador() {
 
-			var peticion = get("http", "localhost", port, "/dietas?entrenador=1");
+			var peticion = get("http", "localhost", port, "/dieta",
+					true, Long.toString(1L));
 
+			/*
+			//---------------------------------MOCKITO------------------------------------------------------------------
+			var entrenador = EntrenadorDTO.builder()
+					.idUsuario(1L)
+					.dni("111111111A");
+
+
+			mockServer.expect(ExpectedCount.once(),
+					requestTo(uri("http", "localhost", 8080, "/entrenador/1"))
+					.andExpect(method(HttpMethod.GET))
+					.andRespond(withStatus(HttpStatus.OK))
+					.contentType(MediaType.APPLICATION_JSON)
+					.body();
+
+
+			*/
+			//----------------------------------------------------------------------------------------------------------
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
 					});
@@ -142,7 +273,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un cliente vacía")
 		public void devuelveDietasVaciaCliente() {
 
-			var peticion = get("http", "localhost", port, "/dietas?cliente=2");
+			var peticion = get("http", "localhost", port, "/dieta",
+					false, Long.toString(2L));
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -160,7 +292,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("da error cuando el cliente no existe en la base de datos")
 		public void errorDevuelveDietasEntrenadorInexistente() {
 
-			var peticion = get("http", "localhost", port, "/dietas?entrenador=100000000");
+			var peticion = get("http", "localhost", port, "/dieta",
+					true, Long.toString(100000L));
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -177,7 +310,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("da error cuando el cliente no existe en la base de datos")
 		public void errorDevuelveDietasClienteInexistente() {
 
-			var peticion = get("http", "localhost", port, "/dietas?cliente=100000000");
+			var peticion = get("http", "localhost", port, "/dieta",
+					false, Long.toString(100000L));
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -193,7 +327,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("da error cuando intentas acceder a una lista de dietas con una url invalida (sin incluir query)")
 		public void errorDevuelveDietasURLnoValidaSinQuery() {
 
-			var peticion = get("http", "localhost", port, "/dietas");
+			var peticion = getSinQuery("http", "localhost", port, "/dieta");
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -209,7 +343,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("da error cuando intentas acceder a una lista de dietas entrenador con una url invalida (el id no es un numero)")
 		public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() {
 
-			var peticion = get("http", "localhost", port, "/dietas?entrenador=pepito");
+			var peticion = get("http", "localhost", port, "/dieta",
+					true, "pepito");
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -225,7 +360,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("da error cuando intentas acceder a una lista de dietas cliente con una url invalida (el id no es un numero)")
 		public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() {
 
-			var peticion = get("http", "localhost", port, "/dietas?cliente=pepito");
+			var peticion = get("http", "localhost", port, "/dieta",
+					false, "pepito");
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -256,7 +392,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dietas?entrenador=1", dieta);
+			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "1");
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -301,7 +437,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dietas?entrenador=1000000000", dieta);
+			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "100");
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -327,7 +463,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dietas", dieta);
+			var peticion = postSinQuery("http", "localhost",port, "/dieta", dieta);
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -353,7 +489,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dietas?entrenador=pepe", dieta);
+			var peticion = post("http", "localhost",port, "/dieta", dieta,
+					true, "pepito");
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -372,6 +509,13 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@DisplayName("cuando la base de datos esté llena...")
 	public class BaseDatosDietasLlena{
 
+		//---------------------MOCKITO----------------------------------------------------------------------------------
+		@BeforeEach
+		public void init() {
+			mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
+		}
+		//--------------------------------------------------------------------------------------------------------------
+
 		@BeforeEach
 		public void insertarDatos(){
 			
@@ -388,7 +532,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos.add("Aceite de oliva");
 			alimentos.add("Pescado");
 			dieta1.setAlimentos(alimentos);
-			// VER COMO COGER UN ENTRENADOR-> id=1L
 			dieta1.setEntrenador(1L);
 			dietaRepo.save(dieta1);
 
@@ -422,7 +565,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			List<String> alimentos3 = new ArrayList<>();
 			alimentos3.add("Todo");
 			dieta3.setAlimentos(alimentos3);
-			// VER COMO COGER UN ENTRENADOR-> id=2L
 			dieta2.setEntrenador(2L);
 
 			// VER COMO COGER UN CLIENTE
@@ -436,7 +578,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("devuelve la dieta cuando existe")
 			public void devuelveDieta() {
-				var peticion = get("http", "localhost",port, "/dieta/1");
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/1");
 				
 				var respuesta = restTemplate.exchange(peticion, DietaDTO.class);
 				
@@ -448,7 +590,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no existe la dieta")
 			public void errorCuandoDietaNoExiste() {
-				var peticion = get("http", "localhost",port, "/dieta/47");
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/47");
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
@@ -460,7 +602,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no se realiza una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = get("http", "localhost",port, "/dietasss/47");
+				var peticion = getSinQuery("http", "localhost",port, "/dietasss/47");
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
@@ -483,7 +625,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                             .nombre("Malagueña")
                             .build();
 
-                    var peticion = put("http", "localhost",port, "/dieta/1", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/1", dieta);
 
                     var respuesta = restTemplate.exchange(peticion,Dieta.class);
 
@@ -497,7 +639,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     var dieta = Dieta.builder()
                             .nombre("Inexistente")
                             .build();
-                    var peticion = put("http", "localhost",port, "/dieta/50", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/50", dieta);
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -511,7 +653,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     var dieta = Dieta.builder()
                             .nombre("Bad Request")
                             .build();
-                    var peticion = put("http", "localhost",port, "/dietasss/50", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dietasss/50", dieta);
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -528,7 +670,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("la elimina cuando existe")
 			public void eliminarDietaCorrectamente() {
-				var peticion = delete("http", "localhost",port, "/dieta/1");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/1");
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
@@ -541,7 +683,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando la dieta no existe")
 			public void errorCuandoDietaNoExiste() {
-				var peticion = delete("http", "localhost",port, "/dieta/50");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/50");
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
@@ -552,7 +694,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando se hace una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = delete("http", "localhost",port, "/dietasss/35");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietasss/35");
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -573,7 +715,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un entrenador con 1 o más dietas")
 		public void devuelveDietasEntrenador() {
 
-			var peticion = get("http", "localhost", port, "/dietas?entrenador=1");
+			var peticion = get("http", "localhost", port, "/dieta", true, "1");
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<DietaDTO>>() {
@@ -591,7 +733,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un cliente con 1 dieta")
 		public void devuelveDietaCliente() {
 
-			var peticion = get("http", "localhost", port, "/dietas?cliente=2");
+			var peticion = get("http", "localhost", port, "/dieta", false, "2");
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -604,31 +746,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		//==============================================================================================================
 
 		// =======================================POST /DIETAS==========================================================
-		/*
-		 *  ERROR POST DIETAS NOMBRE EXISTENTE
-		 * */
-		@Test
-		@DisplayName(" da error insertando una dieta por tener nombre existente")
-		public void errorInsertaDietaNombreExistente() {
-			List<String> alimentos = new ArrayList<>();
-			alimentos.add("tomate");
-			var dieta = DietaNuevaDTO.builder()
-					.nombre("Mediterranea")
-					.descripcion("descripcion")
-					.objetivo("objtv")
-					.observaciones("observc")
-					.duracionDias(1)
-					.alimentos(alimentos)
-					.recomendaciones("recomendaciones")
-					.build();
 
-
-			var peticion = post("http", "localhost",port, "/dietas?entrenador=1", dieta);
-
-			var respuesta = restTemplate.exchange(peticion,Void.class);
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
-		}
 		//==============================================================================================================
 	}
 	
