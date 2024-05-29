@@ -10,15 +10,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DietaRepository extends JpaRepository<Dieta,Long> {
 
-    Optional<Dieta> findById (Long id); //Busca una dieta concreta
+    boolean existsByNombre(String nombre); //Comprueba si existe la dieta dado un nombre
 
-    List<Dieta> findAll(); //Busca todas las dietas
+    Optional<Dieta> findByNombre(String nombre); //Devuelve una dieta dado su nombre
 
-    Dieta save(Dieta dieta); //Guarda una dieta o actualiza una existente
+    Optional<Dieta> findByEntrenador(Long id); //Devuelve una dieta dada la id de su entrenador
 
-    void deleteById(Long id); //Elimina una dieta
+    Optional<Dieta> findByClientes(List<Long> clientes); //Devuelve una dieta dada la id de los clientes que la tienen
 
-    void deleteAll(); //Elimina todas las dietas
-
-    boolean existsByNombre(String nombre);
 }

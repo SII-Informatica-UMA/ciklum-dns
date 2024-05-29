@@ -3,7 +3,6 @@ package es.uma.dns.dietasUsuariosCiklumBackend;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
-import es.uma.dns.dietasUsuariosCiklumBackend.entities.Entrenador;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,6 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 import java.net.URI;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +40,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	@Autowired
 	private DietaRepository dietaRepo;
+	
 
 	private URI uri(String scheme, String host, int port, String ...paths) {
 		UriBuilderFactory ubf = new DefaultUriBuilderFactory();
@@ -279,7 +278,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 			compruebaCamposPostDieta(dieta, dietaEntidad);
 
-			assertThat(dietaEntidad.getEntrenador().getId()).isEqualTo(1L);
+			assertThat(dietaEntidad.getEntrenador()).isEqualTo(1L);
 		}
 
 		/*
@@ -375,8 +374,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 		@BeforeEach
 		public void insertarDatos(){
+			
 			// Dieta 1
 			var dieta1 = new Dieta();
+			dieta1.setId(1L);
 			dieta1.setNombre("Mediterranea");
 			dieta1.setDescripcion("Comer verdura con aceite de oliva y pescado");
 			dieta1.setObservaciones("eso");
@@ -388,10 +389,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos.add("Pescado");
 			dieta1.setAlimentos(alimentos);
 			// VER COMO COGER UN ENTRENADOR-> id=1L
-			// dieta1.setEntrenador();
+			dieta1.setEntrenador(1L);
+			dietaRepo.save(dieta1);
 
 			// VER COMO COGER UN CLIENTE
-			dietaRepo.save(dieta1);
 
 			// Dieta 2 con mismo entrenador creado que dieta1
 			var dieta2 = new Dieta();
@@ -405,7 +406,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos2.add("Todo");
 			dieta2.setAlimentos(alimentos2);
 			// VER COMO COGER UN ENTRENADOR-> id=1L
-			// dieta2.setEntrenador();
+			dieta2.setEntrenador(1L);
 
 			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta2);
@@ -422,10 +423,144 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos3.add("Todo");
 			dieta3.setAlimentos(alimentos3);
 			// VER COMO COGER UN ENTRENADOR-> id=2L
-			// dieta2.setEntrenador();
+			dieta2.setEntrenador(2L);
 
 			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta3);
+		}
+
+		
+		@Nested
+		@DisplayName("al consultar una dieta en concreto")
+		public class ObtenerDietas {
+			@Test
+			@DisplayName("devuelve la dieta cuando existe")
+			public void devuelveDieta() {
+				var peticion = get("http", "localhost",port, "/dieta/1");
+				
+				var respuesta = restTemplate.exchange(peticion, DietaDTO.class);
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+				assertThat(respuesta.hasBody()).isTrue();
+				assertThat(respuesta.getBody()).isNotNull();
+			}
+			
+			@Test
+			@DisplayName("da error cuando no existe la dieta")
+			public void errorCuandoDietaNoExiste() {
+				var peticion = get("http", "localhost",port, "/dieta/47");
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando no se realiza una bad request")
+			public void errorCuandoBadRequest() {
+				var peticion = get("http", "localhost",port, "/dietasss/47");
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			//FALTA EL 403 : ACCESO NO AUTORIZADO
+		}
+
+		@Nested
+            @DisplayName("al actualizar una dieta")
+            public class ActualizaDieta {
+                @Test
+                @DisplayName("actualiza correctamente si la dieta existe")
+                @DirtiesContext
+                public void actualizaCorrectamente() {
+                    var dieta = Dieta.builder()
+                            .nombre("Malagueña")
+                            .build();
+
+                    var peticion = put("http", "localhost",port, "/dieta/1", dieta);
+
+                    var respuesta = restTemplate.exchange(peticion,Dieta.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+                    Dieta dietalmacenada = dietaRepo.findById(1L).get();
+                    assertThat(dietalmacenada.getNombre()).isEqualTo(dieta.getNombre());
+                }
+                @Test
+                @DisplayName("da error cuando la dieta no existe")
+                public void errorCuandoDietaNoExiste() {
+                    var dieta = Dieta.builder()
+                            .nombre("Inexistente")
+                            .build();
+                    var peticion = put("http", "localhost",port, "/dieta/50", dieta);
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+				@Test
+                @DisplayName("da error cuando se realiza bad request")
+                public void errorCuandoBadRequest() {
+                    var dieta = Dieta.builder()
+                            .nombre("Bad Request")
+                            .build();
+                    var peticion = put("http", "localhost",port, "/dietasss/50", dieta);
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+				//FALTA EL 403 : ACCESO NO AUTORIZADO
+            }
+
+		@Nested
+		@DisplayName("al eliminar una dieta")
+		public class EliminarDietas {
+			@Test
+			@DisplayName("la elimina cuando existe")
+			public void eliminarDietaCorrectamente() {
+				var peticion = delete("http", "localhost",port, "/dieta/1");
+				
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+				List<Dieta> dietas = dietaRepo.findAll();
+				assertThat(dietas).hasSize(2);
+				assertThat(dietas).allMatch(c->c.getId()!=1);
+			}
+			
+			@Test
+			@DisplayName("da error cuando la dieta no existe")
+			public void errorCuandoDietaNoExiste() {
+				var peticion = delete("http", "localhost",port, "/dieta/50");
+				
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando se hace una bad request")
+			public void errorCuandoBadRequest() {
+				var peticion = delete("http", "localhost",port, "/dietasss/35");
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			//FALTA EL 403 : ACCESO NO AUTORIZADO
 		}
 
 		// ========================================GET /DIETAS==========================================================
