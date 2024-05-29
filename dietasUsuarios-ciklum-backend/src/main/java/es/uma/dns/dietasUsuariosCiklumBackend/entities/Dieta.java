@@ -42,7 +42,7 @@ public class Dieta {
     @JoinColumn(name="entrenador_fk")
     private Long entrenador;
 
-    @OneToMany(mappedBy="dieta")
+    //@OneToMany(mappedBy="dieta")
     @ElementCollection
     private List<Long> clientes;
 

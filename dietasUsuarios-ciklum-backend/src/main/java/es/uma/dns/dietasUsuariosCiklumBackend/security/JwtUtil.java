@@ -56,7 +56,7 @@ public class JwtUtil {
     private long tokenValidity;
 
     //retrieve username from jwt token
-    public String getUsernameFromToken(String token) {
+    public String getIdFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
@@ -89,9 +89,9 @@ public class JwtUtil {
     }
 
     //generate token for user
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(String id) {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername());
+        return doGenerateToken(claims, id);
     }
 
 
@@ -107,21 +107,21 @@ public class JwtUtil {
 //				.signWith(SignatureAlgorithm.HS512, secret).compact();
 //	}
 
-    private String doGenerateToken(Map<String, Object> claims, String subject) {
+    private String doGenerateToken(Map<String, Object> claims, String id) {
         byte[] keyBytes = secret.getBytes();
         Key key = Keys.hmacShaKeyFor(keyBytes);
 
 
 
-        return Jwts.builder().setClaims(claims).setSubject(subject)
+        return Jwts.builder().setClaims(claims).setSubject(id)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + tokenValidity * 1000))
                 .signWith(key, SignatureAlgorithm.HS512).compact();
     }
 
     //validate token
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token, String id) {
+        final String username = getIdFromToken(token);
+        return (username.equals(id) && !isTokenExpired(token));
     }
 }
