@@ -38,11 +38,8 @@ public class Dieta {
 
     private String recomendaciones;
 
-    @ManyToOne
-    @JoinColumn(name="entrenador_fk")
     private Long entrenador;
 
-    @OneToMany(mappedBy="dieta")
     @ElementCollection
     private List<Long> clientes;
 
