@@ -4,6 +4,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +27,7 @@ public class ControladorRest {
     }
 
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    @GetMapping
-    public ResponseEntity<List<DietaDTO>> getDietaCliente(@RequestParam("cliente") Long clienteId) {
+    private ResponseEntity<List<DietaDTO>> getDietaCliente(Long clienteId) {
 
         Optional<Dieta> dietaCliente = servicio.getDietaDeCliente(clienteId);
 
@@ -45,8 +45,7 @@ public class ControladorRest {
     }
 
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    @GetMapping
-    public ResponseEntity<List<DietaDTO>> getDietaEntrenador(@RequestParam("entrenador") Long entrenadorId) {
+    private ResponseEntity<List<DietaDTO>> getDietaEntrenador(Long entrenadorId) {
 
         Optional<List<Dieta>> dietasEntrenador = servicio.getDietasDeEntrenador(entrenadorId);
 
@@ -67,8 +66,31 @@ public class ControladorRest {
         }
     }
 
+
+    @GetMapping
+    @RolesAllowed({"Cliente", "Entrenador"})
+    public ResponseEntity<List<DietaDTO>> getDieta(@RequestParam(required = false) Long clienteId,
+                                                   @RequestParam(required = false) Long entrenadorId) {
+
+        if (clienteId != null && entrenadorId == null) {
+
+            return getDietaCliente(clienteId);
+
+        } else if (entrenadorId != null && clienteId == null) {
+
+            return getDietaEntrenador(entrenadorId);
+
+        } else {
+
+            return ResponseEntity.badRequest().build();
+
+        }
+    }
+
+
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long clienteId, @RequestBody DietaDTO dietaDTO) {
 
         boolean existeCliente = servicio.existeCliente(clienteId);
@@ -88,6 +110,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PostMapping
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenadorId, @RequestBody DietaDTO dietaDTO){
 
             boolean existeEntrenador = servicio.existeEntrenador(entrenadorId);
@@ -115,6 +138,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @GetMapping("{id}")
+    @RolesAllowed({"Cliente", "Entrenador"})
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
         Optional<Dieta> dieta = servicio.getDieta(id);
@@ -138,6 +162,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping("{id}")
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> modificarDieta(@PathVariable Long id, @RequestBody DietaDTO dietaDTO) {
 
         Optional<Dieta> dieta = servicio.getDieta(id);
@@ -159,6 +184,7 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @DeleteMapping("{id}")
+    @RolesAllowed("Entrenador")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
 
         if (servicio.existeDieta(id)) {
