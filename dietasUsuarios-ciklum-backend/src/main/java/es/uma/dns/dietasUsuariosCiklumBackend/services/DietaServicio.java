@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +18,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
@@ -204,23 +207,33 @@ public class DietaServicio {
 
     //put
     public boolean existeCliente(Long clienteId) {
-        //DONE, recorro todas las dietas de nuestro microservicio y compruebe ese cliente aparece
-        boolean res = false;
-        List<Dieta> dietas = dietaRepo.findAll();
-        for (Dieta d : dietas){
-            List<Long> clientes = d.getClientes();
-            if (clientes.contains(clienteId)){
-                res = true;
-                break;
-            }
+        //DONE MODIFICADO, llamo al microservicio de clientes para ver si existe
+        boolean res = true;
+        
+        String ruta = "/cliente/" + clienteId;
+        var peticion = get("http", "localhost",port, ruta);
+        var respuesta = restTemplate.exchange(peticion,
+                new ParameterizedTypeReference<ClienteDTO>() {});
+        if (respuesta.getStatusCode().value() == 404) { //no existe el entrenador, lo devuelvo
+            res = false;
         }
+
         return res;
     }
 
     //POST
     public boolean existeEntrenador(Long entrenadorId) {
-        //DONE, comprueba si el resultado de buscar una dieta dado un entrenador es vacio o no
-        return dietaRepo.findByEntrenador(entrenadorId).isPresent();
+        //DONE MODIFICADO, llama al microservicio de entrenador para ver si existe
+        boolean res = true;
+
+        String ruta = "/entrenador/" + entrenadorId;
+        var peticion = get("http", "localhost",port, ruta);
+        var respuesta = restTemplate.exchange(peticion,
+                new ParameterizedTypeReference<EntrenadorDTO>() {});
+        if (respuesta.getStatusCode().value() == 404) { //no existe el entrenador
+            res = false;
+        } 
+        return res;
     }
 
 
