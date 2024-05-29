@@ -110,7 +110,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		}
 	}
 
-	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path,) {
+	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.get(uri)
 				.accept(MediaType.APPLICATION_JSON)
