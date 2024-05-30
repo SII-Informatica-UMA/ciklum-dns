@@ -1,9 +1,6 @@
 package es.uma.dns.dietasUsuariosCiklumBackend;
 
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.UsuarioDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.*;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 
@@ -38,8 +35,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 @ExtendWith(SpringExtension.class)
@@ -252,11 +248,11 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 
 			mockServer.expect(ExpectedCount.once(),
-					requestTo(uri("http", "localhost", 8080, "/entrenador/1")))
+					requestTo(uri("http", "localhost", 9090, "/entrenador/1")))
 					.andExpect(method(HttpMethod.GET))
 					.andRespond(withStatus(HttpStatus.OK)
 					.contentType(MediaType.APPLICATION_JSON)
-					.body());
+					.body(entrenador.toString()));
 
 
 			//----------------------------------------------------------------------------------------------------------
@@ -278,6 +274,22 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			String token =seguridad.generateToken("4");
 			var peticion = getcontoken("http", "localhost", port, "/dieta",
 					false, Long.toString(4L),token);
+			//---------------------------------MOCKITO------------------------------------------------------------------
+			var cliente = ClienteDTO.builder()
+							.idUsuario(4L)
+							.build();
+
+			String tokenServidor = seguridad.generateToken("150");
+			mockServer.expect(ExpectedCount.once(),
+							requestTo(uri("http", "localhost", 9090, "/cliente/4")))
+							.andExpect(method(HttpMethod.GET))
+							.andExpect(header("Authorization", "Bearer " + tokenServidor))
+							.andRespond(withStatus(HttpStatus.OK)
+							.contentType(MediaType.APPLICATION_JSON)
+							.body(cliente.toString()));
+
+
+			//----------------------------------------------------------------------------------------------------------
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
