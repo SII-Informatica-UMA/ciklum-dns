@@ -47,6 +47,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@Autowired
 	private TestRestTemplate restTemplate;
 
+	@Autowired
+	private JwtUtil seguridad;
 
 	//------------------------------MOCKITO-----------------------------------------------------------------------------
 	@Autowired
@@ -105,6 +107,23 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			var peticion = RequestEntity.get(uri)
 					.accept(MediaType.APPLICATION_JSON)
 					.header("cliente", id)
+					.build();
+			return peticion;
+		}
+	}
+
+	private RequestEntity<Void> getcontoken(String scheme, String host, int port, String path, boolean esEntrenador, String id,String token) {
+		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
+		if(esEntrenador){
+			var peticion = RequestEntity.get(uri)
+					.accept(MediaType.APPLICATION_JSON)
+					.header("Authorization", "Bearer " +token)
+					.build();
+			return peticion;
+		}else{
+			var peticion = RequestEntity.get(uri)
+					.accept(MediaType.APPLICATION_JSON)
+					.header("Authorization", "Bearer " +token)
 					.build();
 			return peticion;
 		}
@@ -189,6 +208,22 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		return peticion;
 	}
 
+	private String entrenador1(){
+		return seguridad.generateToken("1");
+	}
+
+	private String entrenador2(){
+		return seguridad.generateToken("2");
+	}
+
+	private String cliente4(){
+		return seguridad.generateToken("4");
+	}
+
+	private String cliente64(){
+		return seguridad.generateToken("64");
+	}
+
 	private void compruebaCamposDieta(Dieta expected, Dieta actual) {
 		assertThat(actual.getNombre()).isEqualTo(expected.getNombre());
 		assertThat(actual.getDescripcion()).isEqualTo(expected.getDescripcion());
@@ -248,11 +283,11 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 
 			mockServer.expect(ExpectedCount.once(),
-					requestTo(uri("http", "localhost", 8080, "/entrenador/1"))
+					requestTo(uri("http", "localhost", 8080, "/entrenador/1")))
 					.andExpect(method(HttpMethod.GET))
-					.andRespond(withStatus(HttpStatus.OK))
+					.andRespond(withStatus(HttpStatus.OK)
 					.contentType(MediaType.APPLICATION_JSON)
-					.body();
+					.body());
 
 
 			*/
@@ -272,9 +307,9 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@Test
 		@DisplayName("devuelve la lista de dietas de un cliente vacía")
 		public void devuelveDietasVaciaCliente() {
-
-			var peticion = get("http", "localhost", port, "/dieta",
-					false, Long.toString(2L));
+			String token =seguridad.generateToken("4");
+			var peticion = getcontoken("http", "localhost", port, "/dieta",
+					false, Long.toString(4L),token);
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -520,6 +555,9 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void insertarDatos(){
 			
 			// Dieta 1
+			List<Long> clientes=new ArrayList<Long>();
+			clientes.add(4L);
+			clientes.add(5L);  
 			var dieta1 = new Dieta();
 			dieta1.setId(1L);
 			dieta1.setNombre("Mediterranea");
@@ -533,6 +571,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos.add("Pescado");
 			dieta1.setAlimentos(alimentos);
 			dieta1.setEntrenador(1L);
+			dieta1.setClientes(clientes);
 			dietaRepo.save(dieta1);
 
 			// VER COMO COGER UN CLIENTE
@@ -565,8 +604,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			List<String> alimentos3 = new ArrayList<>();
 			alimentos3.add("Todo");
 			dieta3.setAlimentos(alimentos3);
-			dieta2.setEntrenador(2L);
-
+			dieta3.setEntrenador(2L);
 			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta3);
 		}
