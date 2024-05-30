@@ -116,6 +116,8 @@ public class DietaServicio {
 // MÉTODOS DEL SERVICIO ---------------------------------------------------
 
 
+    //Necesita crear un token para hacer las peticiones y tambien recibe el id no del token si no del securityContext
+
     //Se usa en la entidad Dieta
     public static Optional<List<Long>> getClientesDeDieta(Long id) {
         //DONE: devuelve los clientes de una dieta específica
@@ -262,7 +264,7 @@ public class DietaServicio {
     }
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
-    public boolean esCliente(String autorizationToken) {
+    public boolean esCliente() {
 
         Long idCliente = getAuthId();
         return existeCliente(idCliente);
@@ -274,7 +276,6 @@ public class DietaServicio {
         Long idEntrenador = getAuthId();
         return existeEntrenador(idEntrenador);
     }
-
 
 
 }
