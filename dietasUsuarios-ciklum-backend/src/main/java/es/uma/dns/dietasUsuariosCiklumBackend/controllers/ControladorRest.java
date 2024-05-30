@@ -184,7 +184,14 @@ public class ControladorRest {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Optional<Dieta> dieta = servicio.getDieta(id);
+        Optional<Dieta> dieta = null;
+        try {
+            dieta = servicio.getDieta(id);
+        } catch (PermisosInsuficientesException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().build();
+        }
 
         if (dieta.isPresent()) {
 

@@ -1,6 +1,6 @@
 package es.uma.dns.dietasUsuariosCiklumBackend.excepciones;
 
-public class ArgumentoMaloException extends RuntimeException{
+public class ArgumentoMaloException extends Exception{
     public ArgumentoMaloException() {
         super();
     }
