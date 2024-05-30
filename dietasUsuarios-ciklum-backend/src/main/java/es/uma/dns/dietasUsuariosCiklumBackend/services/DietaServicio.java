@@ -22,6 +22,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
+import es.uma.dns.dietasUsuariosCiklumBackend.security.JwtUtil;
 
 
 @Service
@@ -29,6 +30,8 @@ import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 public class DietaServicio {
     
     private static DietaRepository dietaRepo;
+
+    private static JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
 
     @Autowired
     public DietaServicio(DietaRepository dietaRepositorio) {
@@ -234,6 +237,20 @@ public class DietaServicio {
             res = false;
         } 
         return res;
+    }
+
+    //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
+    public boolean esCliente(String autorizationToken) {
+        String idToken = jwtUtil.getIdFromToken(autorizationToken);
+        Long idCliente = Long.valueOf(idToken);
+        return existeCliente(idCliente);
+    }
+
+    //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
+    public boolean esEntrenador(String autorizationToken) {
+        String idToken = jwtUtil.getIdFromToken(autorizationToken);
+        Long idEntrenador = Long.valueOf(idToken);
+        return existeEntrenador(idEntrenador);
     }
 
 
