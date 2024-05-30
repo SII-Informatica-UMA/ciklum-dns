@@ -23,6 +23,8 @@ import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 import es.uma.dns.dietasUsuariosCiklumBackend.security.JwtUtil;
+import es.uma.dns.dietasUsuariosCiklumBackend.security.SecurityConfguration;
+import jakarta.annotation.PostConstruct;
 
 
 @Service
@@ -31,11 +33,21 @@ public class DietaServicio {
     
     private static DietaRepository dietaRepo;
 
-    private static JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
+    @Autowired
+    private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
+
+    private String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
+
+    private final String ID_PARA_TOKEN = "150"; //Necesito una id para el token, que pactamos con otros ms en teoria
 
     @Autowired
     public DietaServicio(DietaRepository dietaRepositorio) {
         dietaRepo = dietaRepositorio;
+    }
+
+    @PostConstruct
+    private void generaToken() { 
+        token = jwtUtil.generateToken(ID_PARA_TOKEN); //no debe hacerse new, para eso está el autowired, y ahora hago postConstruct porque se inyecta tras llamar al constructor y sino daba null
     }
 
     @Value(value="${local.server.port}")
@@ -44,6 +56,12 @@ public class DietaServicio {
     @Autowired
     private static RestTemplate restTemplate; //para hacer peticiones
 
+//-------------------------------------------------------------------------
+//MÉTODO DE VER EL ID DE QUIEN SE HA CONECTADO (los {idEntrenador} del OpenAPI) -----------------------------------
+
+    private Long getAuthId() {
+        return Long.valueOf(SecurityConfguration.getAuthenticatedUser().get().getUsername());
+    }
 
 //-------------------------------------------------------------------------
 //MÉTODOS DE CONSTRUCCIÓN DE PETICIONES -----------------------------------
@@ -59,10 +77,11 @@ public class DietaServicio {
         return ub.build();
     }
 
-    private static RequestEntity<Void> get(String scheme, String host, int port, String path) {
+    private RequestEntity<Void> get(String scheme, String host, int port, String path) {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.get(uri)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization","Bearer " + token)
             .build();
         return peticion;
     }
@@ -70,6 +89,7 @@ public class DietaServicio {
     private RequestEntity<Void> delete(String scheme, String host, int port, String path) {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.delete(uri)
+            .header("Authorization","Bearer " + token)
             .build();
         return peticion;
     }
@@ -78,6 +98,7 @@ public class DietaServicio {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.post(uri)
             .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization","Bearer " + token)
             .body(object);
         return peticion;
     }
@@ -86,6 +107,7 @@ public class DietaServicio {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.put(uri)
             .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization","Bearer " + token)
             .body(object);
         return peticion;
     }
@@ -210,7 +232,7 @@ public class DietaServicio {
 
     //put
     public boolean existeCliente(Long clienteId) {
-        //DONE MODIFICADO, llamo al microservicio de clientes para ver si existe
+        //DONE MODIFICADO, llamo al microservicio de clientes para ver si existe (las peticiones añaden el token que creo en la clase, tuve que hacer un metodo no static)
         boolean res = true;
         
         String ruta = "/cliente/" + clienteId;
@@ -226,7 +248,7 @@ public class DietaServicio {
 
     //POST
     public boolean existeEntrenador(Long entrenadorId) {
-        //DONE MODIFICADO, llama al microservicio de entrenador para ver si existe
+        //DONE MODIFICADO, llama al microservicio de entrenador para ver si existe (las peticiones añaden el token que creo en la clase, tuve que hacer un metodo no static)
         boolean res = true;
 
         String ruta = "/entrenador/" + entrenadorId;
@@ -241,17 +263,18 @@ public class DietaServicio {
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
     public boolean esCliente(String autorizationToken) {
-        String idToken = jwtUtil.getIdFromToken(autorizationToken);
-        Long idCliente = Long.valueOf(idToken);
+
+        Long idCliente = getAuthId();
         return existeCliente(idCliente);
     }
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
-    public boolean esEntrenador(String autorizationToken) {
-        String idToken = jwtUtil.getIdFromToken(autorizationToken);
-        Long idEntrenador = Long.valueOf(idToken);
+    public boolean esEntrenador() {
+        
+        Long idEntrenador = getAuthId();
         return existeEntrenador(idEntrenador);
     }
+
 
 
 }

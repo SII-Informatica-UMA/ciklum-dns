@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
@@ -40,6 +42,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName(" En el servicio de dietas...")
 @DirtiesContext(classMode =  DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -97,19 +100,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	private RequestEntity<Void> get(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
-		if(esEntrenador){
-			var peticion = RequestEntity.get(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("entrenador", id)
-					.build();
-			return peticion;
-		}else{
-			var peticion = RequestEntity.get(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("cliente", id)
-					.build();
-			return peticion;
-		}
+		var peticion = RequestEntity.get(uri)
+				.accept(MediaType.APPLICATION_JSON)
+				.build();
+		return peticion;
 	}
 
 	private RequestEntity<Void> getcontoken(String scheme, String host, int port, String path, boolean esEntrenador, String id,String token) {
@@ -139,17 +133,9 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	private RequestEntity<Void> delete(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
-		if(esEntrenador){
-			var peticion = RequestEntity.delete(uri)
-					.header("entrenador", id)
-					.build();
-			return peticion;
-		}else{
-			var peticion = RequestEntity.delete(uri)
-					.header("cliente", id)
-					.build();
-			return peticion;
-		}
+		var peticion = RequestEntity.delete(uri)
+				.build();
+		return peticion;
 	}
 	private RequestEntity<Void> deleteSinQuery(String scheme, String host, int port, String path) {
 		URI uri = uri(scheme, host,port, path);
@@ -160,19 +146,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
-		if(esEntrenador){
-			var peticion = RequestEntity.post(uri)
-					.contentType(MediaType.APPLICATION_JSON)
-					.header("entrenador", id)
-					.body(object);
-			return peticion;
-		}else{
-			var peticion = RequestEntity.post(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("cliente", id)
-					.body(object);
-			return peticion;
-		}
+		var peticion = RequestEntity.post(uri)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(object);
+		return peticion;
 	}
 
 	private <T> RequestEntity<T> postSinQuery(String scheme, String host, int port, String path, T object) {
@@ -185,19 +162,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
-		if(esEntrenador){
-			var peticion = RequestEntity.put(uri)
-					.contentType(MediaType.APPLICATION_JSON)
-					.header("entrenador", id)
-					.body(object);
-			return peticion;
-		}else{
-			var peticion = RequestEntity.put(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("cliente", id)
-					.body(object);
-			return peticion;
-		}
+		var peticion = RequestEntity.put(uri)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(object);
+		return peticion;
 	}
 
 	private <T> RequestEntity<T> putSinQuery(String scheme, String host, int port, String path, T object) {
@@ -275,11 +243,12 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			var peticion = get("http", "localhost", port, "/dieta",
 					true, Long.toString(1L));
 
-			/*
+
 			//---------------------------------MOCKITO------------------------------------------------------------------
 			var entrenador = EntrenadorDTO.builder()
 					.idUsuario(1L)
-					.dni("111111111A");
+					.dni("111111111A")
+					.build();
 
 
 			mockServer.expect(ExpectedCount.once(),
@@ -290,7 +259,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.body());
 
 
-			*/
 			//----------------------------------------------------------------------------------------------------------
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -328,7 +296,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasEntrenadorInexistente() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					true, Long.toString(100000L));
+					true, Long.toString(1000L));
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
