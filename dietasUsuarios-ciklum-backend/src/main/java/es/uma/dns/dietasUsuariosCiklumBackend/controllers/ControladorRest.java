@@ -103,7 +103,6 @@ public class ControladorRest {
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long cliente,
                                           @RequestBody DietaDTO dietaDTO) {
 
-
         if(!servicio.esEntrenador()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -127,7 +126,6 @@ public class ControladorRest {
     @PostMapping
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
                                          @RequestBody DietaDTO dietaDTO){
-
 
         if(!servicio.esEntrenador()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
