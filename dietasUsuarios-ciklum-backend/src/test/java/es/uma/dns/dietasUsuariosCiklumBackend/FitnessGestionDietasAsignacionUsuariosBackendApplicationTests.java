@@ -620,7 +620,43 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				assertThat(respuesta.hasBody()).isEqualTo(false);
 			}
 
-			//FALTA EL 403 : ACCESO NO AUTORIZADO
+			@Test
+			@DisplayName("da error cuando alguien intenta acceder sin token")
+			public void errorCuandoAccesoIndebido() {
+				var peticion = getSinQuery("http", "localhost",port, "/dietas/2",null);
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un cliente intenta acceder a una dieta que no es suya")
+			public void errorCuandoAccesoIndebidoDeCliente() {
+				var peticion = getSinQuery("http", "localhost",port, "/dietas/2",cliente4());
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un entrenador intenta acceder a una dieta que no es suya")
+			public void errorCuandoAccesoIndebidoDeEntrenador() {
+				var peticion = getSinQuery("http", "localhost",port, "/dietas/1",entrenador2());
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			
 		}
 
 		@Nested
@@ -670,7 +706,50 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     assertThat(respuesta.hasBody()).isEqualTo(false);
                 }
 
-				//FALTA EL 403 : ACCESO NO AUTORIZADO
+
+				@Test
+                @DisplayName("da error cuando alguien intenta actualizar sin token")
+                public void errorCuandoActualizacionIndebido() {
+                    var dieta = Dieta.builder()
+                            .nombre("Sin token")
+                            .build();
+                    var peticion = putSinQuery("http", "localhost",port, "/dietas/1", dieta,null);
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+				@Test
+                @DisplayName("da error cuando un entrenador intenta actualizar una dieta que no es suya")
+                public void errorCuandoActualizacionDeEntrenadorIndebido() {
+                    var dieta = Dieta.builder()
+                            .nombre("Malagueña")
+                            .build();
+                    var peticion = putSinQuery("http", "localhost",port, "/dietas/1", dieta,entrenador2());
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+				@Test
+                @DisplayName("da error cuando un cliente intenta actualizar")
+                public void errorCuandoActualizacionDeClienteIndebido() {
+                    var dieta = Dieta.builder()
+                            .nombre("Malagueña")
+                            .build();
+                    var peticion = putSinQuery("http", "localhost",port, "/dietas/1", dieta,cliente4());
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+
             }
 
 		@Nested
@@ -711,7 +790,41 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				assertThat(respuesta.hasBody()).isEqualTo(false);
 			}
 
+
 			//FALTA EL 403 : ACCESO NO AUTORIZADO
+
+			@Test
+			@DisplayName("da error cuando alguien intenta borrar una dieta sin token")
+			public void errorCuandoBorradoSinToken() {
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietas/1",null);
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un entrenador intenta borrar una dieta que no es suya")
+			public void errorCuandoEntrenadorBorraDeFormaIndebida() {
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietas/1",entrenador2());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un cliente intenta borrar una dieta")
+			public void errorCuandoClienteIntentaBorrar() {
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietas/1",cliente4());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
 		}
 
 		// ========================================GET /DIETAS==========================================================
