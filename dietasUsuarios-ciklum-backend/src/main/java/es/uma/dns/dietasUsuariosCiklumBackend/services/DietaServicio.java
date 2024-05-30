@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.AsignacionEntrenamientoDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
 import lombok.Getter;
 import org.apache.coyote.BadRequestException;
@@ -239,7 +240,7 @@ public class DietaServicio {
 
 
     //GET{ID} y PUT{ID}
-    public Optional<Dieta> getDieta(Long id) throws PermisosInsuficientesException, BadRequestException {
+    public Optional<Dieta> getDieta(Long id) throws PermisosInsuficientesException, ArgumentoMaloException {
 
             if (esEntrenador()){
 
@@ -277,7 +278,7 @@ public class DietaServicio {
                         new ParameterizedTypeReference<List<AsignacionEntrenamientoDTO>>() {});
 
                 if (respuesta.getStatusCode().value() != 200) {
-                    throw new BadRequestException();
+                    throw new ArgumentoMaloException();
                 } else {
 
                     // Compruebo que el cliente (quien hace la peticion a nuestro microservicio) está en la lista de clientes del entrenador
@@ -300,7 +301,7 @@ public class DietaServicio {
                 return dietaOpt;
 
             } else {
-                throw new BadRequestException();
+                throw new ArgumentoMaloException();
             }
 
     }
