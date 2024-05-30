@@ -269,7 +269,7 @@ public class DietaServicio {
     }
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
-    public boolean esEntrenador() {
+    public boolean esEntrenador(String autorizationToken) {
         
         Long idEntrenador = getAuthId();
         return existeEntrenador(idEntrenador);

@@ -98,80 +98,71 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		return ub.build();
 	}
 
-	private RequestEntity<Void> get(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
+	private RequestEntity<Void> get(String scheme, String host, int port, String path, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.get(uri)
 				.accept(MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
 
-	private RequestEntity<Void> getcontoken(String scheme, String host, int port, String path, boolean esEntrenador, String id,String token) {
-		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
-		if(esEntrenador){
-			var peticion = RequestEntity.get(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("Authorization", "Bearer " +token)
-					.build();
-			return peticion;
-		}else{
-			var peticion = RequestEntity.get(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("Authorization", "Bearer " +token)
-					.build();
-			return peticion;
-		}
-	}
-
-	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path) {
+	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path,String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.get(uri)
 				.accept(MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
 
-	private RequestEntity<Void> delete(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
+	private RequestEntity<Void> delete(String scheme, String host, int port, String path, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.delete(uri)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
-	private RequestEntity<Void> deleteSinQuery(String scheme, String host, int port, String path) {
+	private RequestEntity<Void> deleteSinQuery(String scheme, String host, int port, String path, String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.delete(uri)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
+	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.post(uri)
 				.accept(MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> postSinQuery(String scheme, String host, int port, String path, T object) {
+	private <T> RequestEntity<T> postSinQuery(String scheme, String host, int port, String path, T object,String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.post(uri)
 				.contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
+	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.put(uri)
 				.contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> putSinQuery(String scheme, String host, int port, String path, T object) {
+	private <T> RequestEntity<T> putSinQuery(String scheme, String host, int port, String path, T object, String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.put(uri)
 				.contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
@@ -184,12 +175,24 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		return seguridad.generateToken("2");
 	}
 
+	private String entrenador22(){
+		return seguridad.generateToken("22");
+	}
+
+	private String entrenadornull(){
+		return seguridad.generateToken(null);
+	}
+
 	private String cliente4(){
 		return seguridad.generateToken("4");
 	}
 
 	private String cliente64(){
 		return seguridad.generateToken("64");
+	}
+
+	private String clientenull(){
+		return seguridad.generateToken(null);
 	}
 
 	private void compruebaCamposDieta(Dieta expected, Dieta actual) {
@@ -241,7 +244,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void devuelveDietasVaciaEntrenador() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					true, Long.toString(1L));
+					true, Long.toString(1L),entrenador1());
 
 
 			//---------------------------------MOCKITO------------------------------------------------------------------
@@ -256,7 +259,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.andExpect(method(HttpMethod.GET))
 					.andRespond(withStatus(HttpStatus.OK)
 					.contentType(MediaType.APPLICATION_JSON)
-					.body());
+					.body(entrenador.toString()));
 
 
 			//----------------------------------------------------------------------------------------------------------
@@ -276,7 +279,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un cliente vacía")
 		public void devuelveDietasVaciaCliente() {
 			String token =seguridad.generateToken("4");
-			var peticion = getcontoken("http", "localhost", port, "/dieta",
+			var peticion = get("http", "localhost", port, "/dieta",
 					false, Long.toString(4L),token);
 
 			var respuesta = restTemplate.exchange(peticion,
@@ -296,7 +299,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasEntrenadorInexistente() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					true, Long.toString(1000L));
+					true, Long.toString(1000L),entrenador2());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -314,7 +317,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasClienteInexistente() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					false, Long.toString(100000L));
+					false, Long.toString(100000L),cliente64());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -330,7 +333,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("da error cuando intentas acceder a una lista de dietas con una url invalida (sin incluir query)")
 		public void errorDevuelveDietasURLnoValidaSinQuery() {
 
-			var peticion = getSinQuery("http", "localhost", port, "/dieta");
+			var peticion = getSinQuery("http", "localhost", port, "/dieta",entrenador1());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -347,7 +350,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					true, "pepito");
+					true, "pepito",entrenador22());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -364,7 +367,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					false, "pepito");
+					false, "pepito",cliente64());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
@@ -395,7 +398,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "1");
+			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "1",entrenador1());
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -440,7 +443,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "100");
+			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "100",entrenador22());
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -466,7 +469,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = postSinQuery("http", "localhost",port, "/dieta", dieta);
+			var peticion = postSinQuery("http", "localhost",port, "/dieta", dieta,entrenadornull());
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -493,7 +496,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 
 			var peticion = post("http", "localhost",port, "/dieta", dieta,
-					true, "pepito");
+					true, "pepito",null);
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -584,7 +587,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("devuelve la dieta cuando existe")
 			public void devuelveDieta() {
-				var peticion = getSinQuery("http", "localhost",port, "/dieta/1");
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/1",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion, DietaDTO.class);
 				
@@ -596,7 +599,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no existe la dieta")
 			public void errorCuandoDietaNoExiste() {
-				var peticion = getSinQuery("http", "localhost",port, "/dieta/47");
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/47",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
@@ -608,7 +611,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no se realiza una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = getSinQuery("http", "localhost",port, "/dietasss/47");
+				var peticion = getSinQuery("http", "localhost",port, "/dietasss/47",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
@@ -631,7 +634,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                             .nombre("Malagueña")
                             .build();
 
-                    var peticion = putSinQuery("http", "localhost",port, "/dieta/1", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/1", dieta,entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Dieta.class);
 
@@ -645,7 +648,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     var dieta = Dieta.builder()
                             .nombre("Inexistente")
                             .build();
-                    var peticion = putSinQuery("http", "localhost",port, "/dieta/50", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/50", dieta,entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -659,7 +662,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     var dieta = Dieta.builder()
                             .nombre("Bad Request")
                             .build();
-                    var peticion = putSinQuery("http", "localhost",port, "/dietasss/50", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dietasss/50", dieta,entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -676,7 +679,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("la elimina cuando existe")
 			public void eliminarDietaCorrectamente() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/1");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/1",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
@@ -689,7 +692,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando la dieta no existe")
 			public void errorCuandoDietaNoExiste() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/50");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/50",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
@@ -700,7 +703,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando se hace una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dietasss/35");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietasss/35",entrenador1());
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -721,7 +724,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un entrenador con 1 o más dietas")
 		public void devuelveDietasEntrenador() {
 
-			var peticion = get("http", "localhost", port, "/dieta", true, "1");
+			var peticion = get("http", "localhost", port, "/dieta", true, "1",entrenador1());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<DietaDTO>>() {
@@ -739,7 +742,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un cliente con 1 dieta")
 		public void devuelveDietaCliente() {
 
-			var peticion = get("http", "localhost", port, "/dieta", false, "2");
+			var peticion = get("http", "localhost", port, "/dieta", false, "2",cliente4());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<Dieta>>() {
