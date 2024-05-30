@@ -3,7 +3,9 @@ package es.uma.dns.dietasUsuariosCiklumBackend.controllers;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -154,7 +156,14 @@ public class ControladorRest {
     @GetMapping("{id}")
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
-        Optional<Dieta> dieta = servicio.getDieta(id); //Hacen falta comprobaciones de seguridad
+        Optional<Dieta> dieta = null; //Hacen falta comprobaciones de seguridad
+        try {
+            dieta = servicio.getDieta(id);
+        } catch (PermisosInsuficientesException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().build();
+        }
 
         if (!dieta.isEmpty()) {
             // Devuelve un 200 y la dieta
