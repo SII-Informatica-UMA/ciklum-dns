@@ -28,9 +28,9 @@ public class ControladorRest {
     }
 
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private ResponseEntity<List<DietaDTO>> getDietaCliente(Long clienteId) {
+    private ResponseEntity<List<DietaDTO>> getDietaCliente(Long cliente) {
 
-        Optional<Dieta> dietaCliente = servicio.getDietaDeCliente(clienteId);
+        Optional<Dieta> dietaCliente = servicio.getDietaDeCliente(cliente);
 
         if (dietaCliente.isPresent()) {
 
@@ -46,9 +46,9 @@ public class ControladorRest {
     }
 
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private ResponseEntity<List<DietaDTO>> getDietaEntrenador(Long entrenadorId) {
+    private ResponseEntity<List<DietaDTO>> getDietaEntrenador(Long entrenador) {
 
-        Optional<List<Dieta>> dietasEntrenador = servicio.getDietasDeEntrenador(entrenadorId);
+        Optional<List<Dieta>> dietasEntrenador = servicio.getDietasDeEntrenador(entrenador);
 
         if (dietasEntrenador.isPresent()) {
 
@@ -69,25 +69,25 @@ public class ControladorRest {
 
 
     @GetMapping
-    public ResponseEntity<List<DietaDTO>> getDieta(@RequestParam(required = false) Long clienteId,
-                                                   @RequestParam(required = false) Long entrenadorId) {
+    public ResponseEntity<List<DietaDTO>> getDieta(@RequestParam(required = false) Long cliente,
+                                                   @RequestParam(required = false) Long entrenador) {
 
 
-        if (clienteId != null && entrenadorId == null) {
+        if (cliente != null && entrenador == null) {
 
-            if(!servicio.esCliente(authToken)){
+            if(!servicio.esCliente()){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            return getDietaCliente(clienteId);
+            return getDietaCliente(cliente);
 
-        } else if (entrenadorId != null && clienteId == null) {
+        } else if (entrenador != null && cliente == null) {
 
-            if(!servicio.esEntrenador(authToken)){
+            if(!servicio.esEntrenador()){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            return getDietaEntrenador(entrenadorId);
+            return getDietaEntrenador(entrenador);
 
         } else {
 
@@ -99,19 +99,19 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping
-    public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long clienteId,
+    public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long cliente,
                                           @RequestBody DietaDTO dietaDTO) {
 
 
-        if(!servicio.esEntrenador(authToken)){
+        if(!servicio.esEntrenador()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        boolean existeCliente = servicio.existeCliente(clienteId);
+        boolean existeCliente = servicio.existeCliente(cliente);
 
         if (existeCliente) {
 
-            servicio.asignarDietaCliente(clienteId, Dieta.fromDietaDTO(dietaDTO));
+            servicio.asignarDietaCliente(cliente, Dieta.fromDietaDTO(dietaDTO));
 
             // Devuelve un 200
             return ResponseEntity.ok().build();
@@ -124,15 +124,15 @@ public class ControladorRest {
 
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PostMapping
-    public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenadorId,
+    public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
                                          @RequestBody DietaDTO dietaDTO){
 
 
-        if(!servicio.esEntrenador(authToken)){
+        if(!servicio.esEntrenador()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        boolean existeEntrenador = servicio.existeEntrenador(entrenadorId);
+        boolean existeEntrenador = servicio.existeEntrenador(entrenador);
 
         if (existeEntrenador) {
 
@@ -140,7 +140,7 @@ public class ControladorRest {
 
                 Dieta dieta = Dieta.fromDietaDTO(dietaDTO);
 
-                Dieta dietaCreada = servicio.crearDieta(dieta, entrenadorId);
+                Dieta dietaCreada = servicio.crearDieta(dieta, entrenador);
 
                 // Devuelve un 201 y la dieta creada
                 return ResponseEntity.status(HttpStatus.CREATED).body(dietaCreada.toDietaDTO());
