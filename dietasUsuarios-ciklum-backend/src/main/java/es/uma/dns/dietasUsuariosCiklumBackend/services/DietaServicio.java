@@ -31,6 +31,7 @@ public class DietaServicio {
     
     private static DietaRepository dietaRepo;
 
+    @Autowired
     private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
 
     private String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
@@ -40,8 +41,6 @@ public class DietaServicio {
     @Autowired
     public DietaServicio(DietaRepository dietaRepositorio) {
         dietaRepo = dietaRepositorio;
-        jwtUtil = new JwtUtil();
-        token = jwtUtil.generateToken(ID_PARA_TOKEN);
     }
 
     @Value(value="${local.server.port}")
