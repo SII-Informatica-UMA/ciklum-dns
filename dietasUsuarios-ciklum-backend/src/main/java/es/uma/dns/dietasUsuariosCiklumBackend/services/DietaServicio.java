@@ -217,7 +217,7 @@ public class DietaServicio {
         var peticion = get("http", "localhost",port, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<ClienteDTO>() {});
-        if (respuesta.getStatusCode().value() == 404) { //no existe el entrenador, lo devuelvo
+        if (respuesta.getStatusCode().value() != 200) { //no existe el cliente
             res = false;
         }
 
@@ -233,7 +233,7 @@ public class DietaServicio {
         var peticion = get("http", "localhost",port, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<EntrenadorDTO>() {});
-        if (respuesta.getStatusCode().value() == 404) { //no existe el entrenador
+        if (respuesta.getStatusCode().value() != 200) { //no existe el entrenador
             res = false;
         } 
         return res;
