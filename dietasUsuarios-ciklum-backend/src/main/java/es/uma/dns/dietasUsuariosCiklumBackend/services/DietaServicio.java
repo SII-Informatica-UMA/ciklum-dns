@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestTemplate;
@@ -17,8 +18,13 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
+import es.uma.dns.dietasUsuariosCiklumBackend.security.JwtUtil;
+import es.uma.dns.dietasUsuariosCiklumBackend.security.SecurityConfguration;
+import jakarta.annotation.PostConstruct;
 
 
 @Service
@@ -28,8 +34,20 @@ public class DietaServicio {
     private static DietaRepository dietaRepo;
 
     @Autowired
+    private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
+
+    private String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
+
+    private final String ID_PARA_TOKEN = "150"; //Necesito una id para el token, que pactamos con otros ms en teoria
+
+    @Autowired
     public DietaServicio(DietaRepository dietaRepositorio) {
         dietaRepo = dietaRepositorio;
+    }
+
+    @PostConstruct
+    private void generaToken() { 
+        token = jwtUtil.generateToken(ID_PARA_TOKEN); //no debe hacerse new, para eso está el autowired, y ahora hago postConstruct porque se inyecta tras llamar al constructor y sino daba null
     }
 
     @Value(value="${local.server.port}")
@@ -38,6 +56,12 @@ public class DietaServicio {
     @Autowired
     private static RestTemplate restTemplate; //para hacer peticiones
 
+//-------------------------------------------------------------------------
+//MÉTODO DE VER EL ID DE QUIEN SE HA CONECTADO (los {idEntrenador} del OpenAPI) -----------------------------------
+
+    private Long getAuthId() {
+        return Long.valueOf(SecurityConfguration.getAuthenticatedUser().get().getUsername());
+    }
 
 //-------------------------------------------------------------------------
 //MÉTODOS DE CONSTRUCCIÓN DE PETICIONES -----------------------------------
@@ -53,10 +77,11 @@ public class DietaServicio {
         return ub.build();
     }
 
-    private static RequestEntity<Void> get(String scheme, String host, int port, String path) {
+    private RequestEntity<Void> get(String scheme, String host, int port, String path) {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.get(uri)
             .accept(MediaType.APPLICATION_JSON)
+            .header("Authorization","Bearer " + token)
             .build();
         return peticion;
     }
@@ -64,6 +89,7 @@ public class DietaServicio {
     private RequestEntity<Void> delete(String scheme, String host, int port, String path) {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.delete(uri)
+            .header("Authorization","Bearer " + token)
             .build();
         return peticion;
     }
@@ -72,6 +98,7 @@ public class DietaServicio {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.post(uri)
             .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization","Bearer " + token)
             .body(object);
         return peticion;
     }
@@ -80,6 +107,7 @@ public class DietaServicio {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.put(uri)
             .contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization","Bearer " + token)
             .body(object);
         return peticion;
     }
@@ -206,24 +234,49 @@ public class DietaServicio {
 
     //put
     public boolean existeCliente(Long clienteId) {
-        //DONE, recorro todas las dietas de nuestro microservicio y compruebe ese cliente aparece
-        boolean res = false;
-        List<Dieta> dietas = dietaRepo.findAll();
-        for (Dieta d : dietas){
-            List<Long> clientes = d.getClientes();
-            if (clientes.contains(clienteId)){
-                res = true;
-                break;
-            }
+        //DONE MODIFICADO, llamo al microservicio de clientes para ver si existe (las peticiones añaden el token que creo en la clase, tuve que hacer un metodo no static)
+        boolean res = true;
+        
+        String ruta = "/cliente/" + clienteId;
+        var peticion = get("http", "localhost",port, ruta);
+        var respuesta = restTemplate.exchange(peticion,
+                new ParameterizedTypeReference<ClienteDTO>() {});
+        if (respuesta.getStatusCode().value() != 200) { //no existe el cliente
+            res = false;
         }
+
         return res;
     }
 
     //POST
     public boolean existeEntrenador(Long entrenadorId) {
-        //DONE, comprueba si el resultado de buscar una dieta dado un entrenador es vacio o no
-        return dietaRepo.findByEntrenador(entrenadorId).isPresent();
+        //DONE MODIFICADO, llama al microservicio de entrenador para ver si existe (las peticiones añaden el token que creo en la clase, tuve que hacer un metodo no static)
+        boolean res = true;
+
+        String ruta = "/entrenador/" + entrenadorId;
+        var peticion = get("http", "localhost",port, ruta);
+        var respuesta = restTemplate.exchange(peticion,
+                new ParameterizedTypeReference<EntrenadorDTO>() {});
+        if (respuesta.getStatusCode().value() != 200) { //no existe el entrenador
+            res = false;
+        } 
+        return res;
     }
+
+    //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
+    public boolean esCliente(String autorizationToken) {
+
+        Long idCliente = getAuthId();
+        return existeCliente(idCliente);
+    }
+
+    //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
+    public boolean esEntrenador() {
+        
+        Long idEntrenador = getAuthId();
+        return existeEntrenador(idEntrenador);
+    }
+
 
 
     public boolean esEntrenador() {

@@ -84,6 +84,7 @@ public class ControladorRest {
         } else if (entrenador != null && cliente == null) {
 
             if(!servicio.esEntrenador()){
+
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
@@ -173,6 +174,7 @@ public class ControladorRest {
 
 
         if(!servicio.esEntrenador()){
+          
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -197,7 +199,6 @@ public class ControladorRest {
     @DeleteMapping("{id}")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
 
-
         if(!servicio.esEntrenador()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -216,3 +217,4 @@ public class ControladorRest {
     }
 
 }
+
