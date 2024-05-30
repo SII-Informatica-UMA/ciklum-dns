@@ -116,6 +116,8 @@ public class DietaServicio {
 // MÉTODOS DEL SERVICIO ---------------------------------------------------
 
 
+    //Necesita crear un token para hacer las peticiones y tambien recibe el id no del token si no del securityContext
+
     //Se usa en la entidad Dieta
     public static Optional<List<Long>> getClientesDeDieta(Long id) {
         //DONE: devuelve los clientes de una dieta específica
@@ -275,6 +277,15 @@ public class DietaServicio {
         return existeEntrenador(idEntrenador);
     }
 
+
+
+    public boolean esEntrenador() {
+        return false;
+    }
+
+    public boolean esCliente() {
+        return false;
+    }
 
 
 }
