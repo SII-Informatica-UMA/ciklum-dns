@@ -264,7 +264,7 @@ public class DietaServicio {
     }
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
-    public boolean esCliente(String autorizationToken) {
+    public boolean esCliente() {
 
         Long idCliente = getAuthId();
         return existeCliente(idCliente);
@@ -275,16 +275,6 @@ public class DietaServicio {
         
         Long idEntrenador = getAuthId();
         return existeEntrenador(idEntrenador);
-    }
-
-
-
-    public boolean esEntrenador() {
-        return false;
-    }
-
-    public boolean esCliente() {
-        return false;
     }
 
 
