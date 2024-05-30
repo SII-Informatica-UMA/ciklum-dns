@@ -31,11 +31,17 @@ public class DietaServicio {
     
     private static DietaRepository dietaRepo;
 
-    private static JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
+    private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
+
+    private String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
+
+    private final String ID_PARA_TOKEN = "150"; //Necesito una id para el token, que pactamos con otros ms en teoria
 
     @Autowired
     public DietaServicio(DietaRepository dietaRepositorio) {
         dietaRepo = dietaRepositorio;
+        jwtUtil = new JwtUtil();
+        token = jwtUtil.generateToken(ID_PARA_TOKEN);
     }
 
     @Value(value="${local.server.port}")
@@ -241,6 +247,8 @@ public class DietaServicio {
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
     public boolean esCliente(String autorizationToken) {
+        //TO-DO CAMBIAR CON EL TOKEN//
+        
         String idToken = jwtUtil.getIdFromToken(autorizationToken);
         Long idCliente = Long.valueOf(idToken);
         return existeCliente(idCliente);
@@ -248,6 +256,8 @@ public class DietaServicio {
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
     public boolean esEntrenador(String autorizationToken) {
+        //TO-DO CAMBIAR CON EL TOKEN//
+        
         String idToken = jwtUtil.getIdFromToken(autorizationToken);
         Long idEntrenador = Long.valueOf(idToken);
         return existeEntrenador(idEntrenador);
