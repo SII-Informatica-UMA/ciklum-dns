@@ -67,25 +67,25 @@ public class ControladorRest {
 
 
     @GetMapping
-    public ResponseEntity<List<DietaDTO>> getDieta(@RequestParam(required = false) Long clienteId,
-                                                   @RequestParam(required = false) Long entrenadorId,
+    public ResponseEntity<List<DietaDTO>> getDieta(@RequestParam(required = false) Long cliente,
+                                                   @RequestParam(required = false) Long entrenador,
                                                    @RequestHeader(value="Authorization") String authToken) {
 
-        if (clienteId != null && entrenadorId == null) {
+        if (cliente != null && entrenador == null) {
 
             if(!servicio.esCliente(authToken)){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            return getDietaCliente(clienteId);
+            return getDietaCliente(cliente);
 
-        } else if (entrenadorId != null && clienteId == null) {
+        } else if (entrenador != null && cliente == null) {
 
             if(!servicio.esEntrenador(authToken)){
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            return getDietaEntrenador(entrenadorId);
+            return getDietaEntrenador(entrenador);
 
         } else {
 
