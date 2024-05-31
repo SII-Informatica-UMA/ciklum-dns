@@ -249,6 +249,20 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			var peticion = get("http", "localhost", port, "/dieta",
 					true, Long.toString(1L),entrenador1());
 
+			var entrenador = EntrenadorDTO.builder()
+					.idUsuario(1L)
+					.build();
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			String entrenadorJson = objectMapper.writeValueAsString(entrenador);
+
+			mockServer.expect(ExpectedCount.once(),
+							requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
+							.andExpect(method(HttpMethod.GET))
+							.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+							.andRespond(withStatus(HttpStatus.OK)
+							.contentType(APPLICATION_JSON)
+							.body(entrenadorJson));
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<DietaDTO>>() {
