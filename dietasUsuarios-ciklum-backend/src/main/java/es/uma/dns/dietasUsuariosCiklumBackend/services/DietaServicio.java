@@ -56,10 +56,12 @@ public class DietaServicio {
     }
 
     @Value(value="${local.server.port}")
-	private static int port;
+	private int port;
 
     @Autowired
-    private static RestTemplate restTemplate; //para hacer peticiones
+    private RestTemplate restTemplate; //para hacer peticiones
+
+    private static int portExterno = 57444;
 
 //-------------------------------------------------------------------------
 //MÉTODO DE VER EL ID DE QUIEN SE HA CONECTADO (los {idEntrenador} del OpenAPI) -----------------------------------
@@ -164,47 +166,101 @@ public class DietaServicio {
 
     //DONE MODIFICADO NUEVA ESPECIFICACION: devuelve las dietas de un entrenador específico
     //GET (entrenador)
-    public static Optional<List<Dieta>> getDietasDeEntrenador(Long id) {
-        
-        List<Dieta> dietas = dietaRepo.findAll();
-        List<Dieta> dietasEntrenador = new ArrayList<>();
-        Optional<List<Dieta>> res = Optional.empty();
+    public Optional<List<Dieta>> getDietasDeEntrenador(Long id) throws PermisosInsuficientesException {
 
-        for (Dieta d : dietas){
-            if (d.getEntrenador() == id){
-                dietasEntrenador.add(d);
+        if(!esEntrenador()){
+            throw new PermisosInsuficientesException();
+        } else {
+
+            Long authId = getAuthId();
+            if (!authId.equals(id)) {
+                throw new PermisosInsuficientesException();
+            } else {
+
+                List<Dieta> dietas = dietaRepo.findAll();
+                List<Dieta> dietasEntrenador = new ArrayList<>();
+                Optional<List<Dieta>> res = Optional.empty();
+
+                for (Dieta d : dietas){
+                    if (d.getEntrenador() == id){
+                        dietasEntrenador.add(d);
+                    }
+                }
+
+                if (!dietasEntrenador.isEmpty()){
+                    res = Optional.of(dietasEntrenador);
+                }
+
+                return res;
+
             }
+
         }
 
-        if (!dietasEntrenador.isEmpty()){
-            res = Optional.of(dietasEntrenador);
-        }
-
-        return res;
-        
     }
 
 
     //MODIFICADO PARA CUMPLIR LA NUEVA ESPECIFICACION
     //GET (cliente)
-    public Optional<Dieta> getDietaDeCliente(Long idCliente) {
+    public Optional<Dieta> getDietaDeCliente(Long idCliente) throws PermisosInsuficientesException {
         //DONE: devuelve la dieta de un cliente específico
 
-        List<Dieta> dietas = dietaRepo.findAll();
+        if(!esCliente() && !esEntrenador()){
+            throw new PermisosInsuficientesException();
+        } else if (esCliente()){
 
-        Optional<Dieta> dietaResultado = Optional.empty();
+            Long authId = getAuthId();
+            if (!authId.equals(idCliente)) {
+                throw new PermisosInsuficientesException();
+            } else {
 
-        for (Dieta d : dietas) {
-            List<Long> clientes = d.getClientes();
+                List<Dieta> dietas = dietaRepo.findAll();
 
-            if (clientes.contains(idCliente)) {
-                dietaResultado = Optional.of(d);
-                break;
+                Optional<Dieta> dietaResultado = Optional.empty();
+
+                for (Dieta d : dietas) {
+                    List<Long> clientes = d.getClientes();
+
+                    if (clientes.contains(idCliente)) {
+                        dietaResultado = Optional.of(d);
+                        break;
+                    }
+
+                }
+
+                return dietaResultado;
+
             }
+
+        } else { //esEntrenador()
+
+            Long authId = getAuthId();
+
+            List<Dieta> dietas = dietaRepo.findAll();
+
+            Optional<Dieta> dietaResultado = Optional.empty();
+
+            for (Dieta d : dietas) {
+                List<Long> clientes = d.getClientes();
+
+                if (clientes.contains(idCliente)) {
+                    dietaResultado = Optional.of(d);
+                    break;
+                }
+
+            }
+
+            if (dietaResultado.isPresent()){
+                Long entrenadorId = dietaResultado.get().getEntrenador();
+                if (!authId.equals(entrenadorId)) {
+                    throw new PermisosInsuficientesException();
+                }
+            }
+
+            return dietaResultado;
 
         }
 
-        return dietaResultado;
     }
 
 
@@ -286,7 +342,7 @@ public class DietaServicio {
                 rutas.add("/entrena");
                 List<QueryParam> queryParams = new ArrayList<>();
                 queryParams.add(new QueryParam("entrenador", String.valueOf(entrenadorId)));
-                var peticion = getQuery("http", "localhost",port+1, rutas, queryParams);
+                var peticion = getQuery("http", "localhost",portExterno, rutas, queryParams);
                 var respuesta = restTemplate.exchange(peticion,
                         new ParameterizedTypeReference<List<AsignacionEntrenamientoDTO>>() {});
 
@@ -341,7 +397,7 @@ public class DietaServicio {
         Dieta dieta = dietaRepo.findById(id).get(); //El controlador se asegura que existe
         Long entrenadorCreoDieta = dieta.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
         Long idConectado = getAuthId();
-        if (esEntrenador() && entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+        if (esEntrenador() && entrenadorCreoDieta.equals(idConectado)){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
             
             dietaRepo.deleteById(id);
 
@@ -364,7 +420,7 @@ public class DietaServicio {
         boolean res = true;
         
         String ruta = "/cliente/" + clienteId;
-        var peticion = get("http", "localhost",port+1, ruta);
+        var peticion = get("http", "localhost",portExterno, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<ClienteDTO>() {});
         if (respuesta.getStatusCode().value() != 200) { //no existe el cliente
@@ -380,7 +436,7 @@ public class DietaServicio {
         boolean res = true;
 
         String ruta = "/entrenador/" + entrenadorId;
-        var peticion = get("http", "localhost",port+1, ruta);
+        var peticion = get("http", "localhost",portExterno, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<EntrenadorDTO>() {});
         if (respuesta.getStatusCode().value() != 200) { //no existe el entrenador
