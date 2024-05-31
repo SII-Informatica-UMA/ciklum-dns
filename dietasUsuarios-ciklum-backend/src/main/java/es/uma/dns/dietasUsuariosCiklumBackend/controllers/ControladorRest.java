@@ -1,6 +1,7 @@
 package es.uma.dns.dietasUsuariosCiklumBackend.controllers;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
@@ -122,13 +123,13 @@ public class ControladorRest {
 
     @PostMapping
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
-                                         @RequestBody DietaDTO dietaDTO){
+                                         @RequestBody DietaNuevaDTO dietaDTO){
 
         if (servicio.existeEntrenador(entrenador)) {
 
             try {
 
-                Dieta dieta = Dieta.fromDietaDTO(dietaDTO);
+                Dieta dieta = Dieta.fromDietaNuevaDTO(dietaDTO, entrenador);
 
                 Dieta dietaCreada = servicio.crearDieta(dieta, entrenador);
 
