@@ -637,12 +637,12 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no se realiza una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = getSinQuery("http", "localhost",port, "/dieta/",entrenador1());
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/lll",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
 				
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 				assertThat(respuesta.hasBody()).isEqualTo(false);
 			}
 
@@ -746,7 +746,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
-                    assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
                     assertThat(respuesta.hasBody()).isEqualTo(false);
                 }
 
@@ -832,7 +832,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 				assertThat(respuesta.hasBody()).isEqualTo(false);
 			}
 
