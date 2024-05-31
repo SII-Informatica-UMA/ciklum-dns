@@ -61,6 +61,8 @@ public class DietaServicio {
     @Autowired
     private static RestTemplate restTemplate; //para hacer peticiones
 
+    private static int portExterno = 57444;
+
 //-------------------------------------------------------------------------
 //MÉTODO DE VER EL ID DE QUIEN SE HA CONECTADO (los {idEntrenador} del OpenAPI) -----------------------------------
 
@@ -286,7 +288,7 @@ public class DietaServicio {
                 rutas.add("/entrena");
                 List<QueryParam> queryParams = new ArrayList<>();
                 queryParams.add(new QueryParam("entrenador", String.valueOf(entrenadorId)));
-                var peticion = getQuery("http", "localhost",port+1, rutas, queryParams);
+                var peticion = getQuery("http", "localhost",portExterno, rutas, queryParams);
                 var respuesta = restTemplate.exchange(peticion,
                         new ParameterizedTypeReference<List<AsignacionEntrenamientoDTO>>() {});
 
@@ -364,7 +366,7 @@ public class DietaServicio {
         boolean res = true;
         
         String ruta = "/cliente/" + clienteId;
-        var peticion = get("http", "localhost",port+1, ruta);
+        var peticion = get("http", "localhost",portExterno, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<ClienteDTO>() {});
         if (respuesta.getStatusCode().value() != 200) { //no existe el cliente
@@ -380,7 +382,7 @@ public class DietaServicio {
         boolean res = true;
 
         String ruta = "/entrenador/" + entrenadorId;
-        var peticion = get("http", "localhost",port+1, ruta);
+        var peticion = get("http", "localhost",portExterno, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<EntrenadorDTO>() {});
         if (respuesta.getStatusCode().value() != 200) { //no existe el entrenador
