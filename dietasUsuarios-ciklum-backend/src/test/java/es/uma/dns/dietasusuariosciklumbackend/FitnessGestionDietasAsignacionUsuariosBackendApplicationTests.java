@@ -480,7 +480,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				assertThat(respuesta.getStatusCode().value()).isEqualTo(201);
 
 				assertThat(respuesta.getHeaders().get("Location").get(0))
-						.startsWith("http://localhost:"+port+"/dieta");
+						.startsWith("http://localhost:8080/dieta");
 
 				List<Dieta> dietasBD = dietaRepo.findAll();
 				Dieta dietaEntidad = dietasBD.stream()

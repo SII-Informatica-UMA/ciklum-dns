@@ -152,7 +152,7 @@ public class DietaServicio {
     }
 
     public URI uriDeDieta(Long id) {
-        return uri("http", "localhost", port, "dieta", String.valueOf(id));
+        return uri("http", "localhost", port, "dieta/", String.valueOf(id));
     }
 
 //-------------------------------------------------------------------------
