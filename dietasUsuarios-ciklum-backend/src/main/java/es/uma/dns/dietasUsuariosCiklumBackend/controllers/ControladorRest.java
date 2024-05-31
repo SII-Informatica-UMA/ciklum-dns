@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.security.SecurityConfguration;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -133,8 +134,10 @@ public class ControladorRest {
 
                 Dieta dietaCreada = servicio.crearDieta(dieta, entrenador);
 
+                URI location = servicio.uriDeDieta(dietaCreada.getId());
+
                 // Devuelve un 201 y la dieta creada
-                return ResponseEntity.status(HttpStatus.CREATED).body(dietaCreada.toDietaDTO());
+                return ResponseEntity.created(location).body(dietaCreada);
 
             } catch (EntidadExistenteException e){
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
