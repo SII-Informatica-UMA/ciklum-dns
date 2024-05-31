@@ -58,6 +58,7 @@
             <artifactId>spring-security-core</artifactId>
         </dependency>
 
+
         <!-- H2 Database -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -79,16 +80,19 @@
             <scope>test</scope>
         </dependency>
 
+
         <!-- SLF4J and Logback (Managed by Spring Boot) -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+      
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
