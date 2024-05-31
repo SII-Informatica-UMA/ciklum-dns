@@ -5,6 +5,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadNoEncontradaException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
 import org.apache.coyote.BadRequestException;
@@ -35,6 +36,11 @@ public class ControladorRest {
     private ResponseEntity<List<DietaDTO>> getDietaCliente(Long cliente) {
 
         Optional<Dieta> dietaCliente = null;
+
+        if (cliente == null){ //Bad request, no se puso id
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } 
+
         try {
             dietaCliente = servicio.getDietaDeCliente(cliente);
         } catch (PermisosInsuficientesException e) {
@@ -105,6 +111,11 @@ public class ControladorRest {
     @PutMapping
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long cliente,
                                           @RequestBody DietaDTO dietaDTO) {
+        
+
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         if (servicio.existeCliente(cliente)) {
             try {
@@ -125,6 +136,10 @@ public class ControladorRest {
     @PostMapping
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
                                          @RequestBody DietaNuevaDTO dietaDTO){
+
+        if (entrenador == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         if (servicio.existeEntrenador(entrenador)) {
 
@@ -154,13 +169,20 @@ public class ControladorRest {
     @GetMapping("{id}")
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
-        Optional<Dieta> dieta = null;
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        Optional<Dieta> dieta = null; //Hacen falta comprobaciones de seguridad
+
         try {
             dieta = servicio.getDieta(id);
         } catch (PermisosInsuficientesException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (ArgumentoMaloException e) {
             return ResponseEntity.badRequest().build();
+        } catch (EntidadNoEncontradaException e) {
+            return ResponseEntity.notFound().build();
         }
 
         if (!dieta.isEmpty()) {
@@ -176,6 +198,10 @@ public class ControladorRest {
     public ResponseEntity<?> modificarDieta(@PathVariable Long id,
                                             @RequestBody DietaDTO dietaDTO) {
 
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         Optional<Dieta> dieta = null;
         try {
             dieta = servicio.getDieta(id);
@@ -183,6 +209,8 @@ public class ControladorRest {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (ArgumentoMaloException e) {
             return ResponseEntity.badRequest().build();
+        } catch (EntidadNoEncontradaException e) {
+            return ResponseEntity.notFound().build();
         }
 
         if (dieta.isPresent()) {
@@ -205,6 +233,10 @@ public class ControladorRest {
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
+
+        if (id == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         if (servicio.existeDieta(id)) {
             try {
