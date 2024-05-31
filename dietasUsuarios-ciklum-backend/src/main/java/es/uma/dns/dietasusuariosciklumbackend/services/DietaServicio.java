@@ -1,15 +1,12 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.services;
+package es.uma.dns.dietasusuariosciklumbackend.services;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.AsignacionEntrenamientoDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
-import lombok.Getter;
-import org.apache.coyote.BadRequestException;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.ArgumentoMaloException;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.PermisosInsuficientesException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +19,14 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadNoEncontradaException;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
-import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
-import es.uma.dns.dietasUsuariosCiklumBackend.security.JwtUtil;
-import es.uma.dns.dietasUsuariosCiklumBackend.security.SecurityConfguration;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.EntidadNoEncontradaException;
+import es.uma.dns.dietasusuariosciklumbackend.dtos.ClienteDTO;
+import es.uma.dns.dietasusuariosciklumbackend.dtos.EntrenadorDTO;
+import es.uma.dns.dietasusuariosciklumbackend.entities.Dieta;
+import es.uma.dns.dietasusuariosciklumbackend.repositories.DietaRepository;
+import es.uma.dns.dietasusuariosciklumbackend.security.JwtUtil;
+import es.uma.dns.dietasusuariosciklumbackend.security.SecurityConfguration;
 import jakarta.annotation.PostConstruct;
 
 
@@ -76,7 +73,6 @@ public class DietaServicio {
 
 
     public static String getToken() {
-        tests-/dietas
         return token;
     }
 

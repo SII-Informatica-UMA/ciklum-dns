@@ -1,4 +1,4 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.security;
+package es.uma.dns.dietasusuariosciklumbackend.security;
 //import java.security.interfaces.RSAPrivateKey;
 //import java.security.interfaces.RSAPublicKey;
 //
@@ -38,7 +38,6 @@ import java.util.function.Function;
 
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;

@@ -1,20 +1,19 @@
-package es.uma.dns.dietasUsuariosCiklumBackend;
+package es.uma.dns.dietasusuariosciklumbackend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.*;
-import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
-import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
+import es.uma.dns.dietasusuariosciklumbackend.dtos.*;
+import es.uma.dns.dietasusuariosciklumbackend.entities.Dieta;
+import es.uma.dns.dietasusuariosciklumbackend.repositories.DietaRepository;
 
-import es.uma.dns.dietasUsuariosCiklumBackend.security.JwtUtil;
-import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
+import es.uma.dns.dietasusuariosciklumbackend.security.JwtUtil;
+import es.uma.dns.dietasusuariosciklumbackend.services.DietaServicio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -31,7 +30,6 @@ import org.springframework.web.util.UriBuilderFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,4 +1,4 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.excepciones;
+package es.uma.dns.dietasusuariosciklumbackend.excepciones;
 
 public class EntidadExistenteException extends Exception {
     public EntidadExistenteException () {

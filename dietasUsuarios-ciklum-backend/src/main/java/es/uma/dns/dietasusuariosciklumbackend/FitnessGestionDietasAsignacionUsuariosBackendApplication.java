@@ -1,4 +1,4 @@
-package es.uma.dns.dietasUsuariosCiklumBackend;
+package es.uma.dns.dietasusuariosciklumbackend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

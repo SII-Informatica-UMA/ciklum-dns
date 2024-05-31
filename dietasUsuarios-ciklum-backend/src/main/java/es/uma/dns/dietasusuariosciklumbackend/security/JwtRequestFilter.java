@@ -1,4 +1,4 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.security;
+package es.uma.dns.dietasusuariosciklumbackend.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

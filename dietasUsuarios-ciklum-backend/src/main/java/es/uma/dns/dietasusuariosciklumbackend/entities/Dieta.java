@@ -1,13 +1,13 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.entities;
+package es.uma.dns.dietasusuariosciklumbackend.entities;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
+import es.uma.dns.dietasusuariosciklumbackend.dtos.DietaDTO;
+import es.uma.dns.dietasusuariosciklumbackend.dtos.DietaNuevaDTO;
+import es.uma.dns.dietasusuariosciklumbackend.services.DietaServicio;
 import jakarta.persistence.*;
 import lombok.*;
 

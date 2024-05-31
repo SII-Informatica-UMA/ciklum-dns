@@ -1,20 +1,17 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.controllers;
+package es.uma.dns.dietasusuariosciklumbackend.controllers;
 
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
-import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadNoEncontradaException;
-import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
-import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
-import org.apache.coyote.BadRequestException;
+import es.uma.dns.dietasusuariosciklumbackend.dtos.DietaDTO;
+import es.uma.dns.dietasusuariosciklumbackend.dtos.DietaNuevaDTO;
+import es.uma.dns.dietasusuariosciklumbackend.entities.Dieta;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.ArgumentoMaloException;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.EntidadNoEncontradaException;
+import es.uma.dns.dietasusuariosciklumbackend.excepciones.PermisosInsuficientesException;
+import es.uma.dns.dietasusuariosciklumbackend.services.DietaServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import es.uma.dns.dietasUsuariosCiklumBackend.security.SecurityConfguration;
 
 import java.net.URI;
 import java.util.ArrayList;

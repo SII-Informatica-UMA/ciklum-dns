@@ -1,4 +1,4 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.security;
+package es.uma.dns.dietasusuariosciklumbackend.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

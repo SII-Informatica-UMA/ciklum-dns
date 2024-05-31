@@ -1,4 +1,4 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.dtos;
+package es.uma.dns.dietasusuariosciklumbackend.dtos;
 
 import lombok.*;
 

@@ -1,9 +1,9 @@
-package es.uma.dns.dietasUsuariosCiklumBackend.repositories;
+package es.uma.dns.dietasusuariosciklumbackend.repositories;
 
 import java.util.List;
 import java.util.Optional;
 
-import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
+import es.uma.dns.dietasusuariosciklumbackend.entities.Dieta;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
