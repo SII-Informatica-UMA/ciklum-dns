@@ -29,6 +29,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
 import es.uma.dns.dietasUsuariosCiklumBackend.security.JwtUtil;
 import es.uma.dns.dietasUsuariosCiklumBackend.security.SecurityConfguration;
+import es.uma.dns.dietasUsuariosCiklumBackend.security.TokenDietaServicio;
 import jakarta.annotation.PostConstruct;
 
 
@@ -38,22 +39,26 @@ public class DietaServicio {
     
     private static DietaRepository dietaRepo;
 
-    @Autowired
-    private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
+    //@Autowired
+    //private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
 
     private String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
 
-    private final String ID_PARA_TOKEN = "150"; //Necesito una id para el token, que pactamos con otros ms en teoria
+    @Autowired
+    private TokenDietaServicio tokenDietaServicio;
+    //private final String ID_PARA_TOKEN = "150"; //Necesito una id para el token, que pactamos con otros ms en teoria
 
     @Autowired
-    public DietaServicio(DietaRepository dietaRepositorio) {
+    public DietaServicio(DietaRepository dietaRepositorio, TokenDietaServicio tokenDServicio) {
         dietaRepo = dietaRepositorio;
+        this.tokenDietaServicio = tokenDServicio;
+        this.token = tokenDietaServicio.generaToken();
     }
 
-    @PostConstruct
-    private void generaToken() { 
-        token = jwtUtil.generateToken(ID_PARA_TOKEN); //no debe hacerse new, para eso está el autowired, y ahora hago postConstruct porque se inyecta tras llamar al constructor y sino daba null
-    }
+    //@PostConstruct
+    //private void generaToken() {
+    //    token = jwtUtil.generateToken(ID_PARA_TOKEN); //no debe hacerse new, para eso está el autowired, y ahora hago postConstruct porque se inyecta tras llamar al constructor y sino daba null
+    //}
 
     @Value(value="${local.server.port}")
 	private int port;
