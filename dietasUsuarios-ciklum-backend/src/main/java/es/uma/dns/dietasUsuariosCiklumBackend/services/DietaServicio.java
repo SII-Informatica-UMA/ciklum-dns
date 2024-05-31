@@ -381,7 +381,7 @@ public class DietaServicio {
     public void modificarDieta(Dieta dietaModificada) throws PermisosInsuficientesException {
         Long entrenadorCreoDieta = dietaModificada.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
         Long idConectado = getAuthId();
-        if (esEntrenador() && entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+        if (entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
             
             dietaRepo.save(dietaModificada);
 
@@ -397,7 +397,7 @@ public class DietaServicio {
         Dieta dieta = dietaRepo.findById(id).get(); //El controlador se asegura que existe
         Long entrenadorCreoDieta = dieta.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
         Long idConectado = getAuthId();
-        if (esEntrenador() && entrenadorCreoDieta.equals(idConectado)){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+        if ( entrenadorCreoDieta.equals(idConectado)){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
             
             dietaRepo.deleteById(id);
 

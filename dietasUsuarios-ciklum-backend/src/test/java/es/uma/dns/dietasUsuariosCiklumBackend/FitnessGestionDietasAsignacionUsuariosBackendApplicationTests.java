@@ -67,7 +67,11 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	@Autowired
 	private DietaRepository dietaRepo;
-
+	
+	@BeforeEach
+	public void initializedDatabase(){
+		dietaRepo.deleteAll();
+	}
 
 	private URI uri(String scheme, String host, int port, String path) {
 		UriBuilderFactory ubf = new DefaultUriBuilderFactory();
@@ -777,7 +781,9 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("la elimina cuando existe")
 			public void eliminarDietaCorrectamente() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/1",entrenador1());
+				List<Dieta> dietas2 = dietaRepo.findAll();
+				Dieta prueba= dietas2.get(1);
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/"+prueba.getId(),entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
