@@ -304,7 +304,7 @@ public class DietaServicio {
 
             if (!dietaRepo.existsByNombre(d.getNombre())) {
                 d.setEntrenador(idEntrenador); //Aseguro que se asigna el idEntrenador
-                d.setId(null); // ¿? --> Supongo es porque la bd se encarga de darle automaticamente un id, vaya a ser que traiga alguno que genere conflicto (el profe lo tenia asi creo que fue de donde lo vi en sus ejemplos)
+                d.setId(null); 
                 Dieta guardada = dietaRepo.save(d);
                 return guardada;
             } else {
@@ -318,7 +318,7 @@ public class DietaServicio {
     }
 
 
-    //GET{ID} y PUT{ID}
+    //GET{ID}
     public Optional<Dieta> getDieta(Long id) throws PermisosInsuficientesException, ArgumentoMaloException, EntidadNoEncontradaException {
             Optional<Dieta> dietaOpt = dietaRepo.findById(id);
             if(!dietaOpt.isEmpty()){
@@ -348,7 +348,7 @@ public class DietaServicio {
     public void modificarDieta(Dieta dietaModificada) throws PermisosInsuficientesException {
         Long entrenadorCreoDieta = dietaModificada.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
         Long idConectado = getAuthId();
-        if (entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+        if (entrenadorCreoDieta == idConectado){ 
             
             dietaRepo.save(dietaModificada);
 
@@ -364,7 +364,7 @@ public class DietaServicio {
         Dieta dieta = dietaRepo.findById(id).get(); //El controlador se asegura que existe
         Long entrenadorCreoDieta = dieta.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
         Long idConectado = getAuthId();
-        if ( entrenadorCreoDieta.equals(idConectado)){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+        if ( entrenadorCreoDieta.equals(idConectado)){ 
             
             dietaRepo.deleteById(id);
 
