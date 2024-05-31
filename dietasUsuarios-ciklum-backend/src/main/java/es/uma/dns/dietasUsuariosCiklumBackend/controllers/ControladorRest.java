@@ -111,11 +111,15 @@ public class ControladorRest {
         }
 
         if (servicio.existeCliente(cliente)) {
+            try {
+                servicio.asignarDietaCliente(cliente, Dieta.fromDietaDTO(dietaDTO));
 
-            servicio.asignarDietaCliente(cliente, Dieta.fromDietaDTO(dietaDTO));
+                return ResponseEntity.ok().build();
+                // Devuelve un 200
+            } catch (PermisosInsuficientesException e) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
 
-            // Devuelve un 200
-            return ResponseEntity.ok().build();
 
         } else {
             // Devuelve un error 404
@@ -145,6 +149,8 @@ public class ControladorRest {
 
             } catch (EntidadExistenteException e){
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            } catch (PermisosInsuficientesException e) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
         } else {
@@ -197,8 +203,11 @@ public class ControladorRest {
         if (dieta.isPresent()) {
 
             Dieta dietaModificada = Dieta.fromDietaDTO(dietaDTO);
-
-            servicio.modificarDieta(dietaModificada); //Requiere comprobaciones de seguridad
+            try {
+                servicio.modificarDieta(dietaModificada); //Requiere comprobaciones de seguridad
+            } catch (PermisosInsuficientesException e){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
 
             // Devuelve un 200
             return ResponseEntity.ok().build();
@@ -218,8 +227,11 @@ public class ControladorRest {
         }
 
         if (servicio.existeDieta(id)) {
-
-            servicio.eliminarDieta(id); //Requiere comprobaciones de seguridad
+            try {
+                servicio.eliminarDieta(id); //Requiere comprobaciones de seguridad
+            } catch (PermisosInsuficientesException e) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
 
             // Devuelve un 200
             return ResponseEntity.ok().build();
