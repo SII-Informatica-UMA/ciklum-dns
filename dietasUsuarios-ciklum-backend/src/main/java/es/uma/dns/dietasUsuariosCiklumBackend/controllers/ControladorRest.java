@@ -33,7 +33,12 @@ public class ControladorRest {
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private ResponseEntity<List<DietaDTO>> getDietaCliente(Long cliente) {
 
-        Optional<Dieta> dietaCliente = servicio.getDietaDeCliente(cliente);
+        Optional<Dieta> dietaCliente = null;
+        try {
+            dietaCliente = servicio.getDietaDeCliente(cliente);
+        } catch (PermisosInsuficientesException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (dietaCliente.isPresent()) {
 
@@ -51,7 +56,12 @@ public class ControladorRest {
     //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private ResponseEntity<List<DietaDTO>> getDietaEntrenador(Long entrenador) {
 
-        Optional<List<Dieta>> dietasEntrenador = servicio.getDietasDeEntrenador(entrenador);
+        Optional<List<Dieta>> dietasEntrenador = null;
+        try {
+            dietasEntrenador = servicio.getDietasDeEntrenador(entrenador);
+        } catch (PermisosInsuficientesException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (dietasEntrenador.isPresent()) {
 
@@ -78,18 +88,9 @@ public class ControladorRest {
 
         if (cliente != null && entrenador == null) {
 
-            if(!servicio.esCliente()){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
             return getDietaCliente(cliente);
 
         } else if (entrenador != null && cliente == null) {
-
-            if(!servicio.esEntrenador()){
-
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
 
             return getDietaEntrenador(entrenador);
 
@@ -106,10 +107,6 @@ public class ControladorRest {
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long cliente,
                                           @RequestBody DietaDTO dietaDTO) {
 
-        if(!servicio.esEntrenador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         if (servicio.existeCliente(cliente)) {
             try {
                 servicio.asignarDietaCliente(cliente, Dieta.fromDietaDTO(dietaDTO));
@@ -119,7 +116,6 @@ public class ControladorRest {
             } catch (PermisosInsuficientesException e) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-
 
         } else {
             // Devuelve un error 404
@@ -131,10 +127,6 @@ public class ControladorRest {
     @PostMapping
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
                                          @RequestBody DietaDTO dietaDTO){
-
-        if(!servicio.esEntrenador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
 
         if (servicio.existeEntrenador(entrenador)) {
 
@@ -186,11 +178,6 @@ public class ControladorRest {
     public ResponseEntity<?> modificarDieta(@PathVariable Long id,
                                             @RequestBody DietaDTO dietaDTO) {
 
-        if(!servicio.esEntrenador()){
-          
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         Optional<Dieta> dieta = null;
         try {
             dieta = servicio.getDieta(id);
@@ -221,10 +208,6 @@ public class ControladorRest {
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @DeleteMapping("{id}")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
-
-        if(!servicio.esEntrenador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
 
         if (servicio.existeDieta(id)) {
             try {
