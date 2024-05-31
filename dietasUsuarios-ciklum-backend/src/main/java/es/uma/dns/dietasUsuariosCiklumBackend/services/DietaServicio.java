@@ -152,6 +152,10 @@ public class DietaServicio {
         return peticion;
     }
 
+    public URI uriDeDieta(Long id) {
+        return uri("http", "localhost", port, "dieta", String.valueOf(id));
+    }
+
 //-------------------------------------------------------------------------
 // MÉTODOS DEL SERVICIO ---------------------------------------------------
 
