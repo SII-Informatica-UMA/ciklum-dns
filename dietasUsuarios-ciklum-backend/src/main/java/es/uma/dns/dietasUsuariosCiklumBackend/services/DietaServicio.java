@@ -396,9 +396,9 @@ public class DietaServicio {
         return existeCliente(idCliente);
     }
 
+
     //DONE, usa el getAuthId que es la id de quien hace login, para comprobar si es un entrenador llamando a otro microservicio
-    public boolean esEntrenador() {
-        
+    public boolean esEntrenador() {  
         Long idEntrenador = getAuthId();
         return existeEntrenador(idEntrenador);
     }
