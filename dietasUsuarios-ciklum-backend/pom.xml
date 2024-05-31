@@ -102,6 +102,7 @@
 		  <artifactId>spring-web</artifactId>
 		</dependency>
 
+		<!-- SLF4J API -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -114,7 +115,6 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.3</version>
 		</dependency>
-
     
   	</dependencies>
 

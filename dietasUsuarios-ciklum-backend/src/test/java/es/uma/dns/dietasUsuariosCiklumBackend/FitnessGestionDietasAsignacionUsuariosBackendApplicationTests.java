@@ -1,5 +1,7 @@
 package es.uma.dns.dietasUsuariosCiklumBackend;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.*;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.repositories.DietaRepository;
@@ -16,10 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.client.ExpectedCount;
@@ -35,8 +34,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -61,6 +62,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	//------------------------------------------------------------------------------------------------------------------
 	@Value(value="${local.server.port}")
 	private int port;
+
+	private int portExterno = 57444;
 
 	@Autowired
 	private DietaRepository dietaRepo;
@@ -94,80 +97,71 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		return ub.build();
 	}
 
-	private RequestEntity<Void> get(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
+	private RequestEntity<Void> get(String scheme, String host, int port, String path, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.get(uri)
-				.accept(MediaType.APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
 
-	private RequestEntity<Void> getcontoken(String scheme, String host, int port, String path, boolean esEntrenador, String id,String token) {
-		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
-		if(esEntrenador){
-			var peticion = RequestEntity.get(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("Authorization", "Bearer " +token)
-					.build();
-			return peticion;
-		}else{
-			var peticion = RequestEntity.get(uri)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("Authorization", "Bearer " +token)
-					.build();
-			return peticion;
-		}
-	}
-
-	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path) {
+	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path,String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.get(uri)
-				.accept(MediaType.APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
 
-	private RequestEntity<Void> delete(String scheme, String host, int port, String path, boolean esEntrenador, String id) {
+	private RequestEntity<Void> delete(String scheme, String host, int port, String path, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.delete(uri)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
-	private RequestEntity<Void> deleteSinQuery(String scheme, String host, int port, String path) {
+	private RequestEntity<Void> deleteSinQuery(String scheme, String host, int port, String path, String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.delete(uri)
+				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
+	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.post(uri)
-				.accept(MediaType.APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> postSinQuery(String scheme, String host, int port, String path, T object) {
+	private <T> RequestEntity<T> postSinQuery(String scheme, String host, int port, String path, T object,String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.post(uri)
-				.contentType(MediaType.APPLICATION_JSON)
+				.contentType(APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id) {
+	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.put(uri)
-				.contentType(MediaType.APPLICATION_JSON)
+				.contentType(APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
 
-	private <T> RequestEntity<T> putSinQuery(String scheme, String host, int port, String path, T object) {
+	private <T> RequestEntity<T> putSinQuery(String scheme, String host, int port, String path, T object, String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.put(uri)
-				.contentType(MediaType.APPLICATION_JSON)
+				.contentType(APPLICATION_JSON)
+				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
 	}
@@ -180,12 +174,24 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		return seguridad.generateToken("2");
 	}
 
+	private String entrenador22(){
+		return seguridad.generateToken("22");
+	}
+
+	private String entrenadornull(){
+		return seguridad.generateToken(null);
+	}
+
 	private String cliente4(){
 		return seguridad.generateToken("4");
 	}
 
 	private String cliente64(){
 		return seguridad.generateToken("64");
+	}
+
+	private String clientenull(){
+		return seguridad.generateToken(null);
 	}
 
 	private void compruebaCamposDieta(Dieta expected, Dieta actual) {
@@ -209,6 +215,12 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		assertThat(actual.getRecomendaciones()).isEqualTo(expected.getRecomendaciones());
 		assertThat(actual.getAlimentos()).isEqualTo(expected.getAlimentos());
 	}
+	//---------------------MOCKITO----------------------------------------------------------------------------------
+	@BeforeEach
+	public void init() {
+		mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
+	}
+	//--------------------------------------------------------------------------------------------------------------
 
 	//==================================================================================================================
 	/*
@@ -219,13 +231,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@DisplayName("cuando la base de datos esté vacía de dietas...")
 	public class BaseDatosDietasVacia{
 
-		//---------------------MOCKITO----------------------------------------------------------------------------------
-		@BeforeEach
-		public void init() {
-			mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
-		}
-		//--------------------------------------------------------------------------------------------------------------
-
 		// ========================================GET /DIETAS==========================================================
 
 		/*
@@ -234,67 +239,76 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		 * */
 		@Test
 		@DisplayName("devuelve la lista de dietas de un entrenador vacía")
-		public void devuelveDietasVaciaEntrenador() {
+		public void devuelveDietasVaciaEntrenador() throws JsonProcessingException{
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					true, Long.toString(1L));
+					true, Long.toString(1L),entrenador1());
 
-
+			// Creamos la peticion para el mock
+			String tokenServidor = seguridad.generateToken("150");
 			//---------------------------------MOCKITO------------------------------------------------------------------
 			var entrenador = EntrenadorDTO.builder()
 					.idUsuario(1L)
-					.dni("111111111A")
 					.build();
 
+			ObjectMapper objectMapper = new ObjectMapper();
+			String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
 			mockServer.expect(ExpectedCount.once(),
-					requestTo(uri("http", "localhost", 9090, "/entrenador/1")))
+					requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
 					.andExpect(method(HttpMethod.GET))
+					.andExpect(header("Authorization","Bearer " + tokenServidor))
 					.andRespond(withStatus(HttpStatus.OK)
-					.contentType(MediaType.APPLICATION_JSON)
-					.body(entrenador.toString()));
+					.contentType(APPLICATION_JSON)
+					.body(entrenadorJson));
 
 
 			//----------------------------------------------------------------------------------------------------------
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
+			mockServer.verify();
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
 			assertThat(respuesta.getBody()).isEmpty();
 		}
 
+		// @Transactional para el de post dieta
 		/*
 		 * GET DIETAS DE UN CLIENTE VACIO
 		 * OJO -> REVISAR QUE CLIENTE CON ID = 2 EXISTE
 		 * */
 		@Test
 		@DisplayName("devuelve la lista de dietas de un cliente vacía")
-		public void devuelveDietasVaciaCliente() {
-			String token =seguridad.generateToken("4");
-			var peticion = getcontoken("http", "localhost", port, "/dieta",
-					false, Long.toString(4L),token);
+		public void devuelveDietasVaciaCliente() throws JsonProcessingException {
 			//---------------------------------MOCKITO------------------------------------------------------------------
+			// Creamos la peticion para el mock
+			String tokenServidor = seguridad.generateToken("150");
+			// Preparamos el cliente a enviar
 			var cliente = ClienteDTO.builder()
 							.idUsuario(4L)
 							.build();
 
-			String tokenServidor = seguridad.generateToken("150");
-			mockServer.expect(ExpectedCount.once(),
-							requestTo(uri("http", "localhost", 9090, "/cliente/4")))
+			ObjectMapper objectMapper = new ObjectMapper();
+			String clienteJson = objectMapper.writeValueAsString(cliente);
+
+			var peticionExterna = "http://localhost:" + portExterno + "/cliente/4";
+			mockServer.expect(requestTo(peticionExterna))
 							.andExpect(method(HttpMethod.GET))
-							.andExpect(header("Authorization", "Bearer " + tokenServidor))
-							.andRespond(withStatus(HttpStatus.OK)
-							.contentType(MediaType.APPLICATION_JSON)
-							.body(cliente.toString()));
+							.andExpect(header("Authorization","Bearer " + tokenServidor))
+							.andRespond(withSuccess(clienteJson, APPLICATION_JSON));
 
 
 			//----------------------------------------------------------------------------------------------------------
 
+			String token =seguridad.generateToken("4");
+			var peticion = get("http", "localhost", port, "/dieta",
+					false, Long.toString(4L),token);
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
+			mockServer.verify();
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
 			assertThat(respuesta.getBody()).isEmpty();
 		}
@@ -308,10 +322,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasEntrenadorInexistente() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					true, Long.toString(1000L));
+					true, Long.toString(1000L),entrenador2());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
@@ -326,10 +340,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasClienteInexistente() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					false, Long.toString(100000L));
+					false, Long.toString(100000L),cliente64());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
@@ -342,10 +356,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("da error cuando intentas acceder a una lista de dietas con una url invalida (sin incluir query)")
 		public void errorDevuelveDietasURLnoValidaSinQuery() {
 
-			var peticion = getSinQuery("http", "localhost", port, "/dieta");
+			var peticion = getSinQuery("http", "localhost", port, "/dieta",entrenador1());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
@@ -359,10 +373,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					true, "pepito");
+					true, "pepito",entrenador22());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
@@ -376,10 +390,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() {
 
 			var peticion = get("http", "localhost", port, "/dieta",
-					false, "pepito");
+					false, "pepito",cliente64());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
@@ -407,7 +421,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "1");
+			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "1",entrenador1());
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -452,7 +466,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "100");
+			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "100",entrenador22());
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -478,7 +492,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					.build();
 
 
-			var peticion = postSinQuery("http", "localhost",port, "/dieta", dieta);
+			var peticion = postSinQuery("http", "localhost",port, "/dieta", dieta,entrenadornull());
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -505,7 +519,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 
 			var peticion = post("http", "localhost",port, "/dieta", dieta,
-					true, "pepito");
+					true, "pepito",null);
 
 			var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -523,14 +537,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@Nested
 	@DisplayName("cuando la base de datos esté llena...")
 	public class BaseDatosDietasLlena{
-
-		//---------------------MOCKITO----------------------------------------------------------------------------------
-		@BeforeEach
-		public void init() {
-			mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
-		}
-		//--------------------------------------------------------------------------------------------------------------
-
+		
 		@BeforeEach
 		public void insertarDatos(){
 			
@@ -596,7 +603,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("devuelve la dieta cuando existe")
 			public void devuelveDieta() {
-				var peticion = getSinQuery("http", "localhost",port, "/dieta/1");
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/1",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion, DietaDTO.class);
 				
@@ -608,7 +615,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no existe la dieta")
 			public void errorCuandoDietaNoExiste() {
-				var peticion = getSinQuery("http", "localhost",port, "/dieta/47");
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/47",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
@@ -620,7 +627,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no se realiza una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = getSinQuery("http", "localhost",port, "/dietasss/47");
+				var peticion = getSinQuery("http", "localhost",port, "/dietasss/47",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
@@ -629,7 +636,43 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				assertThat(respuesta.hasBody()).isEqualTo(false);
 			}
 
-			//FALTA EL 403 : ACCESO NO AUTORIZADO
+			@Test
+			@DisplayName("da error cuando alguien intenta acceder sin token")
+			public void errorCuandoAccesoIndebido() {
+				var peticion = getSinQuery("http", "localhost",port, "/dietas/2",null);
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un cliente intenta acceder a una dieta que no es suya")
+			public void errorCuandoAccesoIndebidoDeCliente() {
+				var peticion = getSinQuery("http", "localhost",port, "/dietas/2",cliente4());
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un entrenador intenta acceder a una dieta que no es suya")
+			public void errorCuandoAccesoIndebidoDeEntrenador() {
+				var peticion = getSinQuery("http", "localhost",port, "/dietas/1",entrenador2());
+				
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {});
+				
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			
 		}
 
 		@Nested
@@ -643,7 +686,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                             .nombre("Malagueña")
                             .build();
 
-                    var peticion = putSinQuery("http", "localhost",port, "/dieta/1", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/1", dieta,entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Dieta.class);
 
@@ -657,7 +700,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     var dieta = Dieta.builder()
                             .nombre("Inexistente")
                             .build();
-                    var peticion = putSinQuery("http", "localhost",port, "/dieta/50", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/50", dieta,entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -671,7 +714,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     var dieta = Dieta.builder()
                             .nombre("Bad Request")
                             .build();
-                    var peticion = putSinQuery("http", "localhost",port, "/dietasss/50", dieta);
+                    var peticion = putSinQuery("http", "localhost",port, "/dietasss/50", dieta,entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -679,7 +722,50 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     assertThat(respuesta.hasBody()).isEqualTo(false);
                 }
 
-				//FALTA EL 403 : ACCESO NO AUTORIZADO
+
+				@Test
+                @DisplayName("da error cuando alguien intenta actualizar sin token")
+                public void errorCuandoActualizacionIndebido() {
+                    var dieta = Dieta.builder()
+                            .nombre("Sin token")
+                            .build();
+                    var peticion = putSinQuery("http", "localhost",port, "/dietas/1", dieta,null);
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+				@Test
+                @DisplayName("da error cuando un entrenador intenta actualizar una dieta que no es suya")
+                public void errorCuandoActualizacionDeEntrenadorIndebido() {
+                    var dieta = Dieta.builder()
+                            .nombre("Malagueña")
+                            .build();
+                    var peticion = putSinQuery("http", "localhost",port, "/dietas/1", dieta,entrenador2());
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+				@Test
+                @DisplayName("da error cuando un cliente intenta actualizar")
+                public void errorCuandoActualizacionDeClienteIndebido() {
+                    var dieta = Dieta.builder()
+                            .nombre("Malagueña")
+                            .build();
+                    var peticion = putSinQuery("http", "localhost",port, "/dietas/1", dieta,cliente4());
+
+                    var respuesta = restTemplate.exchange(peticion,Void.class);
+
+                    assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+                    assertThat(respuesta.hasBody()).isEqualTo(false);
+                }
+
+
             }
 
 		@Nested
@@ -688,7 +774,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("la elimina cuando existe")
 			public void eliminarDietaCorrectamente() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/1");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/1",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
@@ -701,7 +787,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando la dieta no existe")
 			public void errorCuandoDietaNoExiste() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/50");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/50",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
@@ -712,7 +798,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando se hace una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dietasss/35");
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietasss/35",entrenador1());
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -720,7 +806,41 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				assertThat(respuesta.hasBody()).isEqualTo(false);
 			}
 
+
 			//FALTA EL 403 : ACCESO NO AUTORIZADO
+
+			@Test
+			@DisplayName("da error cuando alguien intenta borrar una dieta sin token")
+			public void errorCuandoBorradoSinToken() {
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietas/1",null);
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un entrenador intenta borrar una dieta que no es suya")
+			public void errorCuandoEntrenadorBorraDeFormaIndebida() {
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietas/1",entrenador2());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
+
+			@Test
+			@DisplayName("da error cuando un cliente intenta borrar una dieta")
+			public void errorCuandoClienteIntentaBorrar() {
+				var peticion = deleteSinQuery("http", "localhost",port, "/dietas/1",cliente4());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+				assertThat(respuesta.hasBody()).isEqualTo(false);
+			}
 		}
 
 		// ========================================GET /DIETAS==========================================================
@@ -733,7 +853,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un entrenador con 1 o más dietas")
 		public void devuelveDietasEntrenador() {
 
-			var peticion = get("http", "localhost", port, "/dieta", true, "1");
+			var peticion = get("http", "localhost", port, "/dieta", true, "1",entrenador1());
 
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<DietaDTO>>() {
@@ -751,10 +871,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		@DisplayName("devuelve la lista de dietas de un cliente con 1 dieta")
 		public void devuelveDietaCliente() {
 
-			var peticion = get("http", "localhost", port, "/dieta", false, "2");
+			var peticion = get("http", "localhost", port, "/dieta", false, "2",cliente4());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
