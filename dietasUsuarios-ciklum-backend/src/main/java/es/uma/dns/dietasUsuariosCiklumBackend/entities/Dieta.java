@@ -1,10 +1,12 @@
 package es.uma.dns.dietasUsuariosCiklumBackend.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
 import jakarta.persistence.*;
 import lombok.*;
@@ -89,6 +91,21 @@ public class Dieta {
         //Qué pasa si una dieta no tiene entrenador? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         return entrenador.orElse(null);
 
+    }
+
+    // Es una dieta sin id
+    public static Dieta fromDietaNuevaDTO(DietaNuevaDTO dietaNuevaDTO, Long idEntrenador) {
+        return Dieta.builder()
+            .nombre(dietaNuevaDTO.getNombre())
+            .descripcion(dietaNuevaDTO.getDescripcion())
+            .observaciones(dietaNuevaDTO.getObservaciones())
+            .objetivo(dietaNuevaDTO.getObjetivo())
+            .duracionDias(dietaNuevaDTO.getDuracionDias())
+            .alimentos(dietaNuevaDTO.getAlimentos())
+            .recomendaciones(dietaNuevaDTO.getRecomendaciones())
+            .clientes(new ArrayList<>())
+            .entrenador(idEntrenador)
+            .build();
     }
 
 //-------------------------------------------------------------------------

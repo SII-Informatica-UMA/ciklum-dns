@@ -225,332 +225,382 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	public void init() {
 		mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
 	}
+	//--------------------------------------------------------------------------------------------------------------
+
 
 	@BeforeEach
 	public void initializeDatabase() {
 		dietaRepo.deleteAll();
 	}
-	//--------------------------------------------------------------------------------------------------------------
 
 	//==================================================================================================================
-	/*
-	 * A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA COMPROBAR
-	 * CUANDO NO EXISTE NADA EN LA BASE DE DATOS
-	 * */
+
 	@Nested
-	@DisplayName("cuando la base de datos esté vacía de dietas...")
-	public class BaseDatosDietasVacia{
+	@DisplayName("cuando la base de datos este vacia de dietas...")
+	public class BaseDatosDietasVaciaTest{
 
-		// ========================================GET /DIETAS==========================================================
+		@Nested
+		@DisplayName("GET /DIETA")
+		public class GetListaDietaTest{
 
-		/*
-		 * GET DIETAS DE UN ENTRENADOR VACIO
-		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE
-		 * */
-		@Test
-		@DisplayName("devuelve la lista de dietas de un entrenador vacía")
-		public void devuelveDietasVaciaEntrenador() throws JsonProcessingException{
+			/*
+			 * GET DIETAS DE UN ENTRENADOR  SIN DIETAS
+			 * */
+			@Test
+			@DisplayName("devuelve la lista de dietas de un entrenador vacía")
+			public void errordevuelveDietasVaciaEntrenador() throws JsonProcessingException{
+				//-------------------------MOCKITO--------------------------------------------------------------------------
+				var entrenador = EntrenadorDTO.builder()
+						.idUsuario(1L)
+						.build();
 
-			var peticion = get("http", "localhost", port, "/dieta",
-					true, Long.toString(1L),entrenador1());
+				ObjectMapper objectMapper = new ObjectMapper();
+				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
-			var entrenador = EntrenadorDTO.builder()
-					.idUsuario(1L)
-					.build();
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
+								.andExpect(method(HttpMethod.GET))
+								.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+								.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(entrenadorJson));
+				//------------------------------------------------------------------------------------------------------
 
-			ObjectMapper objectMapper = new ObjectMapper();
-			String entrenadorJson = objectMapper.writeValueAsString(entrenador);
+				var peticion = get("http", "localhost", port, "/dieta",
+						true, Long.toString(1L),entrenador1());
 
-			mockServer.expect(ExpectedCount.once(),
-							requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
-							.andExpect(method(HttpMethod.GET))
-							.andExpect(header("Authorization","Bearer " + DietaServicio.token))
-							.andRespond(withStatus(HttpStatus.OK)
-							.contentType(APPLICATION_JSON)
-							.body(entrenadorJson));
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
 
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+			}
 
-			mockServer.verify();
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
-			assertThat(respuesta.getBody()).isEmpty();
+			/*
+			 * GET DIETAS DE UN CLIENTE VACIO
+			 * */
+			@Test
+			@DisplayName("devuelve la lista de dietas de un cliente vacía")
+			public void devuelveDietasVaciaCliente() throws JsonProcessingException {
+				//---------------------------------MOCKITO------------------------------------------------------------------
+				var cliente = ClienteDTO.builder()
+						.idUsuario(4L)
+						.build();
+
+				ObjectMapper objectMapper = new ObjectMapper();
+				String clienteJson = objectMapper.writeValueAsString(cliente);
+
+				mockServer.expect(ExpectedCount.twice(),
+								requestTo(uri("http", "localhost", portExterno, "/cliente/4")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(clienteJson));
+				//----------------------------------------------------------------------------------------------------------
+
+				String token =seguridad.generateToken("4");
+				var peticion = get("http", "localhost", port, "/dieta",
+						false, Long.toString(4L),token);
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+			}
+
+			/*
+			 * ERROR GET DIETAS DE UN ENTRENADOR DISTINTO AL ENTRENADOR CONECTADO
+			 * */
+			@Test
+			@DisplayName("da error cuando el entrenador solicitado es distinto al de la sesion activa")
+			public void errorDevuelveDietasEntrenadorDistinto() throws JsonProcessingException{
+				//-------------------------MOCKITO----------------------------------------------------------------------
+				var entrenador = EntrenadorDTO.builder()
+						.idUsuario(1L)
+						.build();
+
+				ObjectMapper objectMapper = new ObjectMapper();
+				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(entrenadorJson));
+
+				//------------------------------------------------------------------------------------------------------
+
+				var peticion = get("http", "localhost", port, "/dieta",
+						true, Long.toString(1000L),entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
+			/*
+			 * ERROR GET DIETAS DE UN CLIENTE INEXISTENTE EN SESION DE ENTRENADOR
+			 * */
+			@Test
+			@DisplayName("da error cuando el cliente no existe en la BD y la conexion es de un entrenador")
+			public void errorDevuelveDietasClienteInexistente() throws JsonProcessingException{
+				var cliente = ClienteDTO.builder()
+						.idUsuario(4L)
+						.build();
+
+				ObjectMapper objectMapper = new ObjectMapper();
+				String clienteJson = objectMapper.writeValueAsString(cliente);
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/cliente/1")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.NOT_FOUND));
+				var entrenador = EntrenadorDTO.builder()
+						.idUsuario(1L)
+						.build();
+
+				//------------------------------------------------------------------------------------------------------
+				var peticion = get("http", "localhost", port, "/dieta",
+						false, Long.toString(4L),entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
+			/*
+			 * ERROR GET DIETAS CON QUERY INEXISTENTE
+			 * */
+			@Test
+			@DisplayName("da error cuando intentas acceder a una lista de dietas con una url invalida (sin incluir query)")
+			public void errorDevuelveDietasURLnoValidaSinQuery() {
+
+				var peticion = getSinQuery("http", "localhost", port, "/dieta",entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+			}
+
+			/*
+			 * ERROR GET DIETAS CON ID ENTRENADOR INVALIDO
+			 * */
+			@Test
+			@DisplayName("da error cuando intentas acceder a una lista de dietas entrenador con una url invalida (el id no es un numero)")
+			public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() throws JsonProcessingException{
+
+				var peticion = get("http", "localhost", port, "/dieta",
+						true, "pepito",entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
+			/*
+			 * ERROR GET DIETAS CON ID CLIENTE INVALIDO
+			 * */
+			@Test
+			@DisplayName("da error cuando intentas acceder a una lista de dietas cliente con una url invalida (el id no es un numero)")
+			public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() throws JsonProcessingException{
+
+
+				var peticion = get("http", "localhost", port, "/dieta",
+						false, "pepito",cliente64());
+
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
 		}
 
-		// @Transactional para el de post dieta
-		/*
-		 * GET DIETAS DE UN CLIENTE VACIO
-		 * OJO -> REVISAR QUE CLIENTE CON ID = 2 EXISTE
-		 * */
-		@Test
-		@DisplayName("devuelve la lista de dietas de un cliente vacía")
-		public void devuelveDietasVaciaCliente() throws JsonProcessingException {
-			//---------------------------------MOCKITO------------------------------------------------------------------
-			// Creamos la peticion para el mock
-			String tokenServidor = seguridad.generateToken("150");
-			// Preparamos el cliente a enviar
-			var cliente = ClienteDTO.builder()
-							.idUsuario(4L)
-							.build();
+		@Nested
+		@DisplayName("POST /DIETA")
+		public class PostDietaTest{
+			/*
+			 *  POST DIETAS CORRECTAMENTE
+			 * */
+			@Test
+			@DisplayName("inserta correctamente una dieta dando ID de Entrenador")
+			public void insertaDietaIndicandoEntrenadorConId() throws JsonProcessingException{
+				var entrenador = EntrenadorDTO.builder()
+						.idUsuario(1L)
+						.build();
 
-			ObjectMapper objectMapper = new ObjectMapper();
-			String clienteJson = objectMapper.writeValueAsString(cliente);
+				ObjectMapper objectMapper = new ObjectMapper();
+				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
-			var peticionExterna = "http://localhost:" + portExterno + "/cliente/4";
-			mockServer.expect(ExpectedCount.twice(),
-							requestTo(uri("http", "localhost", portExterno, "/cliente/4")))
-							.andExpect(method(HttpMethod.GET))
-							.andExpect(header("Authorization","Bearer " + DietaServicio.token))
-							.andRespond(withStatus(HttpStatus.OK)
-							.contentType(APPLICATION_JSON)
-							.body(clienteJson));
+				mockServer.expect(ExpectedCount.twice(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
+								.andExpect(method(HttpMethod.GET))
+								.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+								.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(entrenadorJson));
 
 
-			//----------------------------------------------------------------------------------------------------------
+				List<String> alimentos = new ArrayList<>();
+				alimentos.add("tomate");
+				var dieta = DietaNuevaDTO.builder()
+						.nombre("prueba")
+						.descripcion("descripcion")
+						.objetivo("objtv")
+						.observaciones("observc")
+						.duracionDias(1)
+						.alimentos(alimentos)
+						.recomendaciones("recomendaciones")
+						.build();
 
-			String token =seguridad.generateToken("4");
-			var peticion = get("http", "localhost", port, "/dieta",
-					false, Long.toString(4L),token);
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
 
-			mockServer.verify();
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
-			assertThat(respuesta.getBody()).isEqualTo(new ArrayList<>());
+				var peticion = post("http", "localhost",port, "/dieta", dieta,
+						true, Long.toString(1L),entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(201);
+
+				assertThat(respuesta.getHeaders().get("Location").get(0))
+						.startsWith("http://localhost:"+port+"/dieta");
+
+				List<Dieta> dietasBD = dietaRepo.findAll();
+				Dieta dietaEntidad = dietasBD.stream()
+						.filter(p->p.getNombre().equals("prueba"))
+						.findFirst()
+						.get();
+
+				assertThat(dietasBD).hasSize(1);
+
+				assertThat(respuesta.getHeaders().get("Location")).isNotNull();
+				assertThat(respuesta.getHeaders().get("Location").get(0))
+						.endsWith("/"+dietaEntidad.getId());
+
+				compruebaCamposPostDieta(dieta, dietaEntidad);
+
+				assertThat(dietaEntidad.getEntrenador()).isEqualTo(1L);
+			}
+
+			/*
+			 *  ERROR POST DIETAS ENTRENADOR NO EXISTE
+			 * */
+			@Test
+			@DisplayName(" da error insertando una dieta por no existir entrenador con ese id")
+			public void errorInsertaDietaEntrenadorInexistente() throws JsonProcessingException{
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/4")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+				List<String> alimentos = new ArrayList<>();
+				alimentos.add("tomate");
+				var dieta = DietaNuevaDTO.builder()
+						.nombre("prueba")
+						.descripcion("descripcion")
+						.objetivo("objtv")
+						.observaciones("observc")
+						.duracionDias(1)
+						.alimentos(alimentos)
+						.recomendaciones("recomendaciones")
+						.build();
+
+
+				var peticion = post("http", "localhost",port, "/dieta", dieta,
+						true, "4",cliente4());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
+			/*
+			 *  ERROR POST DIETAS SIN QUERY
+			 * */
+			@Test
+			@DisplayName(" da error insertando una dieta por no señalar el id del entrenador")
+			public void errorInsertaDietaNoQuery() {
+				List<String> alimentos = new ArrayList<>();
+				alimentos.add("tomate");
+				var dieta = DietaNuevaDTO.builder()
+						.nombre("prueba")
+						.descripcion("descripcion")
+						.objetivo("objtv")
+						.observaciones("observc")
+						.duracionDias(1)
+						.alimentos(alimentos)
+						.recomendaciones("recomendaciones")
+						.build();
+
+
+				var peticion = postSinQuery("http", "localhost",port, "/dieta", dieta,entrenadornull());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
+			/*
+			 *  ERROR POST DIETAS CON ID ENTRENADOR INVALIDO
+			 * */
+			@Test
+			@DisplayName(" da error insertando una dieta por no señalar señalar como id de entrenador algo que no tiene relacion")
+			public void errorInsertaDietaQueryInvalida() {
+				List<String> alimentos = new ArrayList<>();
+				alimentos.add("tomate");
+				var dieta = DietaNuevaDTO.builder()
+						.nombre("prueba")
+						.descripcion("descripcion")
+						.objetivo("objtv")
+						.observaciones("observc")
+						.duracionDias(1)
+						.alimentos(alimentos)
+						.recomendaciones("recomendaciones")
+						.build();
+
+
+				var peticion = post("http", "localhost",port, "/dieta", dieta,
+						true, "pepito",null);
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
 		}
-
-		/*
-		 * ERROR GET DIETAS DE UN ENTRENADOR INEXISTENTE
-		 * OJO -> REVISAR QUE ENTRENADOR CON ID = X NO EXISTE
-		 * */
-		@Test
-		@DisplayName("da error cuando el cliente no existe en la base de datos")
-		public void errorDevuelveDietasEntrenadorInexistente() {
-
-			var peticion = get("http", "localhost", port, "/dieta",
-					true, Long.toString(1000L),entrenador2());
-
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
-		}
-
-		/*
-		 * ERROR GET DIETAS DE UN CLIENTE INEXISTENTE
-		 * OJO -> REVISAR QUE CLIENTE CON ID = X NO EXISTE
-		 * */
-		@Test
-		@DisplayName("da error cuando el cliente no existe en la base de datos")
-		public void errorDevuelveDietasClienteInexistente() {
-
-			var peticion = get("http", "localhost", port, "/dieta",
-					false, Long.toString(100000L),cliente64());
-
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
-		}
-
-		/*
-		 * ERROR GET DIETAS CON QUERY INEXISTENTE
-		 * */
-		@Test
-		@DisplayName("da error cuando intentas acceder a una lista de dietas con una url invalida (sin incluir query)")
-		public void errorDevuelveDietasURLnoValidaSinQuery() {
-
-			var peticion = getSinQuery("http", "localhost", port, "/dieta",entrenador1());
-
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
-		}
-
-		/*
-		 * ERROR GET DIETAS CON ID ENTRENADOR INVALIDO
-		 * */
-		@Test
-		@DisplayName("da error cuando intentas acceder a una lista de dietas entrenador con una url invalida (el id no es un numero)")
-		public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() {
-
-			var peticion = get("http", "localhost", port, "/dieta",
-					true, "pepito",entrenador22());
-
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
-		}
-
-		/*
-		 * ERROR GET DIETAS CON ID CLIENTE INVALIDO
-		 * */
-		@Test
-		@DisplayName("da error cuando intentas acceder a una lista de dietas cliente con una url invalida (el id no es un numero)")
-		public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() {
-
-			var peticion = get("http", "localhost", port, "/dieta",
-					false, "pepito",cliente64());
-
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
-		}
-
-		//==============================================================================================================
-
-		// ========================================POST /DIETAS=========================================================
-		/*
-		*  POST DIETAS CORRECTAMENTE
-		* */
-		@Test
-		@DisplayName("inserta correctamente una dieta dando ID de Entrenador")
-		public void insertaDietaIndicandoEntrenadorConId() {
-			List<String> alimentos = new ArrayList<>();
-			alimentos.add("tomate");
-			var dieta = DietaNuevaDTO.builder()
-					.nombre("prueba")
-					.descripcion("descripcion")
-					.objetivo("objtv")
-					.observaciones("observc")
-					.duracionDias(1)
-					.alimentos(alimentos)
-					.recomendaciones("recomendaciones")
-					.build();
-
-
-			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "1",entrenador1());
-
-			var respuesta = restTemplate.exchange(peticion,Void.class);
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(201);
-
-			assertThat(respuesta.getHeaders().get("Location").get(0))
-					.startsWith("http://localhost:"+port+"/dietas");
-
-			List<Dieta> dietasBD = dietaRepo.findAll();
-			Dieta dietaEntidad = dietasBD.stream()
-					.filter(p->p.getNombre().equals("prueba"))
-					.findFirst()
-					.get();
-
-			assertThat(dietasBD).hasSize(1);
-
-			assertThat(respuesta.getHeaders().get("Location").get(0))
-					.endsWith("/"+dietaEntidad.getId());
-
-			compruebaCamposPostDieta(dieta, dietaEntidad);
-
-			assertThat(dietaEntidad.getEntrenador()).isEqualTo(1L);
-		}
-
-		/*
-		 *  ERROR POST DIETAS ENTRENADOR NO EXISTE
-		 *  OJOOOOO -> REVISAR QUE EL ID ENTRENADOR NO EXISTE
-		 * */
-		@Test
-		@DisplayName(" da error insertando una dieta por no existir entrenador con ese id")
-		public void errorInsertaDietaEntrenadorInexistente() {
-			List<String> alimentos = new ArrayList<>();
-			alimentos.add("tomate");
-			var dieta = DietaNuevaDTO.builder()
-					.nombre("prueba")
-					.descripcion("descripcion")
-					.objetivo("objtv")
-					.observaciones("observc")
-					.duracionDias(1)
-					.alimentos(alimentos)
-					.recomendaciones("recomendaciones")
-					.build();
-
-
-			var peticion = post("http", "localhost",port, "/dieta", dieta, true, "100",entrenador22());
-
-			var respuesta = restTemplate.exchange(peticion,Void.class);
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
-		}
-
-		/*
-		 *  ERROR POST DIETAS SIN QUERY
-		 * */
-		@Test
-		@DisplayName(" da error insertando una dieta por no señalar el id del entrenador")
-		public void errorInsertaDietaNoQuery() {
-			List<String> alimentos = new ArrayList<>();
-			alimentos.add("tomate");
-			var dieta = DietaNuevaDTO.builder()
-					.nombre("prueba")
-					.descripcion("descripcion")
-					.objetivo("objtv")
-					.observaciones("observc")
-					.duracionDias(1)
-					.alimentos(alimentos)
-					.recomendaciones("recomendaciones")
-					.build();
-
-
-			var peticion = postSinQuery("http", "localhost",port, "/dieta", dieta,entrenadornull());
-
-			var respuesta = restTemplate.exchange(peticion,Void.class);
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
-		}
-
-		/*
-		 *  ERROR POST DIETAS CON ID ENTRENADOR INVALIDO
-		 * */
-		@Test
-		@DisplayName(" da error insertando una dieta por no señalar señalar como id de entrenador algo que no tiene relacion")
-		public void errorInsertaDietaQueryInvalida() {
-			List<String> alimentos = new ArrayList<>();
-			alimentos.add("tomate");
-			var dieta = DietaNuevaDTO.builder()
-					.nombre("prueba")
-					.descripcion("descripcion")
-					.objetivo("objtv")
-					.observaciones("observc")
-					.duracionDias(1)
-					.alimentos(alimentos)
-					.recomendaciones("recomendaciones")
-					.build();
-
-
-			var peticion = post("http", "localhost",port, "/dieta", dieta,
-					true, "pepito",null);
-
-			var respuesta = restTemplate.exchange(peticion,Void.class);
-
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
-		}
-
-		//==============================================================================================================
 
 	}
 
-	/*
-	 * A COMPLETAR CON AQUELLAS FUNCIONES QUE HAGAN FALTA PARA
-	 * COMPROBAR ELEMENTOS DE LA BASE DE DATOS
-	 * */
 	@Nested
 	@DisplayName("cuando la base de datos esté llena...")
-	public class BaseDatosDietasLlena{
+	public class BaseDatosDietasLlenaTest{
 
 		@BeforeEach
 		public void insertarDatos(){
 			
-			// Dieta 1
-			List<Long> clientes=new ArrayList<Long>();
+			// Dieta 1 con 2 clientes (4, 5)
+			List<Long> clientes=new ArrayList<>();
 			clientes.add(4L);
 			clientes.add(5L);  
 			var dieta1 = new Dieta();
@@ -569,9 +619,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			dieta1.setClientes(clientes);
 			dietaRepo.save(dieta1);
 
-			// VER COMO COGER UN CLIENTE
 
-			// Dieta 2 con mismo entrenador creado que dieta1
+			// Dieta 2 con mismo entrenador creado que dieta1 y 0 clientes
 			var dieta2 = new Dieta();
 			dieta2.setNombre("De colores");
 			dieta2.setDescripcion("Cada dia, comes comidas de un color específico");
@@ -582,13 +631,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			List<String> alimentos2 = new ArrayList<>();
 			alimentos2.add("Todo");
 			dieta2.setAlimentos(alimentos2);
-			// VER COMO COGER UN ENTRENADOR-> id=1L
 			dieta2.setEntrenador(1L);
-
-			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta2);
 
-			// Dieta 3 con distinto entrenador
+			// Dieta 3 con distinto entrenador y 0 clientes
 			var dieta3 = new Dieta();
 			dieta3.setNombre("Ayuno intermitente");
 			dieta3.setDescripcion("Comer dos veces al día en grandes cantidades");
@@ -600,14 +646,13 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			alimentos3.add("Todo");
 			dieta3.setAlimentos(alimentos3);
 			dieta3.setEntrenador(2L);
-			// VER COMO COGER UN CLIENTE
 			dietaRepo.save(dieta3);
 		}
 
 		
 		@Nested
 		@DisplayName("al consultar una dieta en concreto")
-		public class ObtenerDietas {
+		public class ObtenerDietasTest {
 			@Test
 			@DisplayName("devuelve la dieta cuando existe")
 			public void devuelveDieta() {
@@ -685,7 +730,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			
 		}
 
-		@Nested
+		        @Nested
             @DisplayName("al actualizar una dieta")
             public class ActualizaDieta {
                 @Test
@@ -798,7 +843,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 		@Nested
 		@DisplayName("al eliminar una dieta")
-		public class EliminarDietas {
+		public class EliminarDietasTest {
 			@Test
 			@DisplayName("la elimina cuando existe")
 			public void eliminarDietaCorrectamente() {
@@ -873,49 +918,184 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			}
 		}
 
-		// ========================================GET /DIETAS==========================================================
+		@Nested
+		@DisplayName("GET /DIETA")
+		public class GetDietaTest{
 
-		/*
-		 * GET DIETAS DE UN ENTRENADOR CON DIETAS (1 O MAS)
-		 * OJO -> REVISAR QUE ENTRENADOR CON ID 1 EXISTE Y TENGA DIETAS ASOCIADAS
-		 * */
-		@Test
-		@DisplayName("devuelve la lista de dietas de un entrenador con 1 o más dietas")
-		public void devuelveDietasEntrenador() {
+			/*
+			 * GET DIETAS DE UN ENTRENADOR CON DIETAS (1 O MAS)
+			 * */
+			@Test
+			@DisplayName("devuelve la lista de dietas de un entrenador con 1 o más dietas")
+			public void devuelveDietasEntrenador() throws JsonProcessingException{
+				var entrenador = EntrenadorDTO.builder()
+						.idUsuario(1L)
+						.build();
 
-			var peticion = get("http", "localhost", port, "/dieta", true, "1",entrenador1());
+				ObjectMapper objectMapper = new ObjectMapper();
+				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(entrenadorJson));
 
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
-			assertThat(respuesta.getBody().size()).isGreaterThanOrEqualTo(1);
+				var peticion = get("http", "localhost", port, "/dieta",
+						true, Long.toString(1L),entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+				assertThat(respuesta.getBody()).isNotEmpty();
+				assertThat(respuesta.getBody().size()).isGreaterThanOrEqualTo(1);
+			}
+
+			/*
+			 * GET DIETAS DE UN CLIENTE CON DIETA (1)
+			 * */
+			@Test
+			@DisplayName("devuelve la lista de dietas de un cliente con 1 dieta")
+			public void devuelveDietaCliente() throws JsonProcessingException{
+				var cliente = ClienteDTO.builder()
+						.idUsuario(4L)
+						.build();
+
+				ObjectMapper objectMapper = new ObjectMapper();
+				String clienteJson = objectMapper.writeValueAsString(cliente);
+
+				mockServer.expect(ExpectedCount.twice(),
+								requestTo(uri("http", "localhost", portExterno, "/cliente/4")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(clienteJson));
+
+				var peticion = get("http", "localhost", port, "/dieta",
+						false, Long.toString(4L),cliente4());
+
+				var respuesta = restTemplate.exchange(peticion,
+						new ParameterizedTypeReference<List<DietaDTO>>() {
+						});
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+				assertThat(respuesta.getBody()).isNotEmpty();
+				assertThat(respuesta.getBody().size()).isEqualTo(1);
+			}
 		}
 
-		/*
-		 * GET DIETAS DE UN CLIENTE CON DIETA (1)
-		 * OJO -> REVISAR QUE CLIENTE CON ID = 2 EXISTE Y TENGA 1 DIETA ASOCIADA
-		 * */
-		@Test
-		@DisplayName("devuelve la lista de dietas de un cliente con 1 dieta")
-		public void devuelveDietaCliente() {
 
-			var peticion = get("http", "localhost", port, "/dieta", false, "2",cliente4());
+		@Nested
+		@DisplayName("PUT /DIETA")
+		public class PutDietaTest{
 
-			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<DietaDTO>>() {
-					});
+			@Test
+			@DisplayName("da correcto cuando se asigna una dieta a un cliente")
+			public void asignaCorrectamenteUnaDieta() throws JsonProcessingException{
+				var cliente = ClienteDTO.builder()
+						.idUsuario(9L)
+						.build();
 
-			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
-			assertThat(respuesta.getBody().size()).isEqualTo(1);
+				ObjectMapper objectMapper = new ObjectMapper();
+				String clienteJson = objectMapper.writeValueAsString(cliente);
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/cliente/9")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(clienteJson));
+				var entrenador = EntrenadorDTO.builder()
+						.idUsuario(1L)
+						.build();
+
+				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(entrenadorJson));
+
+				List<Dieta> d = dietaRepo.findAll();
+
+				var dieta = d.get(0).toDietaDTO();
+
+				var peticion = put("http", "localhost", port, "/dieta", dieta,
+						false, Long.toString(9L), entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
+			}
+
+			@Test
+			@DisplayName("da error si no le envias como query un cliente")
+			public void errorClienteInexistente() throws JsonProcessingException{
+
+
+				List<Dieta> d = dietaRepo.findAll();
+
+				var dieta = d.get(0).toDietaDTO();
+
+				var peticion = putSinQuery("http", "localhost", port, "/dieta", dieta, entrenador1());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
+
+			@Test
+			@DisplayName("da error si intentas asignar una dieta siendo entrenador")
+			public void errorAsignarConUsuarioCliente() throws JsonProcessingException{
+				var cliente = ClienteDTO.builder()
+						.idUsuario(64L)
+						.build();
+
+				ObjectMapper objectMapper = new ObjectMapper();
+				String clienteJson = objectMapper.writeValueAsString(cliente);
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/cliente/64")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.OK)
+								.contentType(APPLICATION_JSON)
+								.body(clienteJson));
+
+
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/64")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+				List<Dieta> d = dietaRepo.findAll();
+
+				var dieta = d.get(0).toDietaDTO();
+
+				var peticion = put("http", "localhost", port, "/dieta", dieta,
+						false, Long.toString(64L), cliente64());
+
+				var respuesta = restTemplate.exchange(peticion,Void.class);
+
+				mockServer.verify();
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
+			}
 		}
-
-		//==============================================================================================================
-
-		// =======================================POST /DIETAS==========================================================
-
-		//==============================================================================================================
 	}
 	
 
