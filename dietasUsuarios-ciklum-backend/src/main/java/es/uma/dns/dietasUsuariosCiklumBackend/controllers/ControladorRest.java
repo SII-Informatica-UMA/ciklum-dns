@@ -47,8 +47,8 @@ public class ControladorRest {
             return ResponseEntity.ok(dietasDTO);
 
         } else {
-            List<DietaDTO> vacia = new ArrayList<>();
-            return ResponseEntity.ok(vacia);
+            //devuelve 404
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -73,8 +73,8 @@ public class ControladorRest {
             return ResponseEntity.ok(dietasDTO);
 
         } else {
-            List<DietaDTO> vacia = new ArrayList<>();
-            return ResponseEntity.ok(vacia);
+            //devuelve 404
+            return ResponseEntity.notFound().build();
         }
     }
 
