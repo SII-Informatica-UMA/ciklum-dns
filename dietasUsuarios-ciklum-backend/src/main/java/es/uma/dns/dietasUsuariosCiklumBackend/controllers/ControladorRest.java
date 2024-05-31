@@ -1,6 +1,7 @@
 package es.uma.dns.dietasUsuariosCiklumBackend.controllers;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaNuevaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
@@ -30,7 +31,6 @@ public class ControladorRest {
         this.servicio = servicio;
     }
 
-    //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private ResponseEntity<List<DietaDTO>> getDietaCliente(Long cliente) {
 
         Optional<Dieta> dietaCliente = null;
@@ -48,12 +48,11 @@ public class ControladorRest {
             return ResponseEntity.ok(dietasDTO);
 
         } else {
-            // Devuelve un error 404
+            //devuelve 404
             return ResponseEntity.notFound().build();
         }
     }
 
-    //FALTA ERROR 403 comprobando que quien hace la peticion es el mismo que el parametro de entrada !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private ResponseEntity<List<DietaDTO>> getDietaEntrenador(Long entrenador) {
 
         Optional<List<Dieta>> dietasEntrenador = null;
@@ -75,7 +74,7 @@ public class ControladorRest {
             return ResponseEntity.ok(dietasDTO);
 
         } else {
-            // Devuelve un error 404
+            //devuelve 404
             return ResponseEntity.notFound().build();
         }
     }
@@ -102,7 +101,6 @@ public class ControladorRest {
     }
 
 
-    //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long cliente,
                                           @RequestBody DietaDTO dietaDTO) {
@@ -123,16 +121,15 @@ public class ControladorRest {
         }
     }
 
-    //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PostMapping
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
-                                         @RequestBody DietaDTO dietaDTO){
+                                         @RequestBody DietaNuevaDTO dietaDTO){
 
         if (servicio.existeEntrenador(entrenador)) {
 
             try {
 
-                Dieta dieta = Dieta.fromDietaDTO(dietaDTO);
+                Dieta dieta = Dieta.fromDietaNuevaDTO(dietaDTO, entrenador);
 
                 Dieta dietaCreada = servicio.crearDieta(dieta, entrenador);
 
@@ -151,11 +148,10 @@ public class ControladorRest {
         }
     }
 
-    //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @GetMapping("{id}")
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
-        Optional<Dieta> dieta = null; //Hacen falta comprobaciones de seguridad
+        Optional<Dieta> dieta = null;
         try {
             dieta = servicio.getDieta(id);
         } catch (PermisosInsuficientesException e) {
@@ -173,7 +169,6 @@ public class ControladorRest {
         }
     }
 
-    //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping("{id}")
     public ResponseEntity<?> modificarDieta(@PathVariable Long id,
                                             @RequestBody DietaDTO dietaDTO) {
@@ -205,7 +200,6 @@ public class ControladorRest {
         }
     }
 
-    //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @DeleteMapping("{id}")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
 
