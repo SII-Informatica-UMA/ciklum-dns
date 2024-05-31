@@ -611,7 +611,9 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("devuelve la dieta cuando existe")
 			public void devuelveDieta() {
-				var peticion = getSinQuery("http", "localhost",port, "/dieta/1",entrenador1());
+				List<Dieta> dietas2 = dietaRepo.findAll();
+				Dieta prueba= dietas2.get(0);
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/"+prueba.getId(),entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion, DietaDTO.class);
 				
@@ -635,7 +637,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando no se realiza una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = getSinQuery("http", "localhost",port, "/dietasss/47",entrenador1());
+				var peticion = getSinQuery("http", "localhost",port, "/dieta/",entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
@@ -652,7 +654,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				var respuesta = restTemplate.exchange(peticion,
 						new ParameterizedTypeReference<List<DietaDTO>>() {});
 				
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 				assertThat(respuesta.hasBody()).isEqualTo(false);
 			}
 
@@ -690,16 +692,34 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                 @DisplayName("actualiza correctamente si la dieta existe")
                 @DirtiesContext
                 public void actualizaCorrectamente() {
+					List<String> alimentos = new ArrayList<>();
+					alimentos.add("Aceite de oliva");
+					alimentos.add("Pescado");
+					List<Long> clientes=new ArrayList<Long>();
+					clientes.add(4L);
+					clientes.add(5L);  
+					List<Dieta> dietas2 = dietaRepo.findAll();
+					Dieta prueba= dietas2.get(0);
                     var dieta = Dieta.builder()
+							.id(prueba.getId())
                             .nombre("Malagueña")
+							.descripcion("Comer verdura con aceite de oliva y pescado")
+							.observaciones("eso")
+							.objetivo("Adelgazar")
+							.duracionDias(31)
+							.recomendaciones("Llevar dieta equilibrada")
+			
+							.alimentos(alimentos)
+							.entrenador(1L)
+							.clientes(clientes)
                             .build();
-
-                    var peticion = putSinQuery("http", "localhost",port, "/dieta/1", dieta,entrenador1());
+					
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/"+prueba.getId(), dieta.toDietaDTO(),entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Dieta.class);
 
                     assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
-                    Dieta dietalmacenada = dietaRepo.findById(1L).get();
+                    Dieta dietalmacenada = dietaRepo.findById(prueba.getId()).get();
                     assertThat(dietalmacenada.getNombre()).isEqualTo(dieta.getNombre());
                 }
                 @Test
@@ -722,7 +742,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
                     var dieta = Dieta.builder()
                             .nombre("Bad Request")
                             .build();
-                    var peticion = putSinQuery("http", "localhost",port, "/dietasss/50", dieta,entrenador1());
+                    var peticion = putSinQuery("http", "localhost",port, "/dieta/", dieta,entrenador1());
 
                     var respuesta = restTemplate.exchange(peticion,Void.class);
 
@@ -783,7 +803,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@DisplayName("la elimina cuando existe")
 			public void eliminarDietaCorrectamente() {
 				List<Dieta> dietas2 = dietaRepo.findAll();
-				Dieta prueba= dietas2.get(1);
+				Dieta prueba= dietas2.get(0);
 				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/"+prueba.getId(),entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
@@ -808,7 +828,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando se hace una bad request")
 			public void errorCuandoBadRequest() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dietasss/35",entrenador1());
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/",entrenador1());
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 

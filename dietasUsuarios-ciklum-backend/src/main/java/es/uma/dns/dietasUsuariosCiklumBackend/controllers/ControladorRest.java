@@ -4,6 +4,7 @@ import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadNoEncontradaException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
 import org.apache.coyote.BadRequestException;
@@ -180,6 +181,8 @@ public class ControladorRest {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (ArgumentoMaloException e) {
             return ResponseEntity.badRequest().build();
+        } catch (EntidadNoEncontradaException e) {
+            return ResponseEntity.notFound().build();
         }
 
         if (!dieta.isEmpty()) {
@@ -207,6 +210,8 @@ public class ControladorRest {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (ArgumentoMaloException e) {
             return ResponseEntity.badRequest().build();
+        } catch (EntidadNoEncontradaException e) {
+            return ResponseEntity.notFound().build();
         }
 
         if (dieta.isPresent()) {
