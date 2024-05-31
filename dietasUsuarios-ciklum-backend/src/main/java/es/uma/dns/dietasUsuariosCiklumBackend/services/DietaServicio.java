@@ -56,10 +56,10 @@ public class DietaServicio {
     }
 
     @Value(value="${local.server.port}")
-	private static int port;
+	private int port;
 
     @Autowired
-    private static RestTemplate restTemplate; //para hacer peticiones
+    private RestTemplate restTemplate; //para hacer peticiones
 
 //-------------------------------------------------------------------------
 //MÉTODO DE VER EL ID DE QUIEN SE HA CONECTADO (los {idEntrenador} del OpenAPI) -----------------------------------
