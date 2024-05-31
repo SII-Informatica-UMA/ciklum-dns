@@ -208,34 +208,47 @@ public class DietaServicio {
     }
 
 
-    //DONE MODIFICADO: Asigna el cliente a la dieta, comprobando para evitar que un cliente tenga dos veces la misma dieta
+    //DONE MODIFICADO: Asigna el cliente a la dieta, comprobando para evitar que un cliente tenga dos veces la misma dieta, y que solo lo puede hacer un entrenador
     //PUT
-    public void asignarDietaCliente(Long clienteId, Dieta dieta) {
+    public void asignarDietaCliente(Long clienteId, Dieta dieta) throws PermisosInsuficientesException {
 
         // No hay que hacer la comprobacion de si existe el cliente, ya la hace el controlador
 
         // No hay que modificar clientes fuera de nuestro microservicio, solo hay que asignarle al
         // cliente la dieta que nos pasan
-        List<Long> clientes = dieta.getClientes();
-        if (!clientes.contains(clienteId)){ //compruebo para no poder asignar la misma dieta dos veces al mismo cliente
-            clientes.add(clienteId);
-            dieta.setClientes(clientes);
+
+        if (esEntrenador()){
+            List<Long> clientes = dieta.getClientes();
+            if (!clientes.contains(clienteId)){ //compruebo para no poder asignar la misma dieta dos veces al mismo cliente
+                clientes.add(clienteId);
+                dieta.setClientes(clientes);
+            }
+
+        } else {
+            throw new PermisosInsuficientesException();
         }
 
     }
 
-    //DONE MODIFICADO: Publica una nueva dieta
+    //DONE MODIFICADO: Publica una nueva dieta, solo lo puede hacer el entrenador
     //POST
-    public Dieta crearDieta(Dieta d, Long idEntrenador) throws EntidadExistenteException {
+    public Dieta crearDieta(Dieta d, Long idEntrenador) throws EntidadExistenteException, PermisosInsuficientesException{
 
-        if (!dietaRepo.existsByNombre(d.getNombre())) {
-            d.setEntrenador(idEntrenador); //Aseguro que se asigna el idEntrenador
-            d.setId(null); // ¿? --> Supongo es porque la bd se encarga de darle automaticamente un id, vaya a ser que traiga alguno que genere conflicto (el profe lo tenia asi creo que fue de donde lo vi en sus ejemplos)
-            Dieta guardada = dietaRepo.save(d);
-            return guardada;
+        if (esEntrenador()) {
+
+            if (!dietaRepo.existsByNombre(d.getNombre())) {
+                d.setEntrenador(idEntrenador); //Aseguro que se asigna el idEntrenador
+                d.setId(null); // ¿? --> Supongo es porque la bd se encarga de darle automaticamente un id, vaya a ser que traiga alguno que genere conflicto (el profe lo tenia asi creo que fue de donde lo vi en sus ejemplos)
+                Dieta guardada = dietaRepo.save(d);
+                return guardada;
+            } else {
+                throw new EntidadExistenteException();
+            }
+
         } else {
-            throw new EntidadExistenteException();
+            throw new PermisosInsuficientesException();
         }
+
     }
 
 
@@ -246,7 +259,7 @@ public class DietaServicio {
 
                 Optional<Dieta> dietaOpt = dietaRepo.findById(id);
 
-                // Si es entrenador, comprueba que el entrenador es el mismo que el de la dieta
+                // Si es entrenador, comprueba que el entrenador es el mismo que creo la dieta, osea el que hay en la dieta
 
                 Dieta dieta = dietaOpt.get();
 
@@ -286,7 +299,7 @@ public class DietaServicio {
                     boolean encontrado = false;
                     assert asignaciones != null;
                     for (AsignacionEntrenamientoDTO asignacion : asignaciones) {
-                        if (asignacion.getIdCliente() == getAuthId()) {
+                        if (asignacion.getIdCliente() == getAuthId()) { //Por eso compruebo con el getAuthId, me da la id de quien ha pedido esto que se ya que es un cliente
                             encontrado = true;
                             break;
                         }
@@ -308,24 +321,44 @@ public class DietaServicio {
 
 
     //PUT{ID}
-    public void modificarDieta(Dieta dietaModificada) {
-        dietaRepo.save(dietaModificada);
+    //DONE MODIFICADO TENIENDO EN CUENTA QUE SOLO PUEDE MODIFICAR EL ENTRENADOR QUE LA CREÓ
+    public void modificarDieta(Dieta dietaModificada) throws PermisosInsuficientesException {
+        Long entrenadorCreoDieta = dietaModificada.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
+        Long idConectado = getAuthId();
+        if (esEntrenador() && entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+            
+            dietaRepo.save(dietaModificada);
+
+        } else {
+            throw new PermisosInsuficientesException();
+        }
     }
 
 
     //DELETE{ID}
-    public void eliminarDieta(Long id) {
-        dietaRepo.deleteById(id);
+    //DONE MODIFICADO TENIENDO EN CUENTA QUE SOLO PUEDE BORRARLA EL ENTRENADOR QUE LA CREÓ
+    public void eliminarDieta(Long id) throws PermisosInsuficientesException {
+        Dieta dieta = dietaRepo.findById(id).get(); //El controlador se asegura que existe
+        Long entrenadorCreoDieta = dieta.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
+        Long idConectado = getAuthId();
+        if (esEntrenador() && entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+            
+            dietaRepo.deleteById(id);
+
+        } else {
+            throw new PermisosInsuficientesException();
+        }
+
     }
 
 
     //DELETE{ID}
-    public boolean existeDieta(long id) {
+    public boolean existeDieta(Long id) {
         return dietaRepo.existsById(id);
     }
 
 
-    //put
+    //DONE
     public boolean existeCliente(Long clienteId) {
         //DONE MODIFICADO, llamo al microservicio de clientes para ver si existe (las peticiones añaden el token que creo en la clase, tuve que hacer un metodo no static)
         boolean res = true;
@@ -341,7 +374,7 @@ public class DietaServicio {
         return res;
     }
 
-    //POST
+    //DONE
     public boolean existeEntrenador(Long entrenadorId) {
         //DONE MODIFICADO, llama al microservicio de entrenador para ver si existe (las peticiones añaden el token que creo en la clase, tuve que hacer un metodo no static)
         boolean res = true;
@@ -356,14 +389,14 @@ public class DietaServicio {
         return res;
     }
 
-    //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
+    //DONE, usa el getAuthId que es la id de quien hace login, para comprobar si es un cliente llamando a otro microservicio
     public boolean esCliente() {
 
         Long idCliente = getAuthId();
         return existeCliente(idCliente);
     }
 
-    //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
+    //DONE, usa el getAuthId que es la id de quien hace login, para comprobar si es un entrenador llamando a otro microservicio
     public boolean esEntrenador() {
         
         Long idEntrenador = getAuthId();
