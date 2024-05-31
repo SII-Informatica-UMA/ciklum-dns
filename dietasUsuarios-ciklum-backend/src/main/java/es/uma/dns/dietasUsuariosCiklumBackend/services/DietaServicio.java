@@ -23,6 +23,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadNoEncontradaException;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.ClienteDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.EntrenadorDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
@@ -309,69 +310,26 @@ public class DietaServicio {
 
 
     //GET{ID} y PUT{ID}
-    public Optional<Dieta> getDieta(Long id) throws PermisosInsuficientesException, ArgumentoMaloException {
-
-            if (esEntrenador()){
-
-                Optional<Dieta> dietaOpt = dietaRepo.findById(id);
-
-                // Si es entrenador, comprueba que el entrenador es el mismo que creo la dieta, osea el que hay en la dieta
-
-                Dieta dieta = dietaOpt.get();
-
-                Long authId = getAuthId();
-                Long entrenadorId = dieta.getEntrenador();
-
+    public Optional<Dieta> getDieta(Long id) throws PermisosInsuficientesException, ArgumentoMaloException, EntidadNoEncontradaException {
+            Optional<Dieta> dietaOpt = dietaRepo.findById(id);
+            if(!dietaOpt.isEmpty()){
+            Dieta dieta = dietaOpt.get();
+            Long authId = getAuthId();
+            Long entrenadorId = dieta.getEntrenador();
+            List<Long> clientes=dieta.getClientes();
+            
                 if (!authId.equals(entrenadorId)) {
-                    throw new PermisosInsuficientesException();
-                }
-
-                return dietaOpt;
-
-            } else if (esCliente()){
-
-                Optional<Dieta> dietaOpt = dietaRepo.findById(id);
-
-                // Si es cliente, comprueba que el cliente tiene el mismo entrenador que la dieta
-
-                Dieta dieta = dietaOpt.get();
-                Long entrenadorId = dieta.getEntrenador();
-
-                // Pido los clientes que tiene el entrenador de la dieta
-                List<String> rutas = new ArrayList<>();
-                rutas.add("/entrena");
-                List<QueryParam> queryParams = new ArrayList<>();
-                queryParams.add(new QueryParam("entrenador", String.valueOf(entrenadorId)));
-                var peticion = getQuery("http", "localhost",portExterno, rutas, queryParams);
-                var respuesta = restTemplate.exchange(peticion,
-                        new ParameterizedTypeReference<List<AsignacionEntrenamientoDTO>>() {});
-
-                if (respuesta.getStatusCode().value() != 200) {
-                    throw new ArgumentoMaloException();
-                } else {
-
-                    // Compruebo que el cliente (quien hace la peticion a nuestro microservicio) está en la lista de clientes del entrenador
-                    List<AsignacionEntrenamientoDTO> asignaciones = respuesta.getBody();
-                    boolean encontrado = false;
-                    assert asignaciones != null;
-                    for (AsignacionEntrenamientoDTO asignacion : asignaciones) {
-                        if (asignacion.getIdCliente() == getAuthId()) { //Por eso compruebo con el getAuthId, me da la id de quien ha pedido esto que se ya que es un cliente
-                            encontrado = true;
-                            break;
-                        }
-                    }
-
-                    if (!encontrado) {
+                    if(!clientes.contains(authId)){
                         throw new PermisosInsuficientesException();
                     }
-
                 }
-
-                return dietaOpt;
-
-            } else {
-                throw new ArgumentoMaloException();
             }
+            else{
+                throw new EntidadNoEncontradaException();
+            }
+            
+
+            return dietaOpt;
 
     }
 
