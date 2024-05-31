@@ -72,6 +72,13 @@ public class DietaServicio {
     }
 
 //-------------------------------------------------------------------------
+//MÉTODO DE VER EL TOKEN DEL SERVICIO PARA LOS MOCKS -----------------------------------
+
+    public String getToken() {
+        return token;
+    }
+
+//-------------------------------------------------------------------------
 //MÉTODOS DE CONSTRUCCIÓN DE PETICIONES -----------------------------------
 
     private static URI uri(String scheme, String host, int port, String... paths) {
