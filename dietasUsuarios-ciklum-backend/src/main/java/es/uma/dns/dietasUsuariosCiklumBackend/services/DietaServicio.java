@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import es.uma.dns.dietasUsuariosCiklumBackend.dtos.AsignacionEntrenamientoDTO;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
+import lombok.Getter;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,12 +82,38 @@ public class DietaServicio {
         return ub.build();
     }
 
+
+    private record QueryParam(String key, String value) { }
+
+    private static URI uriQuery(String scheme, String host, int port, List<String> paths, List<QueryParam> queryParams) {
+        UriBuilderFactory ubf = new DefaultUriBuilderFactory();
+        UriBuilder ub = ubf.builder()
+                .scheme(scheme)
+                .host(host).port(port);
+        for (String path : paths) {
+            ub = ub.path(path);
+        }
+        for (QueryParam qp : queryParams) {
+            ub = ub.queryParam(qp.key(), qp.value());
+        }
+        return ub.build();
+    }
+
     private RequestEntity<Void> get(String scheme, String host, int port, String path) {
         URI uri = uri(scheme, host, port, path);
         var peticion = RequestEntity.get(uri)
             .accept(MediaType.APPLICATION_JSON)
             .header("Authorization","Bearer " + token)
             .build();
+        return peticion;
+    }
+
+    private RequestEntity<Void> getQuery(String scheme, String host, int port, List<String> path, List<QueryParam> queryParams) {
+        URI uri = uriQuery(scheme, host, port, path, queryParams);
+        var peticion = RequestEntity.get(uri)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization","Bearer " + token)
+                .build();
         return peticion;
     }
 
@@ -209,8 +240,70 @@ public class DietaServicio {
 
 
     //GET{ID} y PUT{ID}
-    public Optional<Dieta> getDieta(Long id) {
-        return dietaRepo.findById(id);
+    public Optional<Dieta> getDieta(Long id) throws PermisosInsuficientesException, ArgumentoMaloException {
+
+            if (esEntrenador()){
+
+                Optional<Dieta> dietaOpt = dietaRepo.findById(id);
+
+                // Si es entrenador, comprueba que el entrenador es el mismo que el de la dieta
+
+                Dieta dieta = dietaOpt.get();
+
+                Long authId = getAuthId();
+                Long entrenadorId = dieta.getEntrenador();
+
+                if (!authId.equals(entrenadorId)) {
+                    throw new PermisosInsuficientesException();
+                }
+
+                return dietaOpt;
+
+            } else if (esCliente()){
+
+                Optional<Dieta> dietaOpt = dietaRepo.findById(id);
+
+                // Si es cliente, comprueba que el cliente tiene el mismo entrenador que la dieta
+
+                Dieta dieta = dietaOpt.get();
+                Long entrenadorId = dieta.getEntrenador();
+
+                // Pido los clientes que tiene el entrenador de la dieta
+                List<String> rutas = new ArrayList<>();
+                rutas.add("/entrena");
+                List<QueryParam> queryParams = new ArrayList<>();
+                queryParams.add(new QueryParam("entrenador", String.valueOf(entrenadorId)));
+                var peticion = getQuery("http", "localhost",port+1, rutas, queryParams);
+                var respuesta = restTemplate.exchange(peticion,
+                        new ParameterizedTypeReference<List<AsignacionEntrenamientoDTO>>() {});
+
+                if (respuesta.getStatusCode().value() != 200) {
+                    throw new ArgumentoMaloException();
+                } else {
+
+                    // Compruebo que el cliente (quien hace la peticion a nuestro microservicio) está en la lista de clientes del entrenador
+                    List<AsignacionEntrenamientoDTO> asignaciones = respuesta.getBody();
+                    boolean encontrado = false;
+                    assert asignaciones != null;
+                    for (AsignacionEntrenamientoDTO asignacion : asignaciones) {
+                        if (asignacion.getIdCliente() == getAuthId()) {
+                            encontrado = true;
+                            break;
+                        }
+                    }
+
+                    if (!encontrado) {
+                        throw new PermisosInsuficientesException();
+                    }
+
+                }
+
+                return dietaOpt;
+
+            } else {
+                throw new ArgumentoMaloException();
+            }
+
     }
 
 
@@ -238,7 +331,7 @@ public class DietaServicio {
         boolean res = true;
         
         String ruta = "/cliente/" + clienteId;
-        var peticion = get("http", "localhost",port, ruta);
+        var peticion = get("http", "localhost",port+1, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<ClienteDTO>() {});
         if (respuesta.getStatusCode().value() != 200) { //no existe el cliente
@@ -254,7 +347,7 @@ public class DietaServicio {
         boolean res = true;
 
         String ruta = "/entrenador/" + entrenadorId;
-        var peticion = get("http", "localhost",port, ruta);
+        var peticion = get("http", "localhost",port+1, ruta);
         var respuesta = restTemplate.exchange(peticion,
                 new ParameterizedTypeReference<EntrenadorDTO>() {});
         if (respuesta.getStatusCode().value() != 200) { //no existe el entrenador
@@ -264,7 +357,7 @@ public class DietaServicio {
     }
 
     //DONE, usa el token que le llega para coger la id, comprobando si el token es valido
-    public boolean esCliente(String autorizationToken) {
+    public boolean esCliente() {
 
         Long idCliente = getAuthId();
         return existeCliente(idCliente);
@@ -275,16 +368,6 @@ public class DietaServicio {
         
         Long idEntrenador = getAuthId();
         return existeEntrenador(idEntrenador);
-    }
-
-
-
-    public boolean esEntrenador() {
-        return false;
-    }
-
-    public boolean esCliente() {
-        return false;
     }
 
 

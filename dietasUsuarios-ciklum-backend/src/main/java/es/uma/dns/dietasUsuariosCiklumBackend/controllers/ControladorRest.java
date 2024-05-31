@@ -2,8 +2,11 @@ package es.uma.dns.dietasUsuariosCiklumBackend.controllers;
 
 import es.uma.dns.dietasUsuariosCiklumBackend.dtos.DietaDTO;
 import es.uma.dns.dietasUsuariosCiklumBackend.entities.Dieta;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.ArgumentoMaloException;
 import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.EntidadExistenteException;
+import es.uma.dns.dietasUsuariosCiklumBackend.excepciones.PermisosInsuficientesException;
 import es.uma.dns.dietasUsuariosCiklumBackend.services.DietaServicio;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -103,14 +106,11 @@ public class ControladorRest {
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long cliente,
                                           @RequestBody DietaDTO dietaDTO) {
 
-
         if(!servicio.esEntrenador()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        boolean existeCliente = servicio.existeCliente(cliente);
-
-        if (existeCliente) {
+        if (servicio.existeCliente(cliente)) {
 
             servicio.asignarDietaCliente(cliente, Dieta.fromDietaDTO(dietaDTO));
 
@@ -128,14 +128,11 @@ public class ControladorRest {
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
                                          @RequestBody DietaDTO dietaDTO){
 
-
         if(!servicio.esEntrenador()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        boolean existeEntrenador = servicio.existeEntrenador(entrenador);
-
-        if (existeEntrenador) {
+        if (servicio.existeEntrenador(entrenador)) {
 
             try {
 
@@ -160,25 +157,42 @@ public class ControladorRest {
     @GetMapping("{id}")
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
-        Optional<Dieta> dieta = servicio.getDieta(id); //Hacen falta comprobaciones de seguridad
+        Optional<Dieta> dieta = null; //Hacen falta comprobaciones de seguridad
+        try {
+            dieta = servicio.getDieta(id);
+        } catch (PermisosInsuficientesException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (ArgumentoMaloException e) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        return dieta.map(value -> ResponseEntity.ok(value.toDietaDTO()))        // Devuelve un 200 y la dieta
-                        .orElseGet(() -> ResponseEntity.notFound().build());    // Devuelve un error 404
-
+        if (!dieta.isEmpty()) {
+            // Devuelve un 200 y la dieta
+            return ResponseEntity.ok(dieta.get().toDietaDTO());
+        } else {
+            // Devuelve un error 404
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @PutMapping("{id}")
     public ResponseEntity<?> modificarDieta(@PathVariable Long id,
                                             @RequestBody DietaDTO dietaDTO) {
-
 
         if(!servicio.esEntrenador()){
           
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Optional<Dieta> dieta = servicio.getDieta(id);
+        Optional<Dieta> dieta = null;
+        try {
+            dieta = servicio.getDieta(id);
+        } catch (PermisosInsuficientesException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (ArgumentoMaloException e) {
+            return ResponseEntity.badRequest().build();
+        }
 
         if (dieta.isPresent()) {
 
