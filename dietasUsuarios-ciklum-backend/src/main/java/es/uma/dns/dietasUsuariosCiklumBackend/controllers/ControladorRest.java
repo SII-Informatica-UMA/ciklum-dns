@@ -34,6 +34,11 @@ public class ControladorRest {
     private ResponseEntity<List<DietaDTO>> getDietaCliente(Long cliente) {
 
         Optional<Dieta> dietaCliente = null;
+
+        if (cliente == null){ //Bad request, no se puso id
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } 
+
         try {
             dietaCliente = servicio.getDietaDeCliente(cliente);
         } catch (PermisosInsuficientesException e) {
@@ -106,6 +111,11 @@ public class ControladorRest {
     @PutMapping
     public ResponseEntity<?> asignarDieta(@RequestParam("cliente") Long cliente,
                                           @RequestBody DietaDTO dietaDTO) {
+        
+
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         if (servicio.existeCliente(cliente)) {
             try {
@@ -127,6 +137,10 @@ public class ControladorRest {
     @PostMapping
     public ResponseEntity<?> crearDieta (@RequestParam("entrenador") Long entrenador,
                                          @RequestBody DietaDTO dietaDTO){
+
+        if (entrenador == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         if (servicio.existeEntrenador(entrenador)) {
 
@@ -155,6 +169,10 @@ public class ControladorRest {
     @GetMapping("{id}")
     public ResponseEntity<DietaDTO> getDieta(@PathVariable Long id) {
 
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         Optional<Dieta> dieta = null; //Hacen falta comprobaciones de seguridad
         try {
             dieta = servicio.getDieta(id);
@@ -177,6 +195,10 @@ public class ControladorRest {
     @PutMapping("{id}")
     public ResponseEntity<?> modificarDieta(@PathVariable Long id,
                                             @RequestBody DietaDTO dietaDTO) {
+
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         Optional<Dieta> dieta = null;
         try {
@@ -208,6 +230,10 @@ public class ControladorRest {
     //FALTA ERROR 403 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     @DeleteMapping("{id}")
     public ResponseEntity<?> eliminarDieta(@PathVariable Long id) {
+
+        if (id == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         if (servicio.existeDieta(id)) {
             try {
