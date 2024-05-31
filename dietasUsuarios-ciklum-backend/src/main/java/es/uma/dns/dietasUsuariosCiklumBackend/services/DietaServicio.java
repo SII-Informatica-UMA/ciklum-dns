@@ -41,7 +41,7 @@ public class DietaServicio {
     @Autowired
     private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
 
-    private String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
+    public static String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
 
     private final String ID_PARA_TOKEN = "150"; //Necesito una id para el token, que pactamos con otros ms en teoria
 
@@ -388,7 +388,7 @@ public class DietaServicio {
     public void modificarDieta(Dieta dietaModificada) throws PermisosInsuficientesException {
         Long entrenadorCreoDieta = dietaModificada.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
         Long idConectado = getAuthId();
-        if (esEntrenador() && entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+        if (entrenadorCreoDieta == idConectado){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
             
             dietaRepo.save(dietaModificada);
 
@@ -404,7 +404,7 @@ public class DietaServicio {
         Dieta dieta = dietaRepo.findById(id).get(); //El controlador se asegura que existe
         Long entrenadorCreoDieta = dieta.getEntrenador(); //Toda dieta tiene un entrenador que la crea siempre
         Long idConectado = getAuthId();
-        if (esEntrenador() && entrenadorCreoDieta.equals(idConectado)){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
+        if ( entrenadorCreoDieta.equals(idConectado)){ //Con solo comprobar entrenadorCreoDieta == idConectado valdría, porque ya es un entrenador entonces, pero lo hago por si acaso
             
             dietaRepo.deleteById(id);
 

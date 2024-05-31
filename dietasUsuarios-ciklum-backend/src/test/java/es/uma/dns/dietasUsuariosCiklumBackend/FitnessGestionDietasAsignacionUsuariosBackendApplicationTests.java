@@ -68,7 +68,11 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 	@Autowired
 	private DietaRepository dietaRepo;
-
+	
+	@BeforeEach
+	public void initializedDatabase(){
+		dietaRepo.deleteAll();
+	}
 
 	private URI uri(String scheme, String host, int port, String path) {
 		UriBuilderFactory ubf = new DefaultUriBuilderFactory();
@@ -221,6 +225,11 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	public void init() {
 		mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
 	}
+
+	@BeforeEach
+	public void initializeDatabase() {
+		dietaRepo.deleteAll();
+	}
 	//--------------------------------------------------------------------------------------------------------------
 
 	//==================================================================================================================
@@ -245,9 +254,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			var peticion = get("http", "localhost", port, "/dieta",
 					true, Long.toString(1L),entrenador1());
 
-			// Creamos la peticion para el mock
-			String tokenServidor = dietaService.getToken(); //SE TOMA EL TOKEN DEL SERVICIO (si es token diferente se queja el mock) -> NOELIA DICE PENSEMOS OTRA COSA PARA QUE GENERE EL MOCK EL MISMO QUE EL SERVICIO
-			//---------------------------------MOCKITO------------------------------------------------------------------
 			var entrenador = EntrenadorDTO.builder()
 					.idUsuario(1L)
 					.build();
@@ -256,15 +262,13 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
 			mockServer.expect(ExpectedCount.once(),
-					requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
-					.andExpect(method(HttpMethod.GET))
-					.andExpect(header("Authorization","Bearer " + tokenServidor))
-					.andRespond(withStatus(HttpStatus.OK)
-					.contentType(APPLICATION_JSON)
-					.body(entrenadorJson));
+							requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
+							.andExpect(method(HttpMethod.GET))
+							.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+							.andRespond(withStatus(HttpStatus.OK)
+							.contentType(APPLICATION_JSON)
+							.body(entrenadorJson));
 
-
-			//----------------------------------------------------------------------------------------------------------
 			var respuesta = restTemplate.exchange(peticion,
 					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
@@ -294,10 +298,13 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			String clienteJson = objectMapper.writeValueAsString(cliente);
 
 			var peticionExterna = "http://localhost:" + portExterno + "/cliente/4";
-			mockServer.expect(requestTo(peticionExterna))
+			mockServer.expect(ExpectedCount.twice(),
+							requestTo(uri("http", "localhost", portExterno, "/cliente/4")))
 							.andExpect(method(HttpMethod.GET))
-							.andExpect(header("Authorization","Bearer " + tokenServidor))
-							.andRespond(withSuccess(clienteJson, APPLICATION_JSON));
+							.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+							.andRespond(withStatus(HttpStatus.OK)
+							.contentType(APPLICATION_JSON)
+							.body(clienteJson));
 
 
 			//----------------------------------------------------------------------------------------------------------
@@ -311,7 +318,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 			mockServer.verify();
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
-			assertThat(respuesta.getBody()).isEmpty();
+			assertThat(respuesta.getBody()).isEqualTo(new ArrayList<>());
 		}
 
 		/*
@@ -538,7 +545,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@Nested
 	@DisplayName("cuando la base de datos esté llena...")
 	public class BaseDatosDietasLlena{
-		
+
 		@BeforeEach
 		public void insertarDatos(){
 			
@@ -775,7 +782,9 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("la elimina cuando existe")
 			public void eliminarDietaCorrectamente() {
-				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/1",entrenador1());
+				List<Dieta> dietas2 = dietaRepo.findAll();
+				Dieta prueba= dietas2.get(1);
+				var peticion = deleteSinQuery("http", "localhost",port, "/dieta/"+prueba.getId(),entrenador1());
 				
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 				
