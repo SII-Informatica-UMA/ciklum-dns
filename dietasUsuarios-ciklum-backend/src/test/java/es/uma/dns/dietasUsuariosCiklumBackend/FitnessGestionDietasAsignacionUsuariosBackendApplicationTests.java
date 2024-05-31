@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.client.ExpectedCount;
@@ -37,8 +34,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -63,6 +62,8 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	//------------------------------------------------------------------------------------------------------------------
 	@Value(value="${local.server.port}")
 	private int port;
+
+	private int portExterno = 57444;
 
 	@Autowired
 	private DietaRepository dietaRepo;
@@ -99,7 +100,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	private RequestEntity<Void> get(String scheme, String host, int port, String path, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.get(uri)
-				.accept(MediaType.APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
 				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
@@ -108,7 +109,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	private RequestEntity<Void> getSinQuery(String scheme, String host, int port, String path,String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.get(uri)
-				.accept(MediaType.APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
 				.header("Authorization", "Bearer " +token)
 				.build();
 		return peticion;
@@ -132,7 +133,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	private <T> RequestEntity<T> post(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.post(uri)
-				.accept(MediaType.APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
 				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
@@ -141,7 +142,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	private <T> RequestEntity<T> postSinQuery(String scheme, String host, int port, String path, T object,String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.post(uri)
-				.contentType(MediaType.APPLICATION_JSON)
+				.contentType(APPLICATION_JSON)
 				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
@@ -150,7 +151,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	private <T> RequestEntity<T> put(String scheme, String host, int port, String path, T object, boolean esEntrenador, String id, String token) {
 		URI uri = uriQuery(scheme, host,port, path, esEntrenador, id);
 		var peticion = RequestEntity.put(uri)
-				.contentType(MediaType.APPLICATION_JSON)
+				.contentType(APPLICATION_JSON)
 				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
@@ -159,7 +160,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	private <T> RequestEntity<T> putSinQuery(String scheme, String host, int port, String path, T object, String token) {
 		URI uri = uri(scheme, host,port, path);
 		var peticion = RequestEntity.put(uri)
-				.contentType(MediaType.APPLICATION_JSON)
+				.contentType(APPLICATION_JSON)
 				.header("Authorization", "Bearer " +token)
 				.body(object);
 		return peticion;
@@ -214,6 +215,12 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		assertThat(actual.getRecomendaciones()).isEqualTo(expected.getRecomendaciones());
 		assertThat(actual.getAlimentos()).isEqualTo(expected.getAlimentos());
 	}
+	//---------------------MOCKITO----------------------------------------------------------------------------------
+	@BeforeEach
+	public void init() {
+		mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
+	}
+	//--------------------------------------------------------------------------------------------------------------
 
 	//==================================================================================================================
 	/*
@@ -224,13 +231,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@DisplayName("cuando la base de datos esté vacía de dietas...")
 	public class BaseDatosDietasVacia{
 
-		//---------------------MOCKITO----------------------------------------------------------------------------------
-		@BeforeEach
-		public void init() {
-			mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
-		}
-		//--------------------------------------------------------------------------------------------------------------
-
 		// ========================================GET /DIETAS==========================================================
 
 		/*
@@ -239,32 +239,36 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		 * */
 		@Test
 		@DisplayName("devuelve la lista de dietas de un entrenador vacía")
-		public void devuelveDietasVaciaEntrenador() {
+		public void devuelveDietasVaciaEntrenador() throws JsonProcessingException{
 
 			var peticion = get("http", "localhost", port, "/dieta",
 					true, Long.toString(1L),entrenador1());
 
-
+			// Creamos la peticion para el mock
+			String tokenServidor = seguridad.generateToken("150");
 			//---------------------------------MOCKITO------------------------------------------------------------------
 			var entrenador = EntrenadorDTO.builder()
 					.idUsuario(1L)
-					.dni("111111111A")
 					.build();
 
+			ObjectMapper objectMapper = new ObjectMapper();
+			String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
 			mockServer.expect(ExpectedCount.once(),
-					requestTo(uri("http", "localhost", port+1, "/entrenador/1")))
+					requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
 					.andExpect(method(HttpMethod.GET))
+					.andExpect(header("Authorization","Bearer " + tokenServidor))
 					.andRespond(withStatus(HttpStatus.OK)
-					.contentType(MediaType.APPLICATION_JSON)
-					.body(entrenador.toString()));
+					.contentType(APPLICATION_JSON)
+					.body(entrenadorJson));
 
 
 			//----------------------------------------------------------------------------------------------------------
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
+			mockServer.verify();
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
 			assertThat(respuesta.getBody()).isEmpty();
 		}
@@ -279,8 +283,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 		public void devuelveDietasVaciaCliente() throws JsonProcessingException {
 			//---------------------------------MOCKITO------------------------------------------------------------------
 			// Creamos la peticion para el mock
-			var peticion = ;
-
+			String tokenServidor = seguridad.generateToken("150");
 			// Preparamos el cliente a enviar
 			var cliente = ClienteDTO.builder()
 							.idUsuario(4L)
@@ -289,14 +292,11 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			ObjectMapper objectMapper = new ObjectMapper();
 			String clienteJson = objectMapper.writeValueAsString(cliente);
 
-			String tokenServidor = seguridad.generateToken("150");
-			mockServer.expect(ExpectedCount.once(),
-							requestTo(uri("http", "localhost", port+1, "/cliente/4")))
+			var peticionExterna = "http://localhost:" + portExterno + "/cliente/4";
+			mockServer.expect(requestTo(peticionExterna))
 							.andExpect(method(HttpMethod.GET))
-							.andExpect(header("Authorization", "Bearer " + tokenServidor))
-							.andRespond(withStatus(HttpStatus.OK)
-							.contentType(MediaType.APPLICATION_JSON)
-							.body(cliente.toString()));
+							.andExpect(header("Authorization","Bearer " + tokenServidor))
+							.andRespond(withSuccess(clienteJson, APPLICATION_JSON));
 
 
 			//----------------------------------------------------------------------------------------------------------
@@ -305,9 +305,10 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			var peticion = get("http", "localhost", port, "/dieta",
 					false, Long.toString(4L),token);
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
+			mockServer.verify();
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
 			assertThat(respuesta.getBody()).isEmpty();
 		}
@@ -324,7 +325,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					true, Long.toString(1000L),entrenador2());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
@@ -342,7 +343,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					false, Long.toString(100000L),cliente64());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
@@ -358,7 +359,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			var peticion = getSinQuery("http", "localhost", port, "/dieta",entrenador1());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
@@ -375,7 +376,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					true, "pepito",entrenador22());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
@@ -392,7 +393,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					false, "pepito",cliente64());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
@@ -536,14 +537,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	@Nested
 	@DisplayName("cuando la base de datos esté llena...")
 	public class BaseDatosDietasLlena{
-
-		//---------------------MOCKITO----------------------------------------------------------------------------------
-		@BeforeEach
-		public void init() {
-			mockServer = MockRestServiceServer.createServer(mockitoRestTemplate);
-		}
-		//--------------------------------------------------------------------------------------------------------------
-
+		
 		@BeforeEach
 		public void insertarDatos(){
 			
@@ -880,7 +874,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			var peticion = get("http", "localhost", port, "/dieta", false, "2",cliente4());
 
 			var respuesta = restTemplate.exchange(peticion,
-					new ParameterizedTypeReference<List<Dieta>>() {
+					new ParameterizedTypeReference<List<DietaDTO>>() {
 					});
 
 			assertThat(respuesta.getStatusCode().value()).isEqualTo(200);
