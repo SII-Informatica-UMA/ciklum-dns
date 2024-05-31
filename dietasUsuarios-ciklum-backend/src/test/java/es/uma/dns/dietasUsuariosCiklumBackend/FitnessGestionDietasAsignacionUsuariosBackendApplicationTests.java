@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
@@ -60,7 +61,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 	private RestTemplate mockitoRestTemplate;
 
 	//------------------------------------------------------------------------------------------------------------------
-	@Value(value="${local.server.port}")
+	@LocalServerPort
 	private int port;
 
 	private int portExterno = 57444;
@@ -245,7 +246,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 					true, Long.toString(1L),entrenador1());
 
 			// Creamos la peticion para el mock
-			String tokenServidor = seguridad.generateToken("150");
+			String tokenServidor = dietaService.getToken(); //SE TOMA EL TOKEN DEL SERVICIO (si es token diferente se queja el mock) -> NOELIA DICE PENSEMOS OTRA COSA PARA QUE GENERE EL MOCK EL MISMO QUE EL SERVICIO
 			//---------------------------------MOCKITO------------------------------------------------------------------
 			var entrenador = EntrenadorDTO.builder()
 					.idUsuario(1L)
