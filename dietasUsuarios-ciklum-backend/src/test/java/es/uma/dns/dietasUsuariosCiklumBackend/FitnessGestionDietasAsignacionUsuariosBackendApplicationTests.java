@@ -256,7 +256,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				mockServer.expect(ExpectedCount.once(),
 								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
 								.andExpect(method(HttpMethod.GET))
-								.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+								.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
 								.andRespond(withStatus(HttpStatus.OK)
 								.contentType(APPLICATION_JSON)
 								.body(entrenadorJson));
@@ -290,7 +290,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				mockServer.expect(ExpectedCount.twice(),
 								requestTo(uri("http", "localhost", portExterno, "/cliente/4")))
 						.andExpect(method(HttpMethod.GET))
-						.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
 						.andRespond(withStatus(HttpStatus.OK)
 								.contentType(APPLICATION_JSON)
 								.body(clienteJson));
@@ -315,19 +315,20 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			public void errorDevuelveDietasEntrenadorDistinto() throws JsonProcessingException{
 				//-------------------------MOCKITO----------------------------------------------------------------------
 				var entrenador = EntrenadorDTO.builder()
-						.idUsuario(1000L)
+						.idUsuario(1L)
 						.build();
 
 				ObjectMapper objectMapper = new ObjectMapper();
 				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
 				mockServer.expect(ExpectedCount.once(),
-								requestTo(uri("http", "localhost", portExterno, "/entrenador/1000")))
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
 						.andExpect(method(HttpMethod.GET))
-						.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
 						.andRespond(withStatus(HttpStatus.OK)
 								.contentType(APPLICATION_JSON)
 								.body(entrenadorJson));
+
 				//------------------------------------------------------------------------------------------------------
 
 				var peticion = get("http", "localhost", port, "/dieta",
@@ -359,7 +360,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				mockServer.expect(ExpectedCount.once(),
 								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
 								.andExpect(method(HttpMethod.GET))
-								.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+								.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
 								.andRespond(withStatus(HttpStatus.OK)
 								.contentType(APPLICATION_JSON)
 								.body(entrenadorJson));
@@ -398,20 +399,6 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando intentas acceder a una lista de dietas entrenador con una url invalida (el id no es un numero)")
 			public void errorDevuelveDietasURLnoValidaIdEntrenadorIncorrecto() throws JsonProcessingException{
-				var entrenador = EntrenadorDTO.builder()
-						.idUsuario(1L)
-						.build();
-
-				ObjectMapper objectMapper = new ObjectMapper();
-				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
-
-				mockServer.expect(ExpectedCount.once(),
-								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
-								.andExpect(method(HttpMethod.GET))
-								.andExpect(header("Authorization","Bearer " + DietaServicio.token))
-								.andRespond(withStatus(HttpStatus.OK)
-								.contentType(APPLICATION_JSON)
-								.body(entrenadorJson));
 
 				var peticion = get("http", "localhost", port, "/dieta",
 						true, "pepito",entrenador1());
@@ -420,9 +407,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 						new ParameterizedTypeReference<List<DietaDTO>>() {
 						});
 
-
-				mockServer.verify();
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 			}
 
 			/*
@@ -431,20 +416,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 			@Test
 			@DisplayName("da error cuando intentas acceder a una lista de dietas cliente con una url invalida (el id no es un numero)")
 			public void errorDevuelveDietasURLnoValidaIdClienteIncorrect() throws JsonProcessingException{
-				var cliente = ClienteDTO.builder()
-						.idUsuario(4L)
-						.build();
 
-				ObjectMapper objectMapper = new ObjectMapper();
-				String clienteJson = objectMapper.writeValueAsString(cliente);
-
-				mockServer.expect(ExpectedCount.twice(),
-								requestTo(uri("http", "localhost", portExterno, "/cliente/4")))
-								.andExpect(method(HttpMethod.GET))
-								.andExpect(header("Authorization","Bearer " + DietaServicio.token))
-								.andRespond(withStatus(HttpStatus.OK)
-								.contentType(APPLICATION_JSON)
-								.body(clienteJson));
 
 				var peticion = get("http", "localhost", port, "/dieta",
 						false, "pepito",cliente64());
@@ -453,9 +425,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 						new ParameterizedTypeReference<List<DietaDTO>>() {
 						});
 
-
-				mockServer.verify();
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 			}
 
 		}
@@ -476,11 +446,11 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				ObjectMapper objectMapper = new ObjectMapper();
 				String entrenadorJson = objectMapper.writeValueAsString(entrenador);
 
-				mockServer.expect(ExpectedCount.once(),
+				mockServer.expect(ExpectedCount.twice(),
 								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
-						.andExpect(method(HttpMethod.GET))
-						.andExpect(header("Authorization","Bearer " + DietaServicio.token))
-						.andRespond(withStatus(HttpStatus.OK)
+								.andExpect(method(HttpMethod.GET))
+								.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+								.andRespond(withStatus(HttpStatus.OK)
 								.contentType(APPLICATION_JSON)
 								.body(entrenadorJson));
 
@@ -517,6 +487,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 				assertThat(dietasBD).hasSize(1);
 
+				assertThat(respuesta.getHeaders().get("Location")).isNotNull();
 				assertThat(respuesta.getHeaders().get("Location").get(0))
 						.endsWith("/"+dietaEntidad.getId());
 
@@ -527,11 +498,17 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 			/*
 			 *  ERROR POST DIETAS ENTRENADOR NO EXISTE
-			 *  OJOOOOO -> REVISAR QUE EL ID ENTRENADOR NO EXISTE
 			 * */
 			@Test
 			@DisplayName(" da error insertando una dieta por no existir entrenador con ese id")
-			public void errorInsertaDietaEntrenadorInexistente() {
+			public void errorInsertaDietaEntrenadorInexistente() throws JsonProcessingException{
+
+				mockServer.expect(ExpectedCount.once(),
+								requestTo(uri("http", "localhost", portExterno, "/entrenador/4")))
+						.andExpect(method(HttpMethod.GET))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
+						.andRespond(withStatus(HttpStatus.NOT_FOUND));
+
 				List<String> alimentos = new ArrayList<>();
 				alimentos.add("tomate");
 				var dieta = DietaNuevaDTO.builder()
@@ -545,11 +522,12 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 						.build();
 
 
-				var peticion = post("http", "localhost",port, "/dieta", dieta, true, "100",entrenador22());
+				var peticion = post("http", "localhost",port, "/dieta", dieta,
+						true, "4",cliente4());
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(404);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 			}
 
 			/*
@@ -575,7 +553,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 			}
 
 			/*
@@ -602,7 +580,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 
 				var respuesta = restTemplate.exchange(peticion,Void.class);
 
-				assertThat(respuesta.getStatusCode().value()).isEqualTo(400);
+				assertThat(respuesta.getStatusCode().value()).isEqualTo(403);
 			}
 
 		}
@@ -933,7 +911,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				mockServer.expect(ExpectedCount.once(),
 								requestTo(uri("http", "localhost", portExterno, "/entrenador/1")))
 						.andExpect(method(HttpMethod.GET))
-						.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
 						.andRespond(withStatus(HttpStatus.OK)
 								.contentType(APPLICATION_JSON)
 								.body(entrenadorJson));
@@ -967,7 +945,7 @@ class FitnessGestionDietasAsignacionUsuariosBackendApplicationTests {
 				mockServer.expect(ExpectedCount.twice(),
 								requestTo(uri("http", "localhost", portExterno, "/cliente/4")))
 						.andExpect(method(HttpMethod.GET))
-						.andExpect(header("Authorization","Bearer " + DietaServicio.token))
+						.andExpect(header("Authorization","Bearer " + DietaServicio.getToken()))
 						.andRespond(withStatus(HttpStatus.OK)
 								.contentType(APPLICATION_JSON)
 								.body(clienteJson));

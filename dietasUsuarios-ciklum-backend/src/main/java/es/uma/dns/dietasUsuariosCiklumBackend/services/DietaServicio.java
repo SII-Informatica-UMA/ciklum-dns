@@ -41,7 +41,7 @@ public class DietaServicio {
     @Autowired
     private JwtUtil jwtUtil; //Para hacer modificaciones y cosas a los tokens
 
-    public static String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
+    private static String token; //Usaré un token para todas las peticiones, realmente se debería pactar con los otros ms
 
     private final String ID_PARA_TOKEN = "150"; //Necesito una id para el token, que pactamos con otros ms en teoria
 
@@ -73,7 +73,7 @@ public class DietaServicio {
 //-------------------------------------------------------------------------
 //MÉTODO DE VER EL TOKEN DEL SERVICIO PARA LOS MOCKS -----------------------------------
 
-    public String getToken() {
+    public static String getToken() {
         return token;
     }
 
